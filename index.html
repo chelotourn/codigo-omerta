@@ -524,6 +524,21 @@
     box-shadow:0 0 0 3px rgba(192,180,43,.7), 0 0 12px rgba(192,160,43,.5);
     transform:scale(1.3);
   }
+  .chinche.marcada-verde {
+    background:radial-gradient(circle at 35% 30%, #88ee88, #2a7a2a);
+    box-shadow:0 0 0 2px rgba(74,138,74,.7), 0 0 10px rgba(74,138,74,.5);
+  }
+  .chinche.marcada-verde:hover {
+    background:radial-gradient(circle at 35% 30%, #aaffaa, #3a9a3a);
+    box-shadow:0 0 0 2px rgba(74,138,74,.9), 0 0 14px rgba(74,138,74,.6);
+    transform:scale(1.22);
+  }
+  .hilo-line.verde {
+    stroke:#4a8a4a; filter:drop-shadow(0 0 2px rgba(74,138,74,.5));
+  }
+  .hilo-line.preview.verde {
+    stroke:#4a8a4a;
+  }
   @keyframes chinchePulse {
     from { box-shadow:0 0 0 2px rgba(192,57,43,.5), 0 0 8px rgba(192,57,43,.4); }
     to   { box-shadow:0 0 0 3px rgba(192,57,43,.3), 0 0 14px rgba(192,57,43,.6); }
@@ -594,6 +609,13 @@
     </div>
 
     <button class="btn-demo" onclick="cargarDemo()">— Cargar caso de practica —</button>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem;width:100%;margin-top:.3rem;">
+      <div style="font-family:'Special Elite',monospace;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--texto-suave);margin-bottom:.2rem;">— Partidas guardadas —</div>
+      <button class="btn-demo" onclick="cargarJSON('json/fichas_urbanas.json')">⊞ &nbsp;Fichas Urbanas &nbsp; ⊞</button>
+      <button class="btn-demo" onclick="cargarJSON('json/fichas_metro.json')">⊞ &nbsp;Fichas Metropoli &nbsp; ⊞</button>
+      <button class="btn-demo" onclick="cargarJSON('json/fichas_omerta.json')">⊞ &nbsp;Fichas Omertá &nbsp; ⊞</button>
+    </div>
   </div>
 
   <div class="reglas-portada">
@@ -728,6 +750,16 @@ function leerJSON(file) {
     catch { alert('Archivo JSON inválido.'); }
   };
   r.readAsText(file);
+}
+
+function cargarJSON(url) {
+  fetch(url)
+    .then(r => {
+      if (!r.ok) throw new Error(`No se pudo cargar ${url}`);
+      return r.json();
+    })
+    .then(datos => iniciarJuego(datos))
+    .catch(() => alert(`No se encontró el archivo:\n${url}`));
 }
 
 function aplicarTemaNoir() {
@@ -879,7 +911,7 @@ function iniciarJuego(datos) {
 
   estado = {};
   FICHAS.forEach((_, i) => {
-    estado[i] = { seleccion:null, inocentes:new Set(), marcasVM:{}, resuelta:false, correcto:null, acusaciones:{}, hilos:[] };
+    estado[i] = { seleccion:null, inocentes:new Set(), marcasVM:{}, resuelta:false, correcto:null, acusaciones:{}, hilos:[], chinchesVerdes:new Set() };
   });
 
   // Precargar imágenes de todos los personajes involucrados
@@ -1317,7 +1349,7 @@ function confirmarHilo(destChinche) {
   if (yaIdx >= 0) {
     hilos.splice(yaIdx, 1);
   } else {
-    hilos.push({ a: hiloEstado.origenId, b: destId });
+    hilos.push({ a: hiloEstado.origenId, b: destId, origen: hiloEstado.origenId });
   }
   cancelarHilo();
   dibujarHilos(fichaActual);
@@ -1362,14 +1394,26 @@ function moverPreview(clientX, clientY) {
 
 // ── LISTENERS GLOBALES ────────────────────────────────────────────────────────
 
-// MOUSEDOWN en chinche → iniciar drag
+// MOUSEDOWN en chinche → iniciar drag (pero no si es doble clic)
+let lastMouseDown = { time: 0, el: null };
 document.addEventListener('mousedown', ev => {
   const chinche = ev.target.closest('.chinche');
   if (!chinche) return;
   ev.preventDefault();
   ev.stopPropagation();
+
+  const now = Date.now();
+  const esDobleClic = (now - lastMouseDown.time < 300 && lastMouseDown.el === chinche);
+  lastMouseDown = { time: now, el: chinche };
+
+  if (esDobleClic) {
+    // doble clic detectado: no iniciar hilo, dejar que ondblclick lo maneje
+    cancelarHilo();
+    return;
+  }
+
   iniciarHilo(chinche, true);
-}, true); // capture=true para interceptar antes que otros listeners
+}, true);
 
 // MOUSEMOVE → actualizar preview
 document.addEventListener('mousemove', ev => {
@@ -1427,7 +1471,8 @@ function dibujarHilos(idx) {
   const svg = getSVG(); if (!svg) return;
   svg.querySelectorAll('.hilo-line:not(.preview)').forEach(l => l.remove());
   const hilos = (estado[idx] || {}).hilos || [];
-  hilos.forEach((h, i) => {
+  const verdes = (estado[idx] || {}).chinchesVerdes || new Set();
+  hilos.forEach((h) => {
     const elA = document.querySelector(`[data-chinche-id="${h.a}"]`);
     const elB = document.querySelector(`[data-chinche-id="${h.b}"]`);
     if (!elA || !elB) return;
@@ -1436,29 +1481,49 @@ function dibujarHilos(idx) {
     const line = document.createElementNS('http://www.w3.org/2000/svg','line');
     line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
     line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
-    line.setAttribute('class','hilo-line');
+    // color del hilo basado en el ORIGEN
+    const origenId = h.origen || h.a;
+    const esVerde = verdes.has(origenId);
+    line.setAttribute('class', esVerde ? 'hilo-line verde' : 'hilo-line');
     line.style.pointerEvents = 'stroke';
     line.style.cursor = 'pointer';
+    const hiloA = h.a, hiloB = h.b;
     line.addEventListener('dblclick', ev => {
       ev.stopPropagation();
-      borrarHilo(idx, i);
+      borrarHiloPorIds(idx, hiloA, hiloB);
     });
-    svg.insertBefore(line, svg.firstChild); // insertar detrás del preview
+    svg.insertBefore(line, svg.firstChild);
   });
   actualizarChinchesConHilo(idx);
 }
 
 function actualizarChinchesConHilo(idx) {
   const hilos = (estado[idx] || {}).hilos || [];
-  const usadas = new Set(hilos.flatMap(h => [h.a, h.b]));
+  const verdes = (estado[idx] || {}).chinchesVerdes || new Set();
+  // Solo los ORÍGENES de hilos se ponen rojos; los destinos se quedan como estaban
+  const origenes = new Set(hilos.map(h => h.origen || h.a));
   document.querySelectorAll('.chinche').forEach(c => {
     const id = c.getAttribute('data-chinche-id');
-    c.classList.toggle('tiene-hilo', usadas.has(id));
+    const esVerde = verdes.has(id);
+    if (esVerde) {
+      c.classList.remove('tiene-hilo');
+      c.classList.add('marcada-verde');
+    } else {
+      c.classList.remove('marcada-verde');
+      c.classList.toggle('tiene-hilo', origenes.has(id));
+    }
   });
 }
 
 function borrarHilo(idx, hiloIdx) {
   estado[idx].hilos.splice(hiloIdx, 1);
+  dibujarHilos(idx);
+}
+
+function borrarHiloPorIds(idx, a, b) {
+  estado[idx].hilos = estado[idx].hilos.filter(
+    h => !((h.a === a && h.b === b) || (h.a === b && h.b === a))
+  );
   dibujarHilos(idx);
 }
 
@@ -1473,15 +1538,80 @@ function borrarTodosLosHilosDe(chincheId) {
   dibujarHilos(fichaActual);
 }
 
+function toggleVerdeYDesconectar(chincheId) {
+  if (!estado[fichaActual]) return;
+  if (!estado[fichaActual].chinchesVerdes) estado[fichaActual].chinchesVerdes = new Set();
+  const verdes = estado[fichaActual].chinchesVerdes;
+  if (verdes.has(chincheId)) {
+    verdes.delete(chincheId);
+  } else {
+    verdes.add(chincheId);
+  }
+  dibujarHilos(fichaActual);
+}
+
 function bindChinches() {
   document.querySelectorAll('.chinche').forEach(el => {
     el.addEventListener('dragstart', e => e.preventDefault());
+
+    // doble clic → verde / des-verde y desconectar
     el.ondblclick = (e) => {
       e.stopPropagation();
-      borrarTodosLosHilosDe(el.getAttribute('data-chinche-id'));
+      e.preventDefault();
+      cancelarHilo(); // cancelar cualquier hilo en curso
+      toggleVerdeYDesconectar(el.getAttribute('data-chinche-id'));
     };
+
+    // ── TOUCH: tap simple = conectar (click-click), tap doble = verde ──
+    let lastTap = 0;
+    el.addEventListener('touchstart', e => {
+      const now = Date.now();
+      const delta = now - lastTap;
+      lastTap = now;
+
+      if (delta < 300 && delta > 0) {
+        // doble tap
+        e.preventDefault();
+        e.stopPropagation();
+        cancelarHilo();
+        toggleVerdeYDesconectar(el.getAttribute('data-chinche-id'));
+        return;
+      }
+
+      // tap simple → modo click-click (igual que click de escritorio)
+      e.stopPropagation();
+      // dejamos que suba el evento click sintético del navegador
+      // pero prevenimos el scroll solo si hay hilo activo
+      if (hiloEstado.activo) {
+        e.preventDefault();
+      }
+    }, { passive: false });
   });
 }
+
+// Touch move → actualizar preview en móvil
+document.addEventListener('touchmove', ev => {
+  if (!hiloEstado.activo) return;
+  const t = ev.touches[0];
+  moverPreview(t.clientX, t.clientY);
+}, { passive: true });
+
+// Touch end → confirmar si hay destino bajo el dedo
+document.addEventListener('touchend', ev => {
+  if (!hiloEstado.activo || !hiloEstado.modoArrastre) return;
+  const t = ev.changedTouches[0];
+  const elSuelta = document.elementFromPoint(t.clientX, t.clientY);
+  const chincheDest = elSuelta ? elSuelta.closest('.chinche') : null;
+  if (chincheDest && chincheDest !== hiloEstado.origenEl) {
+    confirmarHilo(chincheDest);
+  } else {
+    hiloEstado.modoArrastre = false;
+    if (hiloEstado.chincheBajoCursor) {
+      hiloEstado.chincheBajoCursor.classList.remove('hover-destino');
+      hiloEstado.chincheBajoCursor = null;
+    }
+  }
+}, { passive: true });
 </script>
 </body>
 </html>
