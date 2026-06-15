@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Código Omertá</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Special+Elite&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --negro:       #0a0806;
+    --carbon:      #111009;
+    --tinta:       #1a1610;
+    --sepia:       #2a2218;
+    --oro-viejo:   #b8933a;
+    --oro-suave:   #7C6327;
+    --crema:       #e8dcc4;
+    --crema-suave: #f0e8d4;
+    --rojo-sangre: #7a1a1a;
+    --rojo-vivo:   #9b2020;
+    --verde-pista: #2a4a2a;
+    --verde-claro: #4a8a4a;
+    --texto-principal: #d4c9a8;
+    --texto-suave:     #8a7d65;
+	
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html { font-size: 18px; }
+
+  body {
+    background-color: var(--negro);
+    color: var(--texto-principal);
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 1rem;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 0%,  rgba(184,147,58,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(122,26,26,0.06)  0%, transparent 60%);
+  }
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:9999; opacity:0.3;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  }
+
+  /* ── HEADER ── */
+  .cabecera {
+    text-align:center; padding:2rem 2rem 1.2rem;
+    border-bottom:1px solid rgba(184,147,58,0.2);
+  }
+  .cabecera::after {
+    content:''; display:block; width:180px; height:1px; margin:.7rem auto 0;
+    background:linear-gradient(90deg,transparent,var(--oro-viejo),transparent);
+  }
+  .titulo-juego {
+    font-family:'Playfair Display',serif; font-size:clamp(2.5rem,6vw,4.2rem);
+    font-weight:900; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--crema-suave); text-shadow:0 0 40px rgba(184,147,58,.3); line-height:1;
+  }
+  .titulo-juego span { color:var(--oro-viejo); }
+  .subtitulo {
+    font-family:'Special Elite',monospace; font-size:.9rem; letter-spacing:.3em;
+    color:var(--texto-suave); text-transform:uppercase; margin-top:.4rem;
+  }
+
+  .cabecera-fila {
+    display:flex; align-items:center; justify-content:center; gap:1.2rem;
+    flex-wrap:wrap;
+  }
+
+  .noir-control {
+    display:flex; align-items:center; gap:.45rem;
+    padding:.4rem .55rem .35rem;
+    border:1px solid rgba(184,147,58,.2);
+    background:rgba(0,0,0,.14);
+    min-width:fit-content;
+  }
+  .noir-label {
+    font-family:'Special Elite',monospace; font-size:.62rem; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--texto-suave);
+  }
+  .noir-btn {
+    width:1.7rem; height:1.7rem; border:1px solid rgba(184,147,58,.3);
+    background:rgba(184,147,58,.06); color:var(--oro-viejo);
+    font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:900;
+    cursor:pointer; transition:all .18s; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    -webkit-appearance:none; appearance:none; flex-shrink:0;
+  }
+  .noir-btn:hover { background:rgba(184,147,58,.18); border-color:var(--oro-viejo); }
+  .noir-btn:active { transform:scale(.92); }
+  .noir-num {
+    min-width:1.3rem; text-align:center;
+    font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:900;
+    color:var(--crema-suave);
+  }
+
+  body.noir-3 {
+    --oro-viejo:   #ffffff;
+    --crema:       #ffffff;
+    --crema-suave: #ffffff;
+    --texto-principal: #ffffff;
+    --texto-suave:  #ffffff;
+	--oro-suave:   #5C5C5C;
+  }
+  body.noir-3 .titulo-juego { color:#ffffff; text-shadow:none; }
+  body.noir-3 .titulo-juego span { color:#9b2020; }
+  body.noir-3 .subtitulo,
+  body.noir-3 .tag,
+  body.noir-3 .decl-atrib,
+  body.noir-3 .decl-cat,
+  body.noir-3 .decl-id,
+  body.noir-3 .card-atribs,
+  body.noir-3 .btn-ficha,
+  body.noir-3 .btn-volver,
+  body.noir-3 .btn-sec,
+  body.noir-3 .btn-demo,
+  body.noir-3 .noir-label,
+  body.noir-3 .noir-num,
+  body.noir-3 .acusaciones-label {
+    color:#a1a1a1;
+  }
+  body.noir-3 .tag,
+  body.noir-3 .noir-control,
+  body.noir-3 .noir-btn,
+  body.noir-3 .btn-ficha,
+  body.noir-3 .btn-volver,
+  body.noir-3 .btn-sec,
+  body.noir-3 .btn-demo {
+    border-color:rgba(255,255,255,.35);
+  }
+
+  /* ── CARGA ── */
+  #pantalla-carga {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:60vh; gap:2rem;
+  }
+  .zona-carga {
+    border:1px dashed rgba(184,147,58,.3); padding:3rem 4rem; text-align:center;
+    cursor:pointer; transition:all .3s; position:relative;
+  }
+  .zona-carga:hover { border-color:var(--oro-viejo); background:rgba(184,147,58,.03); }
+  .zona-carga input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .zona-carga-icono { font-size:2.8rem; color:var(--oro-viejo); margin-bottom:.8rem; opacity:.7; }
+  .zona-carga p   { color:var(--texto-suave); font-size:1.1rem; }
+  .zona-carga strong { color:var(--crema); font-family:'Special Elite',monospace; font-size:1rem; letter-spacing:.1em; }
+  .btn-demo {
+    font-family:'Special Elite',monospace; font-size:.85rem; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--texto-suave); background:none;
+    border:1px solid rgba(184,147,58,.2); padding:.7rem 1.8rem; cursor:pointer; transition:all .3s;
+  }
+  .btn-demo:hover { color:var(--oro-viejo); border-color:var(--oro-viejo); }
+
+  /* ── JUEGO ── */
+  #pantalla-juego { display:none; }
+
+  /* ── NAV FICHAS ── */
+  .nav-fichas {
+    display:flex; align-items:center; justify-content:center; gap:.5rem;
+    padding:1rem 2rem; border-bottom:1px solid rgba(184,147,58,.1); flex-wrap:wrap;
+  }
+  .btn-volver {
+    font-family:'Special Elite',monospace; font-size:.75rem; letter-spacing:.15em;
+    padding:.4rem .9rem; background:none; border:1px solid rgba(184,147,58,.15);
+    color:var(--texto-suave); cursor:pointer; transition:all .2s; text-transform:uppercase;
+    -webkit-appearance:none; appearance:none;
+  }
+  .btn-volver:hover { color:var(--rojo-sangre); border-color:var(--rojo-sangre); }
+  .btn-ficha {
+    font-family:'Special Elite',monospace; font-size:.8rem; letter-spacing:.15em;
+    padding:.4rem .9rem; background:none; border:1px solid rgba(184,147,58,.2);
+    color:var(--texto-suave); cursor:pointer; transition:all .2s;
+    -webkit-appearance:none; appearance:none;
+  }
+  .btn-ficha:hover { color:var(--crema); border-color:var(--oro-viejo); }
+  .btn-ficha.activo  { background:var(--oro-viejo); color:var(--negro); border-color:var(--oro-viejo); }
+  .btn-ficha.resuelta { border-color:var(--rojo-sangre); color:var(--rojo-sangre); }
+  .btn-ficha.resuelta.activo { background:var(--rojo-sangre); color:var(--crema); border-color:var(--rojo-sangre); }
+
+  /* ── CONTENIDO ── */
+  .contenido-ficha { max-width:1100px; margin:0 auto; padding:2rem 1.5rem 4rem; position:relative; }
+
+  .ficha-header {
+    display:flex; align-items:flex-start; justify-content:space-between;
+    margin-bottom:1.8rem; padding-bottom:1rem;
+    border-bottom:1px solid rgba(184,147,58,.15); gap:1rem; flex-wrap:wrap;
+  }
+  .ficha-numero {
+    font-family:'Playfair Display',serif; font-size:3rem; font-weight:900;
+    color:rgba(184,147,58,.13); line-height:1;
+  }
+  .ficha-meta { flex:1; }
+  .ficha-titulo {
+    font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700;
+    font-style:italic; color:var(--crema-suave); margin-bottom:.35rem;
+  }
+  .ficha-tags { display:flex; gap:.5rem; flex-wrap:wrap; }
+  .tag {
+    font-family:'Special Elite',monospace; font-size:.75rem; letter-spacing:.2em;
+    text-transform:uppercase; padding: 0.35rem .65rem 0.25rem .65rem; border:1px solid;
+  }
+  .tag-dificultad { border-color:var(--oro-viejo); color:var(--oro-viejo); }
+  .tag-info       { border-color:rgba(184,147,58,.3); color:var(--texto-suave); }
+
+  .seccion-titulo {
+    font-family:'Special Elite',monospace; font-size:.8rem; letter-spacing:.35em;
+    text-transform:uppercase; color:var(--texto-suave); margin-bottom:.9rem;
+    display:flex; align-items:center; gap:1rem;
+  }
+  .seccion-titulo::after { content:''; flex:1; height:1px; background:rgba(184,147,58,.15); }
+
+  /* ── GRID SOSPECHOSOS ── */
+  .grid-sospechosos {
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+    gap:1rem; margin-bottom:2.5rem;
+  }
+
+  .carta-sospechoso {
+    border:1px solid rgba(184,147,58,.15); background:var(--carbon);
+    cursor:pointer; transition:all .22s; position:relative; overflow:hidden;
+    user-select:none;
+  }
+  .carta-sospechoso::before {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(135deg,rgba(184,147,58,.03) 0%,transparent 60%);
+    pointer-events:none;
+  }
+  .carta-sospechoso:hover:not(.bloqueada) {
+    border-color:var(--oro-suave); transform:translateY(-2px);
+    box-shadow:0 6px 20px rgba(0,0,0,.6);
+  }
+  /* estados jugador */
+  .carta-sospechoso.sospechado {
+    border-color:var(--oro-viejo);
+    box-shadow:0 0 0 2px rgba(184,147,58,.35), 0 6px 20px rgba(0,0,0,.7);
+  }
+  .carta-sospechoso.inocente-marcado {
+    opacity:.38; border-color:rgba(184,147,58,.06);
+  }
+  .carta-sospechoso.inocente-marcado::after {
+    content:'INOCENTE'; position:absolute; inset:0; display:flex; align-items:center;
+    justify-content:center; font-family:'Special Elite',monospace; font-size:.6rem;
+    letter-spacing:.2em; color:rgba(255,255,255,.25); pointer-events:none;
+  }
+  /* estados revelados */
+  .carta-sospechoso.culpable-revelado {
+    border-color:var(--rojo-vivo);
+    box-shadow:0 0 0 2px rgba(155,32,32,.5),0 8px 24px rgba(122,26,26,.4);
+  }
+  .carta-sospechoso.inocente-revelado { opacity:.42; border-color:rgba(184,147,58,.06); }
+  .carta-sospechoso.bloqueada { cursor:default; }
+
+  /* avatar */
+  .avatar-wrap {
+    width:100%; aspect-ratio:585/743; background:var(--sepia); overflow:hidden;
+    display:flex; align-items:center; justify-content:center; position:relative;
+  }
+  .avatar-wrap img {
+    width:100%; height:100%; object-fit:cover; object-position:top center;
+    display:block;
+  }
+  .avatar-emoji {
+    font-size:2.4rem; color:rgba(184,147,58,.25);
+    font-family:'Playfair Display',serif; font-style:italic;
+  }
+  /* overlay tachado inocente */
+  .inocente-marcado .avatar-wrap::after {
+    content:'✕'; position:absolute; inset:0; display:flex; align-items:center;
+    justify-content:center; font-size:3.5rem; color:rgba(180,60,60,.35);
+    font-family:sans-serif; pointer-events:none;
+  }
+
+  .badge-culpable {
+    position:absolute; top:.35rem; right:.35rem;
+    background:var(--rojo-sangre); color:var(--crema);
+    font-family:'Special Elite',monospace; font-size:.5rem; letter-spacing:.1em;
+    padding:.12rem .35rem; text-transform:uppercase; display:none; z-index:2;
+  }
+  .culpable-revelado .badge-culpable { display:block; }
+
+  .card-info { padding:.65rem .75rem; }
+  .card-nombre {
+    font-family:'Playfair Display',serif; font-size:1rem; font-weight:700;
+    color:var(--crema-suave); line-height:1.2; margin-bottom:.2rem;
+  }
+  .card-atribs {
+    font-family:'Special Elite',monospace; font-size:.68rem; letter-spacing:.1em;
+    color:var(--texto-suave); text-transform:uppercase;
+  }
+
+  /* ── TOGGLE INOCENTE ── */
+  .btn-toggle-inocente {
+    width:100%; padding:.35rem .4rem; background:rgba(184,147,58,.04);
+    border:none; border-top:1px solid rgba(184,147,58,.1);
+    color:var(--texto-suave); font-family:'Special Elite',monospace;
+    font-size:.7rem; letter-spacing:.12em; text-transform:uppercase;
+    cursor:pointer; transition:all .2s;
+  }
+  .btn-toggle-inocente:hover { background:rgba(184,147,58,.09); color:var(--crema); }
+  .inocente-marcado .btn-toggle-inocente {
+    background:rgba(180,60,60,.07); color:rgba(180,100,100,.6);
+    border-top-color:rgba(180,60,60,.15);
+  }
+
+  /* ── DECLARACIONES ── */
+  .lista-declaraciones { display:flex; flex-direction:column; gap:1px; margin-bottom:2.5rem; }
+
+  .declaracion {
+    background:var(--carbon); border-left:2px solid rgba(184,147,58,.1);
+    padding:.95rem 1.1rem .95rem .5rem; display:grid;
+    grid-template-columns:auto 1fr auto;
+    gap:.9rem; align-items:start; transition:border-color .25s;
+  }
+  .declaracion:hover { border-left-color:rgba(184,147,58,.28); }
+  .declaracion.verdad-revelada  { border-left-color:rgba(100,180,100,.65); }
+  .declaracion.mentira-revelada { border-left-color:rgba(180,60,60,.65); }
+
+  .decl-id {
+    font-family:'Special Elite',monospace; font-size:.75rem;
+    color:var(--texto-suave); letter-spacing:.1em; padding-top:.12rem; white-space:nowrap;
+  }
+  .decl-cuerpo { }
+
+  .decl-topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:.45rem; gap:1rem;
+  }
+  .decl-persona{
+    display:flex; align-items:center; gap:.55rem; flex-wrap:wrap;
+  }
+  .decl-atrib{
+    font-family:'Special Elite',monospace; font-size:.62rem; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--oro-viejo);
+  }
+  .decl-chinches-bar{ display:flex; gap:1.35rem; align-items:center; }
+  .decl-nombre {
+    font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700;
+    color:var(--crema); margin-bottom:.12rem;
+  }
+  .decl-cat {
+    font-family:'Special Elite',monospace; font-size:.7rem; letter-spacing:.15em;
+    text-transform:uppercase; color:var(--texto-suave); margin-bottom:.45rem;
+  }
+  .decl-texto { font-size:1.1rem; line-height:1.65; color:var(--texto-principal); font-style:italic; }
+
+  /* ── MARCADOR V/M del jugador ── */
+  .decl-marcador {
+    display:flex; flex-direction:column; gap:.3rem; align-items:center; padding-top:.05rem;
+  }
+  .btn-vm {
+    width:2.4rem; height:2.4rem; border:1px solid; background:none;
+    font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:900;
+    cursor:pointer; transition:all .18s; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .btn-vm.v-btn { border-color:rgba(100,180,100,.3); color:rgba(100,180,100,.4); }
+  .btn-vm.v-btn:hover,
+  .btn-vm.v-btn.activo { background:rgba(100,180,100,.15); border-color:#6ab46a; color:#6ab46a; }
+  .btn-vm.m-btn { border-color:rgba(180,60,60,.3); color:rgba(180,60,60,.4); }
+  .btn-vm.m-btn:hover,
+  .btn-vm.m-btn.activo { background:rgba(180,60,60,.15); border-color:#b43c3c; color:#b43c3c; }
+
+  /* VM de revelación (reemplaza los botones) */
+  .decl-vm-resultado {
+    font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:900;
+    min-width:2rem; text-align:center; display:none; padding-top:.05rem;
+  }
+  .decl-vm-resultado.v { color:#6ab46a; display:block; }
+  .decl-vm-resultado.m { color:#b43c3c; display:block; }
+
+  /* ── ZONA ACCIÓN ── */
+  .zona-accion {
+    background:var(--carbon); border:1px solid rgba(184,147,58,.15);
+    padding:1.3rem 1.6rem; margin-bottom:1.4rem;
+  }
+  .accion-pregunta {
+    font-family:'Playfair Display',serif; font-size:1.25rem; font-style:italic;
+    color:var(--crema-suave); margin-bottom:.8rem;
+  }
+  .accion-seleccion {
+    font-family:'Special Elite',monospace; font-size:.9rem; letter-spacing:.1em;
+    color:var(--oro-viejo); margin-bottom:1rem; min-height:1.1em;
+  }
+  .btn-acusar {
+    font-family:'Special Elite',monospace; font-size:.85rem; letter-spacing:.25em;
+    text-transform:uppercase; padding:.85rem 2.2rem; background:var(--rojo-sangre);
+    color:var(--crema-suave); border:none; cursor:pointer; transition:all .25s;
+    display:none;
+  }
+  .btn-acusar:hover { background:var(--rojo-vivo); box-shadow:0 0 18px rgba(155,32,32,.4); }
+  .btn-acusar.visible { display:inline-block; }
+
+  /* ── RESULTADO ── */
+  .resultado {
+    display:none; padding:1.4rem 1.6rem; border:1px solid; margin-bottom:1.4rem;
+  }
+  .resultado.correcto  { border-color:rgba(100,180,100,.4); background:rgba(100,180,100,.05); }
+  .resultado.incorrecto{ border-color:rgba(180,60,60,.4);   background:rgba(180,60,60,.05); }
+  .resultado-icono  { font-size:1.6rem; margin-bottom:.4rem; }
+  .resultado-titulo {
+    font-family:'Playfair Display',serif; font-size:1.7rem; font-weight:900; margin-bottom:.25rem;
+  }
+  .resultado.correcto  .resultado-titulo { color:#6ab46a; }
+  .resultado.incorrecto .resultado-titulo { color:#b43c3c; }
+  .resultado-detalle { font-size:1.05rem; color:var(--texto-suave); font-style:italic; line-height:1.6; }
+
+  .btn-sec {
+    font-family:'Special Elite',monospace; font-size:.8rem; letter-spacing:.2em;
+    text-transform:uppercase; padding:.6rem 1.6rem; background:none;
+    border:1px solid rgba(184,147,58,.25); color:var(--texto-suave);
+    cursor:pointer; transition:all .25s; margin-top:.5rem;
+  }
+  .btn-sec:hover { color:var(--oro-viejo); border-color:var(--oro-viejo); }
+
+  /* ── ACUSACIONES COUNTER ── */
+  .acusaciones-wrap {
+    border-top: 1px solid rgba(184,147,58,.12);
+    padding: .5rem .6rem .35rem;
+    background: rgba(0,0,0,.18);
+  }
+  .acusaciones-label {
+    font-family:'Special Elite',monospace; font-size:.6rem; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--texto-suave); text-align:center;
+    margin-bottom:.3rem;
+  }
+  .acusaciones-ctrl {
+    display:flex; align-items:center; justify-content:center; gap:.4rem;
+  }
+  .btn-acus {
+    width:1.7rem; height:1.7rem; border:1px solid rgba(184,147,58,.3);
+    background:rgba(184,147,58,.06); color:var(--oro-viejo);
+    font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:900;
+    cursor:pointer; transition:all .18s; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    -webkit-appearance:none; appearance:none; flex-shrink:0;
+  }
+  .btn-acus:hover { background:rgba(184,147,58,.18); border-color:var(--oro-viejo); }
+  .btn-acus:active { transform:scale(.92); }
+  .acusaciones-num {
+    font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:900;
+    color:var(--crema-suave); min-width:1.4rem; text-align:center;
+  }
+  /* puntitos indicadores */
+  .acusaciones-dots {
+    display:flex; justify-content:center; gap:.22rem; margin-top:.28rem; flex-wrap:wrap;
+    min-height:.55rem;
+  }
+  .acus-dot {
+    width:.42rem; height:.42rem; border-radius:50%;
+    background:var(--rojo-sangre);
+    box-shadow:0 0 4px rgba(155,32,32,.6);
+    animation: dotPop .18s ease;
+  }
+  @keyframes dotPop {
+    from { transform:scale(0); opacity:0; }
+    to   { transform:scale(1); opacity:1; }
+  }
+
+  /* ── HILOS Y CHINCHES ── */
+  #hilo-svg {
+    position:absolute; inset:0; pointer-events:none; z-index:1;
+    overflow:visible;
+  }
+  .hilo-line {
+    stroke:#c0392b; stroke-width:1.5; fill:none;
+    filter:drop-shadow(0 0 2px rgba(192,57,43,.5));
+    opacity:.82;
+  }
+  .hilo-line.preview {
+    stroke-dasharray:5,4; opacity:.5; stroke-width:1.2;
+  }
+  /* barra de chinches encima de cada carta sospechoso */
+  .chinche-bar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 .45rem; height:1.35rem;
+    background:linear-gradient(180deg, rgba(30,22,14,.95) 0%, rgba(20,15,8,.9) 100%);
+    border-bottom:1px solid rgba(184,147,58,.18);
+    position:relative;
+  }
+  .chinche-bar-label {
+    font-family:'Special Elite',monospace; font-size:.55rem; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--texto-suave); pointer-events:none;
+    position:absolute; left:50%; transform:translateX(-50%); white-space:nowrap;
+  }
+  .chinche-row {
+    display:flex; gap:.35rem; align-items:center;
+  }
+  /* chinche en declaraciones */
+  .decl-chinche-wrap {
+    display:flex; flex-direction:column; align-items:center; gap:.55rem;
+    padding-top:.1rem; padding-right:.1rem;
+  }
+  /* la chinche en sí */
+  .chinche {
+    width:.95rem; height:.95rem; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #666, #333);
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 1px 3px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.08);
+    cursor:grab; flex-shrink:0; position:relative; z-index:20;
+    transition:transform .12s, box-shadow .12s, background .15s;
+    pointer-events:all;
+  }
+  .chinche:hover {
+    background:radial-gradient(circle at 35% 30%, #999, #555);
+    transform:scale(1.22);
+    box-shadow:0 2px 6px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.15);
+  }
+  .chinche.activa {
+    background:radial-gradient(circle at 35% 30%, #ff9999, #c0392b);
+    box-shadow:0 0 0 2px rgba(192,57,43,.6), 0 0 10px rgba(192,57,43,.6);
+    transform:scale(1.15); cursor:grabbing;
+    animation: chinchePulse .8s ease-in-out infinite alternate;
+  }
+  .chinche.tiene-hilo {
+    background:radial-gradient(circle at 35% 30%, #e88, #9b2020);
+    box-shadow:0 0 0 1px rgba(192,57,43,.4), 0 1px 3px rgba(0,0,0,.6);
+  }
+  .chinche.tiene-hilo:hover {
+    background:radial-gradient(circle at 35% 30%, #f99, #b43030);
+    box-shadow:0 0 0 2px rgba(192,57,43,.5), 0 2px 6px rgba(0,0,0,.8);
+  }
+  .chinche.hover-destino {
+    background:radial-gradient(circle at 35% 30%, #ffe599, #c09020);
+    box-shadow:0 0 0 3px rgba(192,180,43,.7), 0 0 12px rgba(192,160,43,.5);
+    transform:scale(1.3);
+  }
+  @keyframes chinchePulse {
+    from { box-shadow:0 0 0 2px rgba(192,57,43,.5), 0 0 8px rgba(192,57,43,.4); }
+    to   { box-shadow:0 0 0 3px rgba(192,57,43,.3), 0 0 14px rgba(192,57,43,.6); }
+  }
+  /* cursor cuando hay modo activo */
+  body.modo-hilo * { cursor:crosshair !important; }
+  body.modo-hilo .chinche { cursor:crosshair !important; }
+
+  .ornamento { text-align:center; color:var(--oro-viejo); opacity:.65; font-size:1rem; letter-spacing:.2em; padding:1rem; }
+  .pie { text-align:center; padding:1.8rem 2rem; border-top:1px solid rgba(184,147,58,.1);
+    font-family:'Special Elite',monospace; font-size:.75rem; letter-spacing:.2em;
+    color:var(--texto-suave); text-transform:uppercase; }
+  /* ── REGLAS EN PORTADA ── */
+  .reglas-portada {
+    max-width: 680px;
+    margin: 0 auto;
+    border: 1px solid rgba(184,147,58,.2);
+    background: var(--carbon);
+    padding: 2rem 2.5rem;
+  }
+  .reglas-titulo {
+    font-family:'Special Elite',monospace; font-size:.8rem; letter-spacing:.35em;
+    text-transform:uppercase; color:var(--oro-viejo); text-align:center;
+    margin-bottom:1.5rem; padding-bottom:1rem;
+    border-bottom:1px solid rgba(184,147,58,.15);
+  }
+  .regla {
+    display:grid; grid-template-columns:2rem 1fr; gap:.6rem;
+    margin-bottom:1.1rem; align-items:start;
+  }
+  .regla:last-child { margin-bottom:0; }
+  .regla-num {
+    font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:900;
+    color:var(--oro-viejo); opacity:.5; line-height:1.4; text-align:right;
+  }
+  .regla-txt {
+    font-family:'Crimson Text',serif; font-size:1.05rem; line-height:1.55;
+    color:var(--texto-principal);
+  }
+  .regla-txt strong { color:var(--crema-suave); font-weight:600; }
+  .regla-txt em { color:var(--oro-viejo); font-style:normal; }
+
+</style>
+</head>
+<body>
+
+<header class="cabecera">
+  <div class="cabecera-fila">
+    <div class="titulo-juego">Código <span>Omertá</span></div>
+    <div class="noir-control" aria-label="Control Noir">
+      <span class="noir-label">NOIR</span>
+      <button class="noir-btn" id="noir-menos" type="button" title="Bajar nivel noir">−</button>
+      <div class="noir-num" id="noir-num">1</div>
+      <button class="noir-btn" id="noir-mas" type="button" title="Subir nivel noir">+</button>
+    </div>
+  </div>
+  <div class="subtitulo">Juego de deducción noir &nbsp;·&nbsp; La Verdad Reside en el Engaño</div>
+</header>
+
+<!-- PANTALLA DE CARGA -->
+<div id="pantalla-carga">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem;width:100%;max-width:420px;margin:0 auto;">
+    <div class="zona-carga" id="zona-drop" style="width:100%;">
+      <input type="file" id="input-json" accept=".json">
+      <div class="zona-carga-icono">⊞</div>
+      <strong>Cargar fichas.json</strong>
+      <p style="margin-top:.5rem">Arrastrá el archivo o hacé clic</p>
+    </div>
+
+    <button class="btn-demo" onclick="cargarDemo()">— Cargar caso de practica —</button>
+  </div>
+
+  <div class="reglas-portada">
+    <div class="reglas-titulo">Instrucciones de juego</div>
+    <div class="regla">
+      <div class="regla-num">1</div>
+      <div class="regla-txt"><strong>Misión:</strong> Descubrí al único asesino entre los sospechosos del caso.</div>
+    </div>
+    <div class="regla">
+      <div class="regla-num">2</div>
+      <div class="regla-txt"><strong>Evidencia:</strong> Cada ficha indica la cantidad exacta de <em>verdades</em> en la partida. El resto miente. No te fíes.</div>
+    </div>
+    <div class="regla">
+      <div class="regla-num">3</div>
+      <div class="regla-txt"><strong>Instinto:</strong> Una acusación <strong>mentira</strong> descarta al acusado. Una descripción <strong>mentira</strong> descarta ese rasgo del culpable.</div>
+    </div>
+    <div class="regla">
+      <div class="regla-num">4</div>
+      <div class="regla-txt"><strong>Niebla gris:</strong> Los inocentes mienten por muchas razones. El culpable puede decir la verdad para despistar.</div>
+    </div>
+    <div class="regla">
+      <div class="regla-num">5</div>
+      <div class="regla-txt">Cuando estés seguro, seleccioná un sospechoso y presioná <br><em>◆ Acusar formalmente</em>.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PANTALLA DE JUEGO -->
+<div id="pantalla-juego">
+  <nav class="nav-fichas" id="nav-fichas">
+    <button class="btn-volver" onclick="volverInicio()">← Salir</button>
+  </nav>
+  <div class="contenido-ficha" id="contenido-ficha"></div>
+</div>
+
+<div class="ornamento" id="ornamento-pie" style="display:none">✦ ✦ &nbsp; UN BUEN DETECTIVE DEDUCE MÁS DE UNA MENTIRA QUE DE UNA VERDAD &nbsp; ✦ ✦</div>
+<footer class="pie">&nbsp;·&nbsp; Código Omertá &nbsp;·&nbsp; <span id="pie-info"></span></footer>
+
+<audio id="noir-audio" preload="auto" loop></audio>
+
+<script>
+function volverInicio() {
+  FICHAS = [];
+  estado = {};
+  fichaActual = 0;
+  document.getElementById('pantalla-juego').style.display = 'none';
+  document.getElementById('ornamento-pie').style.display = 'none';
+  document.getElementById('pantalla-carga').style.display = 'flex';
+  document.getElementById('pie-info').textContent = '';
+  document.getElementById('contenido-ficha').innerHTML = '';
+  // limpiar btn-ficha del nav para próxima vez
+  document.getElementById('nav-fichas').querySelectorAll('.btn-ficha').forEach(b => b.remove());
+  // resetear input file por si quieren cargar el mismo archivo
+  document.getElementById('input-json').value = '';
+}
+
+// ── CONSTANTES ──────────────────────────────────────────────────────────────
+const NOMBRES = {
+  1:"El Notario", 2:"La Aprendiz", 3:"El Carnicero",
+  4:"El Coronel", 5:"La Vidente", 6:"El Médico",
+  7:"El Heredero", 8:"El Archivista", 9:"El Vagabundo"
+};
+const EMOJIS = { 1:"📜", 2:"🔍", 3:"🔪", 4:"⭐", 5:"🔮", 6:"⚕", 7:"💰", 8:"📚", 9:"🎩" };
+
+// Ruta base de assets — busca pj_1.png, pj_2.png … en carpeta assets/
+const ASSETS_PATH = 'assets/';
+
+const NOIR_STORAGE_KEY = 'codigo_omerta_noir_level';
+let noirLevel = Math.min(3, Math.max(1, parseInt(localStorage.getItem(NOIR_STORAGE_KEY) || '1', 10) || 1));
+let noirAudio = null;
+
+let FICHAS = [];
+let fichaActual = 0;
+// estado por ficha: { seleccion, inocentes:Set, marcasVM:{cartaId:'v'|'m'|null}, resuelta, correcto }
+let estado = {};
+// caché de URLs de imágenes individuales { sid: url|null }
+const imgCache = {};
+
+// ── CARGA DE IMÁGENES INDIVIDUALES ──────────────────────────────────────────
+// Intenta cargar assets/pj_N.png o assets/npj_N.png según el nivel noir.
+// Si no existe, usa emoji.
+function prefijoNoirActual() {
+  return noirLevel >= 2 ? 'n' : '';
+}
+
+function urlImagenSospechoso(sid) {
+  const pref = prefijoNoirActual();
+  return `${ASSETS_PATH}${pref}pj_${sid}.png`;
+}
+
+function precargarImagen(sid) {
+  const key = `${noirLevel}:${sid}`;
+  if (key in imgCache) return;
+  imgCache[key] = null; // marca como "intentado"
+  const url = urlImagenSospechoso(sid);
+  const img = new Image();
+  img.onload  = () => { imgCache[key] = url; actualizarAvatares(sid); };
+  img.onerror = () => { imgCache[key] = null; };
+  img.src = url;
+}
+
+function imagenCacheada(sid) {
+  return imgCache[`${noirLevel}:${sid}`] || null;
+}
+
+function actualizarAvatares(sid) {
+  document.querySelectorAll(`[data-sosp-id="${sid}"] .avatar-wrap`).forEach(wrap => {
+    const url = imagenCacheada(sid);
+    if (url) {
+      wrap.innerHTML = `<img src="${url}" alt="${NOMBRES[sid]||''}">`;
+    } else {
+      wrap.innerHTML = `<div class="avatar-emoji">${EMOJIS[sid]||'?'}</div>`;
+    }
+  });
+}
+
+// ── CARGA DE ARCHIVO JSON ────────────────────────────────────────────────────
+document.getElementById('input-json').addEventListener('change', e => {
+  if (e.target.files[0]) leerJSON(e.target.files[0]);
+});
+const dropZona = document.getElementById('zona-drop');
+dropZona.addEventListener('dragover', e => { e.preventDefault(); dropZona.style.borderColor='var(--oro-viejo)'; });
+dropZona.addEventListener('dragleave', () => { dropZona.style.borderColor=''; });
+dropZona.addEventListener('drop', e => { e.preventDefault(); dropZona.style.borderColor='';
+  if (e.dataTransfer.files[0]) leerJSON(e.dataTransfer.files[0]); });
+
+function leerJSON(file) {
+  const r = new FileReader();
+  r.onload = e => {
+    try { iniciarJuego(JSON.parse(e.target.result)); }
+    catch { alert('Archivo JSON inválido.'); }
+  };
+  r.readAsText(file);
+}
+
+function aplicarTemaNoir() {
+  document.body.classList.remove('noir-1', 'noir-2', 'noir-3');
+  document.body.classList.add(`noir-${noirLevel}`);
+  const noirNum = document.getElementById('noir-num');
+  if (noirNum) noirNum.textContent = String(noirLevel);
+  const btnMenos = document.getElementById('noir-menos');
+  const btnMas = document.getElementById('noir-mas');
+  if (btnMenos) btnMenos.disabled = noirLevel <= 1;
+  if (btnMas) btnMas.disabled = noirLevel >= 3;
+  try { localStorage.setItem(NOIR_STORAGE_KEY, String(noirLevel)); } catch {}
+  controlarAudioNoir();
+}
+
+function controlarAudioNoir() {
+  const audio = document.getElementById('noir-audio');
+  if (!audio) return;
+
+  // Nivel 3: intentar un formato que el navegador sí soporte.
+  // MIDI puro (.mid/.midi) no está garantizado en <audio>, así que se intenta
+  // mp3/ogg/wav primero y, si no hay otra opción, se prueba MIDI igual.
+  if (noirLevel !== 3) {
+    audio.pause?.();
+    try {
+      audio.removeAttribute('src');
+      audio.load?.();
+      audio.currentTime = 0;
+    } catch {}
+    return;
+  }
+
+  const candidatos = [
+    `${ASSETS_PATH}noir_omerta.mp3`,
+    `${ASSETS_PATH}noir_omerta.ogg`,
+    `${ASSETS_PATH}noir_omerta.wav`,
+    `${ASSETS_PATH}noir_omerta.mid`,
+    `${ASSETS_PATH}noir_omerta.midi`
+  ];
+
+  const mime = {
+    '.mp3': 'audio/mpeg',
+    '.ogg': 'audio/ogg',
+    '.wav': 'audio/wav',
+    '.mid': 'audio/midi',
+    '.midi': 'audio/midi'
+  };
+
+  // Guardar estado del intento para evitar listeners duplicados
+  const st = audio._noirState || (audio._noirState = {});
+  if (st.onError) {
+    audio.removeEventListener('error', st.onError);
+  }
+
+  const elegirSiguiente = () => {
+    const i = typeof st.i === 'number' ? st.i + 1 : 0;
+    const src = candidatos[i];
+    if (!src) {
+      console.warn('No hay formato de audio compatible para Noir.');
+      return false;
+    }
+
+    st.i = i;
+    const ext = src.slice(src.lastIndexOf('.')).toLowerCase();
+    const support = audio.canPlayType?.(mime[ext] || '') || '';
+    const puedeIntentarse = support !== '' || ext === '.mid' || ext === '.midi';
+
+    if (!puedeIntentarse) {
+      return elegirSiguiente();
+    }
+
+    const abs = new URL(src, location.href).href;
+    if (audio.src !== abs) {
+      audio.src = src;
+    }
+    audio.volume = 0.6;
+    audio.loop = true;
+    audio.load?.();
+
+    // Si el navegador no puede reproducir el formato, caerá a error y probará el siguiente.
+    audio.play?.().catch(() => {});
+    return true;
+  };
+
+  st.onError = () => {
+    // Si falla este formato, probar el siguiente.
+    elegirSiguiente();
+  };
+
+  audio.addEventListener('error', st.onError);
+
+  // Reiniciar el índice cuando se vuelve a activar Noir.
+  st.i = -1;
+  elegirSiguiente();
+}
+
+function ajustarNoir(delta) {
+  const nuevo = Math.max(1, Math.min(3, noirLevel + delta));
+  if (nuevo === noirLevel) return;
+  noirLevel = nuevo;
+
+  // al cambiar a nivel 2/3 hay que recargar imágenes con prefijo distinto
+  if (typeof FICHAS !== 'undefined' && FICHAS.length) {
+    for (const key of Object.keys(imgCache)) delete imgCache[key];
+    FICHAS.flatMap(f => f.sospechosos_ids || []).forEach(sid => precargarImagen(sid));
+    mostrarFicha(fichaActual);
+    renderNav();
+  }
+  aplicarTemaNoir();
+}
+
+document.addEventListener('click', (ev) => {
+  const btn = ev.target.closest?.('#noir-menos, #noir-mas');
+  if (!btn) return;
+  ev.preventDefault();
+  ajustarNoir(btn.id === 'noir-mas' ? 1 : -1);
+});
+
+// Aplicar tema inicial
+aplicarTemaNoir();
+
+// ── DEMO ────────────────────────────────────────────────────────────────────
+function cargarDemo() {
+  iniciarJuego({ fichas:[{
+    ficha_id:1, n_sospechosos:4, sospechosos_ids:[1,3,4,6],
+    modo:"verdades", cantidad:2, dificultad:"urbano",
+    culpable_id:4, culpable_nombre:"El Coronel",
+    declaraciones:[
+      { sospechoso_id:1, sospechoso:"El Notario",   clase:"rico",  edad:"viejo",
+        carta_id:6,  carta_categoria:"acusación",
+        carta_texto:"El Coronel fue. Lo delataron sus hábitos, no sus palabras.", es_verdad:true },
+      { sospechoso_id:3, sospechoso:"El Carnicero", clase:"pobre", edad:"mediana",
+        carta_id:19, carta_categoria:"defensa",
+        carta_texto:"El culpable no era rico. Vi sus ropas. Menuda falta de gusto.", es_verdad:false },
+      { sospechoso_id:4, sospechoso:"El Coronel",   clase:"rico",  edad:"mediana",
+        carta_id:14, carta_categoria:"defensa",
+        carta_texto:"El Coronel lleva años protegiéndonos. Acusarlo es insultarnos a todos.", es_verdad:false },
+      { sospechoso_id:6, sospechoso:"El Médico",    clase:"media", edad:"joven",
+        carta_id:31, carta_categoria:"descriptiva",
+        carta_texto:"El culpable era rico. El coche que abandonó la escena era de alta gama.", es_verdad:true }
+    ]
+  }]});
+}
+
+// ── INICIAR JUEGO ────────────────────────────────────────────────────────────
+function iniciarJuego(datos) {
+  FICHAS = datos.fichas || [];
+  if (!FICHAS.length) { alert('Sin fichas.'); return; }
+
+  estado = {};
+  FICHAS.forEach((_, i) => {
+    estado[i] = { seleccion:null, inocentes:new Set(), marcasVM:{}, resuelta:false, correcto:null, acusaciones:{}, hilos:[] };
+  });
+
+  // Precargar imágenes de todos los personajes involucrados
+  const sids = new Set(FICHAS.flatMap(f => f.sospechosos_ids));
+  sids.forEach(sid => precargarImagen(sid));
+
+  document.getElementById('pantalla-carga').style.display = 'none';
+  document.getElementById('pantalla-juego').style.display = 'block';
+  document.getElementById('ornamento-pie').style.display = 'block';
+  document.getElementById('pie-info').textContent =
+    `${FICHAS.length} caso${FICHAS.length>1?'s':''} cargado${FICHAS.length>1?'s':''}`;
+
+  aplicarTemaNoir();
+  renderNav();
+  mostrarFicha(0);
+}
+
+// ── NAV ──────────────────────────────────────────────────────────────────────
+function renderNav() {
+  const nav = document.getElementById('nav-fichas');
+  nav.querySelectorAll('.btn-ficha, .nav-sep').forEach(b => b.remove());
+  nav.style.display = 'flex';
+  if (FICHAS.length <= 1) return;
+  const sep = document.createElement('span');
+  sep.className = 'nav-sep';
+  sep.style.cssText = 'width:1px;height:1.2rem;background:rgba(184,147,58,.2);align-self:center;';
+  nav.appendChild(sep);
+  FICHAS.forEach((f, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'btn-ficha' +
+      (i === fichaActual ? ' activo' : '') +
+      (estado[i].resuelta ? ' resuelta' : '');
+    btn.textContent = `Caso #${String(f.ficha_id).padStart(2,'0')}`;
+    btn.onclick = () => mostrarFicha(i);
+    nav.appendChild(btn);
+  });
+}
+
+// ── RENDER PRINCIPAL ─────────────────────────────────────────────────────────
+function mostrarFicha(idx) {
+  fichaActual = idx;
+  const f = FICHAS[idx];
+  const e = estado[idx];
+  renderNav();
+
+  const dif = {urbano:'Urbano', metropoli:'Metrópoli', omerta:'Omertá'}[f.dificultad] || f.dificultad;
+
+  document.getElementById('contenido-ficha').innerHTML = `
+    <div class="ficha-header">
+      <div class="ficha-numero">${String(f.ficha_id).padStart(2,'0')}</div>
+      <div class="ficha-meta">
+        <div class="ficha-titulo">TELEGRAMA DEL COMISIONADO</div>
+        <div class="ficha-tags">
+          <span class="tag tag-dificultad">Dificultad ${dif}</span>
+          <span class="tag tag-info">${f.n_sospechosos} sospechosos</span>
+          <span class="tag tag-info">${f.cantidad} verdad${f.cantidad>1?'es':''} en juego</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="seccion-titulo">Sospechosos</div>
+    <div class="grid-sospechosos" id="grid-sosp">
+      ${f.sospechosos_ids.map(sid => htmlCartaSosp(sid, e, f)).join('')}
+    </div>
+
+    <div class="seccion-titulo">Declaraciones</div>
+    <div class="lista-declaraciones" id="lista-decl">
+      ${f.declaraciones.map(d => htmlDeclaracion(d, e)).join('')}
+    </div>
+
+    <div class="zona-accion">
+      <div class="accion-pregunta">¿Quién cometió el crimen?</div>
+      <div class="accion-seleccion" id="txt-seleccion">
+        ${e.seleccion ? `→ ${NOMBRES[e.seleccion]||e.seleccion}` : 'Seleccioná un sospechoso para acusar.'}
+      </div>
+      <button class="btn-acusar ${e.seleccion && !e.resuelta ? 'visible':''}"
+              id="btn-acusar" onclick="acusar(${idx})">
+        ◆ Acusar formalmente
+      </button>
+    </div>
+
+    <div class="resultado ${e.resuelta?(e.correcto?'correcto':'incorrecto'):''}"
+         id="resultado" style="${e.resuelta?'display:block':'display:none'}">
+      <div class="resultado-titulo">${e.correcto?'¡ Caso cerrado !':'Acusación incorrecta'}</div>
+      <div class="resultado-detalle">${e.resuelta?htmlResultado(f,e):''}</div>
+    </div>
+
+    ${e.resuelta && idx < FICHAS.length-1
+      ? `<button class="btn-sec" onclick="mostrarFicha(${idx+1})">Siguiente caso →</button>` : ''}
+  `;
+
+  // Aplicar imágenes ya cacheadas
+  f.sospechosos_ids.forEach(sid => { if (imagenCacheada(sid)) actualizarAvatares(sid); });
+
+  // Bind de eventos (sólo si no está resuelta)
+  if (!e.resuelta) {
+    document.querySelectorAll('.carta-sospechoso').forEach(card => {
+      card.addEventListener('click', ev => {
+        // no propagar si clic viene del botón interno, chinche o acusaciones
+        if (ev.target.closest('.btn-toggle-inocente')) return;
+        if (ev.target.closest('.chinche')) return;
+        if (ev.target.closest('.acusaciones-wrap')) return;
+        clickSosp(idx, parseInt(card.dataset.sospId));
+      });
+    });
+    document.querySelectorAll('.btn-toggle-inocente').forEach(btn => {
+      btn.addEventListener('click', ev => {
+        ev.stopPropagation();
+        toggleInocente(idx, parseInt(btn.dataset.sid));
+      });
+    });
+    document.querySelectorAll('.btn-acus-mas').forEach(btn => {
+      btn.addEventListener('click', ev => {
+        ev.stopPropagation();
+        cambiarAcusacion(idx, parseInt(btn.dataset.sid), 1);
+      });
+    });
+    document.querySelectorAll('.btn-acus-menos').forEach(btn => {
+      btn.addEventListener('click', ev => {
+        ev.stopPropagation();
+        cambiarAcusacion(idx, parseInt(btn.dataset.sid), -1);
+      });
+    });
+    document.querySelectorAll('.btn-vm').forEach(btn => {
+      btn.addEventListener('click', () => {
+        marcarVM(idx, parseInt(btn.dataset.carta), btn.dataset.vm);
+      });
+    });
+  }
+
+  // Siempre: bind chinches y dibujar hilos guardados
+  bindChinches();
+  // Pequeño delay para que el DOM esté listo antes de calcular coordenadas
+  setTimeout(() => dibujarHilos(idx), 30);
+}
+
+// ── HTML CARTA SOSPECHOSO ────────────────────────────────────────────────────
+function htmlCartaSosp(sid, e, f) {
+  let cls = 'carta-sospechoso';
+  let badge = '';
+  let bloq = '';
+
+  if (e.resuelta) {
+    cls += sid === f.culpable_id ? ' culpable-revelado bloqueada' : ' inocente-revelado bloqueada';
+    if (sid === f.culpable_id) badge = '<div class="badge-culpable">Culpable</div>';
+    bloq = 'bloqueada';
+  } else {
+    if (e.inocentes.has(sid))  cls += ' inocente-marcado';
+    else if (e.seleccion===sid) cls += ' sospechado';
+  }
+
+  const sosp = f.declaraciones.find(d => d.sospechoso_id===sid) || {};
+  const avatarUrl = imagenCacheada(sid);
+  const avatarInner = avatarUrl
+    ? `<img src="${avatarUrl}" alt="${NOMBRES[sid]||''}">`
+    : `<div class="avatar-emoji">${EMOJIS[sid]||'?'}</div>`;
+
+  const btnInocente = (!e.resuelta)
+    ? `<button class="btn-toggle-inocente" data-sid="${sid}">
+         ${e.inocentes.has(sid) ? '↩ Quitar inocente' : '✕ Marcar inocente'}
+       </button>` : '';
+
+  const acusCount = (e.acusaciones && e.acusaciones[sid]) || 0;
+  const dots = Array.from({length: acusCount}, () => `<span class="acus-dot"></span>`).join('');
+  const acusaciones = (!e.resuelta)
+    ? `<div class="acusaciones-wrap">
+         <div class="acusaciones-label">Acusaciones</div>
+         <div class="acusaciones-ctrl">
+			<button class="btn-acus btn-acus-menos" data-sid="${sid}">−</button>
+            <div class="acusaciones-num" id="acus-num-${sid}">${acusCount}</div>
+            <button class="btn-acus btn-acus-mas" data-sid="${sid}">+</button>
+		</div>
+         <div class="acusaciones-dots" id="acus-dots-${sid}">${dots}</div>
+       </div>` : '';
+
+  return `
+    <div class="${cls}" data-sosp-id="${sid}">
+      ${badge}
+      <div class="chinche-bar">
+        <span class="chinche-bar-label">${NOMBRES[sid]||''}</span>
+        <div class="chinche-row">
+          <div class="chinche" data-chinche-id="s${sid}-0" title="Conectar hilo"></div>
+
+        </div>
+        <div class="chinche-row">
+
+          <div class="chinche" data-chinche-id="s${sid}-3" title="Conectar hilo"></div>
+        </div>
+      </div>
+      <div class="avatar-wrap">${avatarInner}</div>
+      ${acusaciones}
+      ${btnInocente}
+    </div>`;
+}
+
+// ── HTML DECLARACIÓN ─────────────────────────────────────────────────────────
+function htmlDeclaracion(d, e) {
+  let cls = 'declaracion';
+  let marcadorHTML = '';
+
+  if (e.resuelta) {
+    // revelación final
+    cls += d.es_verdad ? ' verdad-revelada' : ' mentira-revelada';
+    const vm = d.es_verdad ? 'v' : 'm';
+    marcadorHTML = `<div class="decl-vm-resultado ${vm}">${vm.toUpperCase()}</div>`;
+  } else {
+    // botones interactivos V / M
+    const marcaActual = e.marcasVM[d.carta_id] || null;
+    marcadorHTML = `
+      <div class="decl-marcador">
+        <button class="btn-vm v-btn ${marcaActual==='v'?'activo':''}"
+                data-carta="${d.carta_id}" data-vm="v" title="Marcar verdad">V</button>
+        <button class="btn-vm m-btn ${marcaActual==='m'?'activo':''}"
+                data-carta="${d.carta_id}" data-vm="m" title="Marcar mentira">M</button>
+      </div>`;
+  }
+
+  return `
+    <div class="${cls}">
+      <div class="decl-id">#${String(d.carta_id).padStart(2,'0')}</div>
+      <div class="decl-cuerpo">
+        <div class="decl-topbar">
+          <div>
+            <div class="decl-persona">
+             <div class="decl-nombre">${d.sospechoso}</div>
+			 <span class="decl-atrib">${d.edad || ''},</span>
+             <span class="decl-atrib">${d.clase || ''}</span>
+
+            </div>
+            <div class="decl-cat">${d.carta_categoria}</div>
+          </div>
+          <div class="decl-chinches-bar">
+            <div class="chinche" data-chinche-id="d${d.carta_id}-0" title="Conectar hilo"></div>
+            <div class="chinche" data-chinche-id="d${d.carta_id}-1" title="Conectar hilo"></div>
+            <div class="chinche" data-chinche-id="d${d.carta_id}-2" title="Conectar hilo"></div>
+            <div class="chinche" data-chinche-id="d${d.carta_id}-3" title="Conectar hilo"></div>
+          </div>
+        </div>
+        <div class="decl-texto">"${d.carta_texto}"</div>
+      </div>
+      ${marcadorHTML}
+    </div>`;
+}
+
+// ── HTML RESULTADO ───────────────────────────────────────────────────────────
+function htmlResultado(f, e) {
+  const vm = f.declaraciones
+    .map(d => `<strong>${d.sospechoso.split(' ').pop()}</strong>: ${d.es_verdad?'V':'M'}`)
+    .join(' &nbsp;·&nbsp; ');
+  return e.correcto
+    ? `Correcto. El culpable era ${f.culpable_nombre}. &nbsp; ${vm}`
+    : `El culpable era <strong>${f.culpable_nombre}</strong>. Acusaste a ${NOMBRES[e.seleccion]||'?'}. &nbsp; ${vm}`;
+}
+
+// ── INTERACCIONES ─────────────────────────────────────────────────────────────
+function clickSosp(idx, sid) {
+  const e = estado[idx];
+  if (e.resuelta || e.inocentes.has(sid)) return;
+
+  // Si ya estaba sospechado, desmarcar
+  if (e.seleccion === sid) {
+    e.seleccion = null;
+  } else {
+    e.seleccion = sid;
+  }
+  actualizarCartas(idx);
+  actualizarBotonAcusar(idx);
+}
+
+function toggleInocente(idx, sid) {
+  const e = estado[idx];
+  if (e.resuelta) return;
+  if (e.inocentes.has(sid)) {
+    e.inocentes.delete(sid);
+  } else {
+    e.inocentes.add(sid);
+    if (e.seleccion === sid) e.seleccion = null; // limpiar acusación si lo marcamos inocente
+  }
+  actualizarCartas(idx);
+  actualizarBotonAcusar(idx);
+}
+
+function cambiarAcusacion(idx, sid, delta) {
+  const e = estado[idx];
+  if (e.resuelta) return;
+  if (!e.acusaciones) e.acusaciones = {};
+  const actual = e.acusaciones[sid] || 0;
+  const nuevo = Math.max(0, actual + delta);
+  e.acusaciones[sid] = nuevo;
+
+  // Actualizar número
+  const numEl = document.getElementById(`acus-num-${sid}`);
+  if (numEl) numEl.textContent = nuevo;
+
+  // Actualizar puntitos con animación
+  const dotsEl = document.getElementById(`acus-dots-${sid}`);
+  if (dotsEl) {
+    dotsEl.innerHTML = Array.from({length: nuevo}, () => `<span class="acus-dot"></span>`).join('');
+  }
+}
+
+function marcarVM(idx, cartaId, vm) {
+  const e = estado[idx];
+  if (e.resuelta) return;
+  // toggle: si ya está marcado con el mismo, limpiar
+  e.marcasVM[cartaId] = e.marcasVM[cartaId] === vm ? null : vm;
+
+  // Actualizar solo los botones de esa fila sin re-render total
+  document.querySelectorAll(`.btn-vm[data-carta="${cartaId}"]`).forEach(btn => {
+    btn.classList.toggle('activo', btn.dataset.vm === e.marcasVM[cartaId]);
+  });
+}
+
+function actualizarCartas(idx) {
+  const e = estado[idx];
+  const f = FICHAS[idx];
+  document.querySelectorAll('.carta-sospechoso').forEach(card => {
+    const sid = parseInt(card.dataset.sospId);
+    card.classList.remove('sospechado','inocente-marcado');
+    if (e.inocentes.has(sid))  card.classList.add('inocente-marcado');
+    else if (e.seleccion===sid) card.classList.add('sospechado');
+
+    // actualizar texto del botón toggle
+    const btn = card.querySelector('.btn-toggle-inocente');
+    if (btn) btn.textContent = e.inocentes.has(sid) ? '↩ Quitar inocente' : '✕ Marcar inocente';
+  });
+
+  const txtSel = document.getElementById('txt-seleccion');
+  if (txtSel) {
+    txtSel.textContent = e.seleccion
+      ? `→ ${NOMBRES[e.seleccion]||e.seleccion}`
+      : 'Seleccioná un sospechoso para acusar.';
+  }
+}
+
+function actualizarBotonAcusar(idx) {
+  const e = estado[idx];
+  const btn = document.getElementById('btn-acusar');
+  if (!btn) return;
+  if (e.seleccion && !e.resuelta) btn.classList.add('visible');
+  else btn.classList.remove('visible');
+}
+
+function acusar(idx) {
+  const e = estado[idx];
+  const f = FICHAS[idx];
+  if (!e.seleccion || e.resuelta) return;
+
+  e.resuelta = true;
+  e.correcto = (e.seleccion === f.culpable_id);
+
+  mostrarFicha(idx);
+  renderNav();
+
+  setTimeout(() => {
+    document.getElementById('resultado')?.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }, 80);
+}
+
+// ── SISTEMA DE HILOS ─────────────────────────────────────────────────────────
+
+// Modo doble: arrastre (drag) O clic-clic
+// Estado global del hilo en progreso
+let hiloEstado = {
+  activo: false,       // ¿hay un hilo en construcción?
+  origenId: null,      // data-chinche-id del origen
+  origenEl: null,      // elemento DOM origen
+  modoArrastre: false, // true=drag, false=click-click
+  previewLine: null,   // línea SVG de preview
+  chincheBajoCursor: null
+};
+
+function getSVG() {
+  let svg = document.getElementById('hilo-svg');
+  if (!svg) {
+    const contenedor = document.getElementById('contenido-ficha');
+    if (!contenedor) return null;
+    svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.id = 'hilo-svg';
+    svg.setAttribute('width','100%'); svg.setAttribute('height','100%');
+    contenedor.appendChild(svg);
+  }
+  return svg;
+}
+
+function chincheCentro(el) {
+  const svg = getSVG();
+  if (!svg) return {x:0,y:0};
+  const r1 = el.getBoundingClientRect();
+  const r2 = svg.getBoundingClientRect();
+  return {
+    x: r1.left + r1.width/2  - r2.left,
+    y: r1.top  + r1.height/2 - r2.top
+  };
+}
+
+function crearPreviewLine(chinche) {
+  const svg = getSVG(); if (!svg) return null;
+  const c = chincheCentro(chinche);
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('class','hilo-line preview');
+  line.setAttribute('x1', c.x); line.setAttribute('y1', c.y);
+  line.setAttribute('x2', c.x); line.setAttribute('y2', c.y);
+  svg.appendChild(line);
+  return line;
+}
+
+function iniciarHilo(chinche, esDrag) {
+  // Si ya hay uno activo y no es drag, cancelar el anterior
+  if (hiloEstado.activo && !esDrag) {
+    cancelarHilo();
+    return false;
+  }
+  hiloEstado.activo = true;
+  hiloEstado.origenId = chinche.getAttribute('data-chinche-id');
+  hiloEstado.origenEl = chinche;
+  hiloEstado.modoArrastre = esDrag;
+  hiloEstado.previewLine = crearPreviewLine(chinche);
+  chinche.classList.add('activa');
+  document.body.classList.add('modo-hilo');
+  return true;
+}
+
+function confirmarHilo(destChinche) {
+  if (!hiloEstado.activo || !hiloEstado.origenId) return;
+  const destId = destChinche.getAttribute('data-chinche-id');
+  if (destId === hiloEstado.origenId) { cancelarHilo(); return; }
+
+  // Toggle: si ya existe este hilo, borrarlo; si no, crearlo
+  const hilos = estado[fichaActual].hilos;
+  const yaIdx = hilos.findIndex(
+    h => (h.a === hiloEstado.origenId && h.b === destId) ||
+         (h.b === hiloEstado.origenId && h.a === destId)
+  );
+  if (yaIdx >= 0) {
+    hilos.splice(yaIdx, 1);
+  } else {
+    hilos.push({ a: hiloEstado.origenId, b: destId });
+  }
+  cancelarHilo();
+  dibujarHilos(fichaActual);
+}
+
+function cancelarHilo() {
+  if (hiloEstado.previewLine) { hiloEstado.previewLine.remove(); }
+  if (hiloEstado.origenEl)    { hiloEstado.origenEl.classList.remove('activa'); }
+  if (hiloEstado.chincheBajoCursor) {
+    hiloEstado.chincheBajoCursor.classList.remove('hover-destino');
+  }
+  hiloEstado = { activo:false, origenId:null, origenEl:null, modoArrastre:false, previewLine:null, chincheBajoCursor:null };
+  document.body.classList.remove('modo-hilo');
+}
+
+function moverPreview(clientX, clientY) {
+  if (!hiloEstado.activo || !hiloEstado.previewLine) return;
+  const svg = getSVG(); if (!svg) return;
+  const r = svg.getBoundingClientRect();
+
+  // Detectar chinche bajo cursor para snap
+  const elBajo = document.elementFromPoint(clientX, clientY);
+  const chincheBajo = elBajo ? elBajo.closest('.chinche') : null;
+
+  // Quitar highlight anterior
+  if (hiloEstado.chincheBajoCursor && hiloEstado.chincheBajoCursor !== chincheBajo) {
+    hiloEstado.chincheBajoCursor.classList.remove('hover-destino');
+  }
+
+  if (chincheBajo && chincheBajo !== hiloEstado.origenEl) {
+    hiloEstado.chincheBajoCursor = chincheBajo;
+    chincheBajo.classList.add('hover-destino');
+    const snap = chincheCentro(chincheBajo);
+    hiloEstado.previewLine.setAttribute('x2', snap.x);
+    hiloEstado.previewLine.setAttribute('y2', snap.y);
+  } else {
+    hiloEstado.chincheBajoCursor = null;
+    hiloEstado.previewLine.setAttribute('x2', clientX - r.left);
+    hiloEstado.previewLine.setAttribute('y2', clientY - r.top);
+  }
+}
+
+// ── LISTENERS GLOBALES ────────────────────────────────────────────────────────
+
+// MOUSEDOWN en chinche → iniciar drag
+document.addEventListener('mousedown', ev => {
+  const chinche = ev.target.closest('.chinche');
+  if (!chinche) return;
+  ev.preventDefault();
+  ev.stopPropagation();
+  iniciarHilo(chinche, true);
+}, true); // capture=true para interceptar antes que otros listeners
+
+// MOUSEMOVE → actualizar preview
+document.addEventListener('mousemove', ev => {
+  if (!hiloEstado.activo) return;
+  moverPreview(ev.clientX, ev.clientY);
+});
+
+// MOUSEUP → si drag, intentar conectar
+document.addEventListener('mouseup', ev => {
+  if (!hiloEstado.activo || !hiloEstado.modoArrastre) return;
+  const elSuelta = document.elementFromPoint(ev.clientX, ev.clientY);
+  const chincheDest = elSuelta ? elSuelta.closest('.chinche') : null;
+  if (chincheDest && chincheDest !== hiloEstado.origenEl) {
+    confirmarHilo(chincheDest);
+  } else {
+    // Si soltó sin destino: convertir a modo click-click en vez de cancelar
+    // (permite soltar y luego hacer clic en destino)
+    hiloEstado.modoArrastre = false;
+    if (hiloEstado.chincheBajoCursor) {
+      hiloEstado.chincheBajoCursor.classList.remove('hover-destino');
+      hiloEstado.chincheBajoCursor = null;
+    }
+  }
+});
+
+// CLICK en chinche → modo click-click
+document.addEventListener('click', ev => {
+  const chinche = ev.target.closest('.chinche');
+  if (!chinche) {
+    // Clic en otra cosa: cancelar si hay hilo activo en modo click-click
+    if (hiloEstado.activo && !hiloEstado.modoArrastre) cancelarHilo();
+    return;
+  }
+  ev.stopPropagation();
+
+  if (!hiloEstado.activo) {
+    // Primer clic: iniciar en modo click-click
+    iniciarHilo(chinche, false);
+  } else if (!hiloEstado.modoArrastre) {
+    // Segundo clic: confirmar destino
+    confirmarHilo(chinche);
+  } else {
+    // Estaba en drag pero hicieron click: confirmar igual
+    confirmarHilo(chinche);
+  }
+}, true); // capture=true
+
+// ESC cancela
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape') cancelarHilo();
+});
+
+// ── DIBUJAR HILOS ─────────────────────────────────────────────────────────────
+function dibujarHilos(idx) {
+  const svg = getSVG(); if (!svg) return;
+  svg.querySelectorAll('.hilo-line:not(.preview)').forEach(l => l.remove());
+  const hilos = (estado[idx] || {}).hilos || [];
+  hilos.forEach((h, i) => {
+    const elA = document.querySelector(`[data-chinche-id="${h.a}"]`);
+    const elB = document.querySelector(`[data-chinche-id="${h.b}"]`);
+    if (!elA || !elB) return;
+    const a = chincheCentro(elA);
+    const b = chincheCentro(elB);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+    line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+    line.setAttribute('class','hilo-line');
+    line.style.pointerEvents = 'stroke';
+    line.style.cursor = 'pointer';
+    line.addEventListener('dblclick', ev => {
+      ev.stopPropagation();
+      borrarHilo(idx, i);
+    });
+    svg.insertBefore(line, svg.firstChild); // insertar detrás del preview
+  });
+  actualizarChinchesConHilo(idx);
+}
+
+function actualizarChinchesConHilo(idx) {
+  const hilos = (estado[idx] || {}).hilos || [];
+  const usadas = new Set(hilos.flatMap(h => [h.a, h.b]));
+  document.querySelectorAll('.chinche').forEach(c => {
+    const id = c.getAttribute('data-chinche-id');
+    c.classList.toggle('tiene-hilo', usadas.has(id));
+  });
+}
+
+function borrarHilo(idx, hiloIdx) {
+  estado[idx].hilos.splice(hiloIdx, 1);
+  dibujarHilos(idx);
+}
+
+// Redibujar al resize
+window.addEventListener('resize', () => {
+  if (fichaActual !== undefined) dibujarHilos(fichaActual);
+});
+
+function borrarTodosLosHilosDe(chincheId) {
+  estado[fichaActual].hilos =
+    (estado[fichaActual].hilos || []).filter(h => h.a !== chincheId && h.b !== chincheId);
+  dibujarHilos(fichaActual);
+}
+
+function bindChinches() {
+  document.querySelectorAll('.chinche').forEach(el => {
+    el.addEventListener('dragstart', e => e.preventDefault());
+    el.ondblclick = (e) => {
+      e.stopPropagation();
+      borrarTodosLosHilosDe(el.getAttribute('data-chinche-id'));
+    };
+  });
+}
+</script>
+</body>
+</html>
