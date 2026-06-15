@@ -14,7 +14,7 @@
 
 El proyecto se encuentra actualmente en **Fase Alfa funcional**:
 1. **Generador Local (`generador.py`)**: Totalmente operativo. Capaz de procesar matrices complejas de declaraciones cruzadas, aislar paradojas lógicas y exportar casos listos para jugar tanto en formato técnico (`.json`) como en texto legible y jugable para humanos (`.txt`).
-2. **Interfaz Web de Pruebas**: Un entorno *frontend* minimalista y altamente estilizado (utilizando fuentes clásicas, paletas sepia y un filtro estético de grano de película) diseñado para cargar los archivos JSON autogenerados y permitir al usuario interactuar, tachar sospechosos y marcar la veracidad o falsedad de cada testimonio en tiempo real.
+2. **Interfaz Web de Pruebas**: Un entorno *frontend* minimalista y altamente estilizado (utilizando fuentes clásicas, paletas sepia y un filtro estético de grano de película) diseñado para cargar los archivos JSON autogenerados y permitir al usuario interactuar, tachar sospechosos y marcar la veracidad o falsedad de cada testimonio en tiempo real. ¡Puedes probarla en vivo desde tu navegador!
 
 ---
 
@@ -30,7 +30,7 @@ Cada sospechoso cuenta con tres variables categóricas fijas que el motor utiliz
 
 ### 🎴 Categorías de Cartas y Lógica Meta
 El sistema cuenta con **72 tipos de declaraciones** divididas en capas abstractas de complejidad:
-* **Directas (Acusación / Defensa)**: Apuntan a identidades fijas (*"El Carnicero lo hizo"*, *"El Notario es inocente"*).
+* **Directas (Acusación / Defensa)**: Apuntan a identidades fijas (*"El Carnicero lo hizo"*, *"El Notario es innocent"*).
 * **Descriptivas**: Definen rasgos del asesino (*"El culpable era rico"*, *"Tenía mi misma edad"*).
 * **De Veracidad**: Evalúan la honestidad de un grupo entero en la sala (*"Los viejos en la sala ocultan la verdad"*).
 * **Meta-Declaraciones**: Evalúan la estructura lógica de la propia ficha (*"La mayoría de los que hablan aquí mienten"*, *"Hay uno solo que miente y ese uno soy yo"*).
@@ -85,9 +85,14 @@ Al procesar un lote de fichas, el script guardará en la raíz del proyecto dos 
 
 La interfaz web incluida actúa como el entorno visual de testeo. Está construida en HTML5 puro y CSS adaptativo avanzado, emulando un expediente de la policía clásica.
 
-1. Abre el archivo de la interfaz web en cualquier navegador moderno.
-2. Utiliza el módulo **"Carga de Expediente"** para arrastrar o seleccionar el archivo `.json` exportado por el generador.
-3. La interfaz renderizará automáticamente las tarjetas de los sospechosos activos, sus atributos visuales y sus declaraciones en formato de lista de chequeo interactiva (`V` para Verdad, `M` para Mentira), lo que permite realizar el proceso de descarte de forma cómoda.
+Puedes acceder a la versión desplegada en vivo aquí:  
+🚀 **[Probar Demo en GitHub Pages](https://chelotourn.github.io/codigo-omerta/)**
+
+### ¿Cómo jugar un caso?
+1. Genera tus archivos utilizando el script local en Python.
+2. Abre la demo en la web o el entorno local.
+3. Utiliza el módulo **"Carga de Expediente"** para arrastrar o seleccionar el archivo `.json` exportado.
+4. La interfaz renderizará automáticamente las tarjetas de los sospechosos activos, sus atributos visuales y sus declaraciones en formato de lista de chequeo interactiva (`V` para Verdad, `M` para Mentira), lo que permite realizar el proceso de descarte de forma cómoda.
 
 ---
 
