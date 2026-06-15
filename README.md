@@ -4,7 +4,7 @@
 [![Licencia](https://img.shields.io/badge/Licencia-MIT-blue.svg)](#)
 [![Python](https://img.shields.io/badge/Python-3.9+-yellow.svg)](#)
 
-> *"Un buen detective aprende más de una mentira que de una verdad. En las calles de la Metrópoli, la confianza es un lujo que se paga con sangre."*
+> *"Un buen detective aprende más de una mentira que de una verdad."*
 
 **Código Omertá** es un prototipo de videojuego de deducción lógica e investigación ambientado en una atmósfera de novela negra (*noir*). El núcleo del proyecto es un **motor matemático generador de acertijos por fuerza bruta** escrito en Python que garantiza la creación de fichas de casos con soluciones lógicas únicas, acompañado de una **interfaz web reactiva** diseñada para testear y jugar el concepto de manera interactiva.
 
@@ -34,7 +34,8 @@ El sistema cuenta con **72 tipos de declaraciones** divididas en capas abstracta
 * **Descriptivas**: Definen rasgos del asesino (*"El culpable era rico"*, *"Tenía mi misma edad"*).
 * **De Veracidad**: Evalúan la honestidad de un grupo entero en la sala (*"Los viejos en la sala ocultan la verdad"*).
 * **Meta-Declaraciones**: Evalúan la estructura lógica de la propia ficha (*"La mayoría de los que hablan aquí mienten"*, *"Hay uno solo que miente y ese uno soy yo"*).
-* **Indirectas / Condicionales**: Estructuras avanzadas de tipo condicional material $A ightarrow B$ (*"Si el Vagabundo miente, entonces el asesino vino de abajo"*).
+* **Indirectas / Condicionales**: Estructuras avanzadas de tipo condicional material $A 
+ightarrow B$ (*"Si el Vagabundo miente, entonces el asesino vino de abajo"*).
 
 ### ⚙️ Filtros de Consistencia Lógica (Anti-Paradojas)
 Para asegurar la calidad del diseño de juego, el generador local aplica los siguientes filtros antes de validar una ficha como apta:
@@ -93,6 +94,7 @@ Puedes acceder a la versión desplegada en vivo aquí:
 2. Abre la demo en la web o el entorno local.
 3. Utiliza el módulo **"Carga de Expediente"** para arrastrar o seleccionar el archivo `.json` exportado.
 4. La interfaz renderizará automáticamente las tarjetas de los sospechosos activos, sus atributos visuales y sus declaraciones en formato de lista de chequeo interactiva (`V` para Verdad, `M` para Mentira), lo que permite realizar el proceso de descarte de forma cómoda.
+NOTA: Se han añadido 3 ficheros de casos en la interfaz de inicio, uno para cada nivel de dificultad. En su interior dispondrás de 10 casos jugables para evaluar el desafío
 
 ---
 
