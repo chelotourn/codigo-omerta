@@ -1292,6 +1292,12 @@ function actualizarCartas(idx) {
     if (btn) btn.textContent = e.inocentes.has(sid) ? '↩ Quitar inocente' : '✕ Marcar inocente';
   });
 
+  // Sincronizar translucidez de nombres en declaraciones
+  document.querySelectorAll('.decl-nombre[data-sosp-id]').forEach(el => {
+    const sid = parseInt(el.dataset.sospId);
+    el.classList.toggle('inocente-decl', e.inocentes.has(sid));
+  });
+
   const txtSel = document.getElementById('txt-seleccion');
   if (txtSel) {
     txtSel.textContent = e.seleccion
