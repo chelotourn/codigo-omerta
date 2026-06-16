@@ -146,7 +146,7 @@
   .zona-carga p   { color:var(--texto-suave); font-size:1.1rem; }
   .zona-carga strong { color:var(--crema); font-family:'Special Elite',monospace; font-size:1rem; letter-spacing:.1em; }
   .btn-demo {
-    font-family:'Special Elite',monospace; font-size:.85rem; letter-spacing:.2em;
+    font-family:'Special Elite',monospace; font-size:.85rem; letter-spacing:.2em; width:100%; 
     text-transform:uppercase; color:var(--texto-suave); background:none;
     border:1px solid rgba(184,147,58,.2); padding:.7rem 1.8rem; cursor:pointer; transition:all .3s;
   }
@@ -630,10 +630,9 @@
     <button class="btn-demo" onclick="cargarDemo()">— Cargar caso de practica —</button>
 
     <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem;width:100%;margin-top:.3rem;">
-      <div style="font-family:'Special Elite',monospace;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--texto-suave);margin-bottom:.2rem;">— Partidas guardadas —</div>
-      <button class="btn-demo" onclick="cargarJSON('json/fichas_urbana.json')">⊞ &nbsp;Fichas Urbana &nbsp; ⊞</button>
-      <button class="btn-demo" onclick="cargarJSON('json/fichas_metro.json')">⊞ &nbsp;Fichas Metropoli &nbsp; ⊞</button>
-      <button class="btn-demo" onclick="cargarJSON('json/fichas_omerta.json')">⊞ &nbsp;Fichas Omertá &nbsp; ⊞</button>
+      <button class="btn-demo" onclick="cargarJSON('json/fichas_urbana.json')">— &nbsp;Dificultad Urbana &nbsp; —</button>
+      <button class="btn-demo" onclick="cargarJSON('json/fichas_metro.json')">— &nbsp;Dificultad Metropoli &nbsp; —</button>
+      <button class="btn-demo" onclick="cargarJSON('json/fichas_omerta.json')">— &nbsp;Dificultad Omertá &nbsp; —</button>
     </div>
   </div>
 
