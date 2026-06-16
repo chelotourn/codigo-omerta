@@ -19,6 +19,7 @@
     --rojo-vivo:   #9b2020;
     --verde-pista: #2a4a2a;
     --verde-claro: #4a8a4a;
+    --amarillo-suave: #d4b44a;
     --texto-principal: #d4c9a8;
     --texto-suave:     #8a7d65;
 	
@@ -336,7 +337,11 @@
   .decl-nombre {
     font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700;
     color:var(--crema); margin-bottom:.12rem;
+    cursor:pointer; transition:opacity .2s, color .2s;
+    user-select:none;
   }
+  .decl-nombre:hover { color:var(--oro-viejo); }
+  .decl-nombre.inocente-decl { opacity:.35; color:var(--texto-suave); }
   .decl-cat {
     font-family:'Special Elite',monospace; font-size:.7rem; letter-spacing:.15em;
     text-transform:uppercase; color:var(--texto-suave); margin-bottom:.45rem;
@@ -356,9 +361,11 @@
   .btn-vm.v-btn { border-color:rgba(100,180,100,.3); color:rgba(100,180,100,.4); }
   .btn-vm.v-btn:hover,
   .btn-vm.v-btn.activo { background:rgba(100,180,100,.15); border-color:#6ab46a; color:#6ab46a; }
+  .btn-vm.v-btn.amarillo { background:rgba(212,180,74,.15); border-color:#d4b44a; color:#d4b44a; }
   .btn-vm.m-btn { border-color:rgba(180,60,60,.3); color:rgba(180,60,60,.4); }
   .btn-vm.m-btn:hover,
   .btn-vm.m-btn.activo { background:rgba(180,60,60,.15); border-color:#b43c3c; color:#b43c3c; }
+  .btn-vm.m-btn.amarillo { background:rgba(212,180,74,.15); border-color:#d4b44a; color:#d4b44a; }
 
   /* VM de revelación (reemplaza los botones) */
   .decl-vm-resultado {
@@ -532,6 +539,18 @@
     background:radial-gradient(circle at 35% 30%, #aaffaa, #3a9a3a);
     box-shadow:0 0 0 2px rgba(74,138,74,.9), 0 0 14px rgba(74,138,74,.6);
     transform:scale(1.22);
+  }
+  .chinche.marcada-amarilla {
+    background:radial-gradient(circle at 35% 30%, #ffe97a, #b8922a);
+    box-shadow:0 0 0 2px rgba(212,180,74,.7), 0 0 10px rgba(212,180,74,.5);
+  }
+  .chinche.marcada-amarilla:hover {
+    background:radial-gradient(circle at 35% 30%, #fff0a0, #d4a030);
+    box-shadow:0 0 0 2px rgba(212,180,74,.9), 0 0 14px rgba(212,180,74,.6);
+    transform:scale(1.22);
+  }
+  .hilo-line.amarilla {
+    stroke:#d4b44a; filter:drop-shadow(0 0 2px rgba(212,180,74,.5));
   }
   .hilo-line.verde {
     stroke:#4a8a4a; filter:drop-shadow(0 0 2px rgba(74,138,74,.5));
@@ -911,7 +930,7 @@ function iniciarJuego(datos) {
 
   estado = {};
   FICHAS.forEach((_, i) => {
-    estado[i] = { seleccion:null, inocentes:new Set(), marcasVM:{}, resuelta:false, correcto:null, acusaciones:{}, hilos:[], chinchesVerdes:new Set() };
+    estado[i] = { seleccion:null, inocentes:new Set(), marcasVM:{}, resuelta:false, correcto:null, acusaciones:{}, hilos:[], chinchesVerdes:new Set(), chinchesAmarillos:new Set() };
   });
 
   // Precargar imágenes de todos los personajes involucrados
@@ -1040,6 +1059,18 @@ function mostrarFicha(idx) {
         marcarVM(idx, parseInt(btn.dataset.carta), btn.dataset.vm);
       });
     });
+    // Clic en nombre del personaje en declaraciones = toggle inocente
+    document.querySelectorAll('.decl-nombre[data-sosp-id]').forEach(el => {
+      el.addEventListener('click', ev => {
+        ev.stopPropagation();
+        const sid = parseInt(el.dataset.sospId);
+        toggleInocente(idx, sid);
+        // Actualizar translucidez de todos los decl-nombre de este sospechoso
+        document.querySelectorAll(`.decl-nombre[data-sosp-id="${sid}"]`).forEach(n => {
+          n.classList.toggle('inocente-decl', estado[idx].inocentes.has(sid));
+        });
+      });
+    });
   }
 
   // Siempre: bind chinches y dibujar hilos guardados
@@ -1120,11 +1151,13 @@ function htmlDeclaracion(d, e) {
   } else {
     // botones interactivos V / M
     const marcaActual = e.marcasVM[d.carta_id] || null;
+    const vCls = marcaActual === 'v' ? 'activo' : (marcaActual === 'v_amarillo' ? 'amarillo' : '');
+    const mCls = marcaActual === 'm' ? 'activo' : (marcaActual === 'm_amarillo' ? 'amarillo' : '');
     marcadorHTML = `
       <div class="decl-marcador">
-        <button class="btn-vm v-btn ${marcaActual==='v'?'activo':''}"
+        <button class="btn-vm v-btn ${vCls}"
                 data-carta="${d.carta_id}" data-vm="v" title="Marcar verdad">V</button>
-        <button class="btn-vm m-btn ${marcaActual==='m'?'activo':''}"
+        <button class="btn-vm m-btn ${mCls}"
                 data-carta="${d.carta_id}" data-vm="m" title="Marcar mentira">M</button>
       </div>`;
   }
@@ -1136,7 +1169,7 @@ function htmlDeclaracion(d, e) {
         <div class="decl-topbar">
           <div>
             <div class="decl-persona">
-             <div class="decl-nombre">${d.sospechoso}</div>
+             <div class="decl-nombre${e.inocentes && e.inocentes.has(d.sospechoso_id) ? ' inocente-decl' : ''}" data-sosp-id="${d.sospechoso_id}">${d.sospechoso}</div>
 			 <span class="decl-atrib">${d.edad || ''},</span>
              <span class="decl-atrib">${d.clase || ''}</span>
 
@@ -1216,12 +1249,32 @@ function cambiarAcusacion(idx, sid, delta) {
 function marcarVM(idx, cartaId, vm) {
   const e = estado[idx];
   if (e.resuelta) return;
-  // toggle: si ya está marcado con el mismo, limpiar
-  e.marcasVM[cartaId] = e.marcasVM[cartaId] === vm ? null : vm;
 
+  // Ciclo de 3 estados: null → vm → 'amarillo' → null
+  const actual = e.marcasVM[cartaId];
+  if (actual === null || actual === undefined) {
+    e.marcasVM[cartaId] = vm;
+  } else if (actual === vm) {
+    e.marcasVM[cartaId] = vm + '_amarillo';
+  } else if (actual === vm + '_amarillo') {
+    e.marcasVM[cartaId] = null;
+  } else {
+    // estaba en el otro color o amarillo del otro → ir directo a este color
+    e.marcasVM[cartaId] = vm;
+  }
+
+  const marca = e.marcasVM[cartaId];
   // Actualizar solo los botones de esa fila sin re-render total
   document.querySelectorAll(`.btn-vm[data-carta="${cartaId}"]`).forEach(btn => {
-    btn.classList.toggle('activo', btn.dataset.vm === e.marcasVM[cartaId]);
+    const esEste = btn.dataset.vm === vm;
+    const esOtro = btn.dataset.vm !== vm;
+    btn.classList.remove('activo', 'amarillo');
+    if (marca === vm && esEste) {
+      btn.classList.add('activo');
+    } else if (marca === vm + '_amarillo' && esEste) {
+      btn.classList.add('amarillo');
+    }
+    // El otro botón se limpia siempre
   });
 }
 
@@ -1483,8 +1536,10 @@ function dibujarHilos(idx) {
     line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
     // color del hilo basado en el ORIGEN
     const origenId = h.origen || h.a;
-    const esVerde = verdes.has(origenId);
-    line.setAttribute('class', esVerde ? 'hilo-line verde' : 'hilo-line');
+    const esVerde    = verdes.has(origenId);
+    const esAmarillo = (estado[idx].chinchesAmarillos || new Set()).has(origenId);
+    const claseHilo = esVerde ? 'hilo-line verde' : esAmarillo ? 'hilo-line amarilla' : 'hilo-line';
+    line.setAttribute('class', claseHilo);
     line.style.pointerEvents = 'stroke';
     line.style.cursor = 'pointer';
     const hiloA = h.a, hiloB = h.b;
@@ -1499,17 +1554,20 @@ function dibujarHilos(idx) {
 
 function actualizarChinchesConHilo(idx) {
   const hilos = (estado[idx] || {}).hilos || [];
-  const verdes = (estado[idx] || {}).chinchesVerdes || new Set();
+  const verdes    = (estado[idx] || {}).chinchesVerdes    || new Set();
+  const amarillos = (estado[idx] || {}).chinchesAmarillos || new Set();
   // Solo los ORÍGENES de hilos se ponen rojos; los destinos se quedan como estaban
   const origenes = new Set(hilos.map(h => h.origen || h.a));
   document.querySelectorAll('.chinche').forEach(c => {
     const id = c.getAttribute('data-chinche-id');
-    const esVerde = verdes.has(id);
+    const esVerde    = verdes.has(id);
+    const esAmarillo = amarillos.has(id);
+    c.classList.remove('marcada-verde', 'marcada-amarilla', 'tiene-hilo');
     if (esVerde) {
-      c.classList.remove('tiene-hilo');
       c.classList.add('marcada-verde');
+    } else if (esAmarillo) {
+      c.classList.add('marcada-amarilla');
     } else {
-      c.classList.remove('marcada-verde');
       c.classList.toggle('tiene-hilo', origenes.has(id));
     }
   });
@@ -1540,11 +1598,20 @@ function borrarTodosLosHilosDe(chincheId) {
 
 function toggleVerdeYDesconectar(chincheId) {
   if (!estado[fichaActual]) return;
-  if (!estado[fichaActual].chinchesVerdes) estado[fichaActual].chinchesVerdes = new Set();
-  const verdes = estado[fichaActual].chinchesVerdes;
+  if (!estado[fichaActual].chinchesVerdes)    estado[fichaActual].chinchesVerdes    = new Set();
+  if (!estado[fichaActual].chinchesAmarillos) estado[fichaActual].chinchesAmarillos = new Set();
+  const verdes    = estado[fichaActual].chinchesVerdes;
+  const amarillos = estado[fichaActual].chinchesAmarillos;
+
   if (verdes.has(chincheId)) {
+    // verde → amarillo (sin tocar hilos)
     verdes.delete(chincheId);
+    amarillos.add(chincheId);
+  } else if (amarillos.has(chincheId)) {
+    // amarillo → apagado (sin tocar hilos)
+    amarillos.delete(chincheId);
   } else {
+    // apagado/roja → verde (sin tocar hilos, solo cambia el color)
     verdes.add(chincheId);
   }
   dibujarHilos(fichaActual);
