@@ -1207,7 +1207,12 @@ function htmlDeclaracion(d, e) {
 
   return `
     <div class="${cls}">
-      <div class="decl-id">#${String(d.carta_id).padStart(2,'0')}</div>
+		 
+      <div>
+		  <div class="decl-id">#${String(d.carta_id).padStart(2,'0')}</div>
+	      <div style="margin-left: 5px;" class="chinche" data-chinche-id="d${d.carta_id}-4" title="Conectar hilo"></div>
+	  </div>
+
       <div class="decl-cuerpo">
         <div class="decl-topbar">
           <div>
