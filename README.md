@@ -34,15 +34,14 @@ El sistema cuenta con **72 tipos de declaraciones** divididas en capas abstracta
 * **Descriptivas**: Definen rasgos del asesino (*"El culpable era rico"*, *"Tenía mi misma edad"*).
 * **De Veracidad**: Evalúan la honestidad de un grupo entero en la sala (*"Los viejos en la sala ocultan la verdad"*).
 * **Meta-Declaraciones**: Evalúan la estructura lógica de la propia ficha (*"La mayoría de los que hablan aquí mienten"*, *"Hay uno solo que miente y ese uno soy yo"*).
-* **Indirectas / Condicionales**: Estructuras avanzadas de tipo condicional material $A 
-ightarrow B$ (*"Si el Vagabundo miente, entonces el asesino vino de abajo"*).
+* **Indirectas / Condicionales**: Estructuras avanzadas condicional del tipo $Si A entonces B$ (*"Si el Vagabundo miente, entonces el asesino vino de abajo"*). Si A es falso B no se puede considerar ni verdad ni mentira.
 
 ### ⚙️ Filtros de Consistencia Lógica (Anti-Paradojas)
 Para asegurar la calidad del diseño de juego, el generador local aplica los siguientes filtros antes de validar una ficha como apta:
 * **Protección Anti-Recursión**: Un sistema de seguimiento de nodos visitados (`_VISITADOS_EVAL`) que destruye los bucles infinitos causados por mentiras circulares en las meta-declaraciones.
 * **Validación de Inversión Unívoca (Regla de la Carta 64)**: Si una afirmación global sobre el culpable es falsa, el motor comprueba que su negación sea clara y libre de ambigüedades para el jugador.
 * **Filtro de Solapamiento Lógico**: Descarta fichas donde dos cartas distintas produzcan vectores idénticos de verdad para todos los candidatos, evitando la redundancia de pistas.
-* **Filtro de Antecedentes Vacuos**: En cartas condicionales indirectas, descarta el caso si la condición inicial $A$ es falsa, evitando que el jugador se enfrente a verdades vacías que no aportan valor deductivo.
+* **Filtro de Antecedentes Vacuos**: En cartas condicionales indirectas, descarta la ficha si el antecedente A hace referencia a un sospechoso o evento que no está presente.
 
 ---
 
