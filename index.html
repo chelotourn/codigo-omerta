@@ -1014,7 +1014,7 @@ function mostrarFicha(idx) {
 
     <div class="resultado ${e.resuelta?(e.correcto?'correcto':'incorrecto'):''}"
          id="resultado" style="${e.resuelta?'display:block':'display:none'}">
-      <div class="resultado-titulo">${e.correcto?'¡ Caso cerrado !':'Acusación incorrecta'}</div>
+      <div class="resultado-titulo">${e.correcto?'Buen Trabajo Detective':'Acusación incorrecta'}</div>
       <div class="resultado-detalle">${e.resuelta?htmlResultado(f,e):''}</div>
     </div>
 
@@ -1195,7 +1195,7 @@ function htmlResultado(f, e) {
     .map(d => `<strong>${d.sospechoso.split(' ').pop()}</strong>: ${d.es_verdad?'V':'M'}`)
     .join(' &nbsp;·&nbsp; ');
   return e.correcto
-    ? `Correcto. El culpable era ${f.culpable_nombre}. &nbsp; ${vm}`
+    ? `${f.culpable_nombre} esta bajo custodia: &nbsp; ${vm}`
     : `El culpable era <strong>${f.culpable_nombre}</strong>. Acusaste a ${NOMBRES[e.seleccion]||'?'}. &nbsp; ${vm}`;
 }
 
