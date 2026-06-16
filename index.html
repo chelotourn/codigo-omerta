@@ -96,7 +96,9 @@
     color:var(--crema-suave);
   }
 
-  body.noir-3 {
+  body.noir-3,
+  body.noir-4,
+  body.noir-5 {
     --oro-viejo:   #ffffff;
     --crema:       #ffffff;
     --crema-suave: #ffffff;
@@ -104,8 +106,12 @@
     --texto-suave:  #ffffff;
 	--oro-suave:   #5C5C5C;
   }
-  body.noir-3 .titulo-juego { color:#ffffff; text-shadow:none; }
-  body.noir-3 .titulo-juego span { color:#9b2020; }
+  body.noir-3 .titulo-juego,
+  body.noir-4 .titulo-juego,
+  body.noir-5 .titulo-juego { color:#ffffff; text-shadow:none; }
+  body.noir-3 .titulo-juego span,
+  body.noir-4 .titulo-juego span,
+  body.noir-5 .titulo-juego span { color:#9b2020; }
   body.noir-3 .subtitulo,
   body.noir-3 .tag,
   body.noir-3 .decl-atrib,
@@ -118,7 +124,33 @@
   body.noir-3 .btn-demo,
   body.noir-3 .noir-label,
   body.noir-3 .noir-num,
-  body.noir-3 .acusaciones-label {
+  body.noir-3 .acusaciones-label,
+  body.noir-4 .subtitulo,
+  body.noir-4 .tag,
+  body.noir-4 .decl-atrib,
+  body.noir-4 .decl-cat,
+  body.noir-4 .decl-id,
+  body.noir-4 .card-atribs,
+  body.noir-4 .btn-ficha,
+  body.noir-4 .btn-volver,
+  body.noir-4 .btn-sec,
+  body.noir-4 .btn-demo,
+  body.noir-4 .noir-label,
+  body.noir-4 .noir-num,
+  body.noir-4 .acusaciones-label,
+  body.noir-5 .subtitulo,
+  body.noir-5 .tag,
+  body.noir-5 .decl-atrib,
+  body.noir-5 .decl-cat,
+  body.noir-5 .decl-id,
+  body.noir-5 .card-atribs,
+  body.noir-5 .btn-ficha,
+  body.noir-5 .btn-volver,
+  body.noir-5 .btn-sec,
+  body.noir-5 .btn-demo,
+  body.noir-5 .noir-label,
+  body.noir-5 .noir-num,
+  body.noir-5 .acusaciones-label {
     color:#a1a1a1;
   }
   body.noir-3 .tag,
@@ -127,7 +159,21 @@
   body.noir-3 .btn-ficha,
   body.noir-3 .btn-volver,
   body.noir-3 .btn-sec,
-  body.noir-3 .btn-demo {
+  body.noir-3 .btn-demo,
+  body.noir-4 .tag,
+  body.noir-4 .noir-control,
+  body.noir-4 .noir-btn,
+  body.noir-4 .btn-ficha,
+  body.noir-4 .btn-volver,
+  body.noir-4 .btn-sec,
+  body.noir-4 .btn-demo,
+  body.noir-5 .tag,
+  body.noir-5 .noir-control,
+  body.noir-5 .noir-btn,
+  body.noir-5 .btn-ficha,
+  body.noir-5 .btn-volver,
+  body.noir-5 .btn-sec,
+  body.noir-5 .btn-demo {
     border-color:rgba(255,255,255,.35);
   }
 
@@ -703,7 +749,7 @@ const EMOJIS = { 1:"📜", 2:"🔍", 3:"🔪", 4:"⭐", 5:"🔮", 6:"⚕", 7:"�
 const ASSETS_PATH = 'assets/';
 
 const NOIR_STORAGE_KEY = 'codigo_omerta_noir_level';
-let noirLevel = Math.min(3, Math.max(1, parseInt(localStorage.getItem(NOIR_STORAGE_KEY) || '1', 10) || 1));
+let noirLevel = Math.min(5, Math.max(1, parseInt(localStorage.getItem(NOIR_STORAGE_KEY) || '1', 10) || 1));
 let noirAudio = null;
 
 let FICHAS = [];
@@ -781,14 +827,14 @@ function cargarJSON(url) {
 }
 
 function aplicarTemaNoir() {
-  document.body.classList.remove('noir-1', 'noir-2', 'noir-3');
+  document.body.classList.remove('noir-1', 'noir-2', 'noir-3', 'noir-4', 'noir-5');
   document.body.classList.add(`noir-${noirLevel}`);
   const noirNum = document.getElementById('noir-num');
   if (noirNum) noirNum.textContent = String(noirLevel);
   const btnMenos = document.getElementById('noir-menos');
   const btnMas = document.getElementById('noir-mas');
   if (btnMenos) btnMenos.disabled = noirLevel <= 1;
-  if (btnMas) btnMas.disabled = noirLevel >= 3;
+  if (btnMas) btnMas.disabled = noirLevel >= 5;
   try { localStorage.setItem(NOIR_STORAGE_KEY, String(noirLevel)); } catch {}
   controlarAudioNoir();
 }
@@ -797,10 +843,8 @@ function controlarAudioNoir() {
   const audio = document.getElementById('noir-audio');
   if (!audio) return;
 
-  // Nivel 3: intentar un formato que el navegador sí soporte.
-  // MIDI puro (.mid/.midi) no está garantizado en <audio>, así que se intenta
-  // mp3/ogg/wav primero y, si no hay otra opción, se prueba MIDI igual.
-  if (noirLevel !== 3) {
+  // Niveles 1, 2, 3: sin música
+  if (noirLevel < 4) {
     audio.pause?.();
     try {
       audio.removeAttribute('src');
@@ -810,12 +854,15 @@ function controlarAudioNoir() {
     return;
   }
 
+  // Nivel 4: noir_omerta.mp3 / Nivel 5: noir_omerta_n.mp3
+  const baseNombre = noirLevel === 5 ? 'noir_omerta_n' : 'noir_omerta';
+
   const candidatos = [
-    `${ASSETS_PATH}noir_omerta.mp3`,
-    `${ASSETS_PATH}noir_omerta.ogg`,
-    `${ASSETS_PATH}noir_omerta.wav`,
-    `${ASSETS_PATH}noir_omerta.mid`,
-    `${ASSETS_PATH}noir_omerta.midi`
+    `${ASSETS_PATH}${baseNombre}.mp3`,
+    `${ASSETS_PATH}${baseNombre}.ogg`,
+    `${ASSETS_PATH}${baseNombre}.wav`,
+    `${ASSETS_PATH}${baseNombre}.mid`,
+    `${ASSETS_PATH}${baseNombre}.midi`
   ];
 
   const mime = {
@@ -857,25 +904,22 @@ function controlarAudioNoir() {
     audio.loop = true;
     audio.load?.();
 
-    // Si el navegador no puede reproducir el formato, caerá a error y probará el siguiente.
     audio.play?.().catch(() => {});
     return true;
   };
 
   st.onError = () => {
-    // Si falla este formato, probar el siguiente.
     elegirSiguiente();
   };
 
   audio.addEventListener('error', st.onError);
 
-  // Reiniciar el índice cuando se vuelve a activar Noir.
   st.i = -1;
   elegirSiguiente();
 }
 
 function ajustarNoir(delta) {
-  const nuevo = Math.max(1, Math.min(3, noirLevel + delta));
+  const nuevo = Math.max(1, Math.min(5, noirLevel + delta));
   if (nuevo === noirLevel) return;
   noirLevel = nuevo;
 
