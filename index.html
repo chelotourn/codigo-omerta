@@ -1027,24 +1027,34 @@ function cargarHistorial() {
   catch { return {}; }
 }
 
-function guardarResultadoHistorial(dificultad, fichaId, correcto) {
+function guardarResultadoHistorial(dificultad, fichaId, correcto, seleccionId) {
   const h = cargarHistorial();
   if (!h[dificultad]) h[dificultad] = [];
   // evitar duplicados del mismo fichaId en la misma dificultad
   const existe = h[dificultad].findIndex(r => r.fichaId === fichaId);
+  const entrada = { fichaId, correcto, seleccionId };
   if (existe >= 0) {
-    h[dificultad][existe] = { fichaId, correcto };
+    h[dificultad][existe] = entrada;
   } else {
-    h[dificultad].push({ fichaId, correcto });
+    h[dificultad].push(entrada);
   }
   try { localStorage.setItem(HISTORIAL_KEY, JSON.stringify(h)); } catch {}
-  renderHistorial();
 }
 
 function resetHistorial() {
-  if (!confirm('¿Reiniciar todo el historial de resoluciones?')) return;
-  try { localStorage.removeItem(HISTORIAL_KEY); } catch {}
+  // Determinar dificultad actual
+  const dif = FICHAS.length ? (FICHAS[fichaActual] || FICHAS[0]).dificultad : null;
+  const label = { urbano:'Urbano', metropoli:'Metrópoli', omerta:'Omertá' }[dif] || dif || 'esta dificultad';
+  if (!confirm(`¿Reiniciar el historial de ${label}?`)) return;
+  const h = cargarHistorial();
+  if (dif) delete h[dif];
+  // Limpiar también el estado en memoria de las fichas cargadas
+  FICHAS.forEach((_, i) => {
+    if (estado[i]) { estado[i].resuelta = false; estado[i].correcto = null; estado[i].seleccion = null; }
+  });
+  try { localStorage.setItem(HISTORIAL_KEY, JSON.stringify(h)); } catch {}
   renderNav();
+  if (fichaActual !== undefined) mostrarFicha(fichaActual);
 }
 
 function renderHistorial() {
@@ -1084,8 +1094,21 @@ function iniciarJuego(datos) {
   if (!FICHAS.length) { alert('Sin fichas.'); return; }
 
   estado = {};
-  FICHAS.forEach((_, i) => {
-    estado[i] = { seleccion:null, inocentes:new Set(), marcasVM:{}, resuelta:false, correcto:null, acusaciones:{}, hilos:[], chinchesVerdes:new Set(), chinchesAmarillos:new Set() };
+  const h = cargarHistorial();
+  FICHAS.forEach((f, i) => {
+    const dif = f.dificultad || '';
+    const entrada = (h[dif] || []).find(r => r.fichaId === f.ficha_id);
+    estado[i] = {
+      seleccion:   entrada ? (entrada.seleccionId || null) : null,
+      inocentes:   new Set(),
+      marcasVM:    {},
+      resuelta:    entrada ? true : false,
+      correcto:    entrada ? entrada.correcto : null,
+      acusaciones: {},
+      hilos:       [],
+      chinchesVerdes:    new Set(),
+      chinchesAmarillos: new Set()
+    };
   });
 
   // Precargar imágenes de todos los personajes involucrados
@@ -1504,7 +1527,7 @@ function acusar(idx) {
 
   // Registrar en historial de progreso
   if (f.dificultad) {
-    guardarResultadoHistorial(f.dificultad, f.ficha_id, e.correcto);
+    guardarResultadoHistorial(f.dificultad, f.ficha_id, e.correcto, e.seleccion);
   }
 
   mostrarFicha(idx);
