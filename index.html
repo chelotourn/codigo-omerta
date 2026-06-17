@@ -221,9 +221,7 @@
   }
   .btn-ficha:hover { color:var(--crema); border-color:var(--oro-viejo); }
   .btn-ficha.activo  { background:var(--oro-viejo); color:var(--negro); border-color:var(--oro-viejo); }
-  .btn-ficha.resuelta { border-color:var(--rojo-sangre); color:var(--rojo-sangre); }
-  .btn-ficha.resuelta.activo { background:var(--rojo-sangre); color:var(--crema); border-color:var(--rojo-sangre); }
-  /* historial guardado: éxito=rojo, fracaso=gris */
+  /* historial: éxito=rojo, fracaso=gris */
   .btn-ficha.hist-exito  { border-color:var(--rojo-sangre); color:var(--rojo-sangre); }
   .btn-ficha.hist-exito.activo  { background:var(--rojo-sangre); color:var(--crema); border-color:var(--rojo-sangre); }
   .btn-ficha.hist-fracaso { border-color:rgba(130,130,130,.4); color:rgba(130,130,130,.6); }
@@ -1147,7 +1145,7 @@ function renderNav() {
     let clases = 'btn-ficha';
     if (i === fichaActual) clases += ' activo';
     if (estado[i].resuelta) {
-      clases += ' resuelta';
+      clases += estado[i].correcto ? ' hist-exito' : ' hist-fracaso';
     } else if (entrada) {
       clases += entrada.correcto ? ' hist-exito' : ' hist-fracaso';
     }
