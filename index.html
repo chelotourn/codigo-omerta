@@ -176,6 +176,22 @@
   body.noir-5 .btn-demo {
     border-color:rgba(255,255,255,.35);
   }
+  /* noir: fracaso con opacidad baja, éxito preserva rojo */
+  body.noir-3 .btn-ficha.hist-fracaso,
+  body.noir-4 .btn-ficha.hist-fracaso,
+  body.noir-5 .btn-ficha.hist-fracaso {
+    opacity:.3; border-color:rgba(255,255,255,.2); color:#a1a1a1;
+  }
+  body.noir-3 .btn-ficha.hist-exito,
+  body.noir-4 .btn-ficha.hist-exito,
+  body.noir-5 .btn-ficha.hist-exito {
+    border-color:var(--rojo-sangre); color:var(--rojo-sangre);
+  }
+  body.noir-3 .btn-ficha.hist-exito.activo,
+  body.noir-4 .btn-ficha.hist-exito.activo,
+  body.noir-5 .btn-ficha.hist-exito.activo {
+    background:var(--rojo-sangre); color:#fff; border-color:var(--rojo-sangre);
+  }
 
   /* ── CARGA ── */
   #pantalla-carga {
@@ -765,6 +781,7 @@ let noirAudio = null;
 
 let FICHAS = [];
 let fichaActual = 0;
+let GENERADO_ACTUAL = null; // timestamp del JSON cargado
 // estado por ficha: { seleccion, inocentes:Set, marcasVM:{cartaId:'v'|'m'|null}, resuelta, correcto }
 let estado = {};
 // caché de URLs de imágenes individuales { sid: url|null }
@@ -1019,40 +1036,48 @@ function cargarDemo() {
 // ── HISTORIAL DE PROGRESO ─────────────────────────────────────────────────────
 const HISTORIAL_KEY = 'codigo_omerta_historial';
 
-// Estructura: { urbano: [{fichaId, correcto}], metropoli: [...], omerta: [...] }
+// Estructura: { urbano: { generado: "...", casos: [{fichaId, correcto, seleccionId}] }, ... }
 function cargarHistorial() {
   try { return JSON.parse(localStorage.getItem(HISTORIAL_KEY) || '{}'); }
   catch { return {}; }
 }
 
-function guardarResultadoHistorial(dificultad, fichaId, correcto, seleccionId) {
+function guardarResultadoHistorial(dificultad, fichaId, correcto, seleccionId, generado) {
   const h = cargarHistorial();
-  if (!h[dificultad]) h[dificultad] = [];
-  // evitar duplicados del mismo fichaId en la misma dificultad
-  const existe = h[dificultad].findIndex(r => r.fichaId === fichaId);
+  if (!h[dificultad]) h[dificultad] = { generado: generado || null, casos: [] };
+  const casos = h[dificultad].casos;
+  const existe = casos.findIndex(r => r.fichaId === fichaId);
   const entrada = { fichaId, correcto, seleccionId };
-  if (existe >= 0) {
-    h[dificultad][existe] = entrada;
-  } else {
-    h[dificultad].push(entrada);
-  }
+  if (existe >= 0) { casos[existe] = entrada; } else { casos.push(entrada); }
   try { localStorage.setItem(HISTORIAL_KEY, JSON.stringify(h)); } catch {}
 }
 
 function resetHistorial() {
-  // Determinar dificultad actual
   const dif = FICHAS.length ? (FICHAS[fichaActual] || FICHAS[0]).dificultad : null;
   const label = { urbano:'Urbano', metropoli:'Metrópoli', omerta:'Omertá' }[dif] || dif || 'esta dificultad';
   if (!confirm(`¿Reiniciar el historial de ${label}?`)) return;
   const h = cargarHistorial();
   if (dif) delete h[dif];
-  // Limpiar también el estado en memoria de las fichas cargadas
   FICHAS.forEach((_, i) => {
     if (estado[i]) { estado[i].resuelta = false; estado[i].correcto = null; estado[i].seleccion = null; }
   });
   try { localStorage.setItem(HISTORIAL_KEY, JSON.stringify(h)); } catch {}
   renderNav();
   if (fichaActual !== undefined) mostrarFicha(fichaActual);
+}
+
+// Devuelve los casos para una dificultad validando el timestamp.
+// Si no coincide con el generado del JSON actual, descarta ese bloque.
+function casosHistorial(dificultad, generadoActual) {
+  const h = cargarHistorial();
+  const bloque = h[dificultad];
+  if (!bloque) return [];
+  if (bloque.generado && generadoActual && bloque.generado !== generadoActual) {
+    delete h[dificultad];
+    try { localStorage.setItem(HISTORIAL_KEY, JSON.stringify(h)); } catch {}
+    return [];
+  }
+  return bloque.casos || [];
 }
 
 function renderHistorial() {
@@ -1091,11 +1116,13 @@ function iniciarJuego(datos) {
   FICHAS = datos.fichas || [];
   if (!FICHAS.length) { alert('Sin fichas.'); return; }
 
+  const generadoActual = datos.generado || null;
+  GENERADO_ACTUAL = generadoActual;
   estado = {};
-  const h = cargarHistorial();
   FICHAS.forEach((f, i) => {
     const dif = f.dificultad || '';
-    const entrada = (h[dif] || []).find(r => r.fichaId === f.ficha_id);
+    const casos = casosHistorial(dif, generadoActual);
+    const entrada = casos.find(r => r.fichaId === f.ficha_id);
     estado[i] = {
       seleccion:   entrada ? (entrada.seleccionId || null) : null,
       inocentes:   new Set(),
@@ -1135,12 +1162,11 @@ function renderNav() {
   sep.style.cssText = 'width:1px;height:1.2rem;background:rgba(184,147,58,.2);align-self:center;';
   nav.appendChild(sep);
 
-  const h = cargarHistorial();
-
   FICHAS.forEach((f, i) => {
     const btn = document.createElement('button');
     const dif = f.dificultad || '';
-    const entrada = (h[dif] || []).find(r => r.fichaId === f.ficha_id);
+    const casos = casosHistorial(dif, GENERADO_ACTUAL);
+    const entrada = casos.find(r => r.fichaId === f.ficha_id);
 
     let clases = 'btn-ficha';
     if (i === fichaActual) clases += ' activo';
@@ -1525,7 +1551,7 @@ function acusar(idx) {
 
   // Registrar en historial de progreso
   if (f.dificultad) {
-    guardarResultadoHistorial(f.dificultad, f.ficha_id, e.correcto, e.seleccion);
+    guardarResultadoHistorial(f.dificultad, f.ficha_id, e.correcto, e.seleccion, GENERADO_ACTUAL);
   }
 
   mostrarFicha(idx);
