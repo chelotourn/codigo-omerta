@@ -223,6 +223,19 @@
   .btn-ficha.activo  { background:var(--oro-viejo); color:var(--negro); border-color:var(--oro-viejo); }
   .btn-ficha.resuelta { border-color:var(--rojo-sangre); color:var(--rojo-sangre); }
   .btn-ficha.resuelta.activo { background:var(--rojo-sangre); color:var(--crema); border-color:var(--rojo-sangre); }
+  /* historial guardado: éxito=rojo, fracaso=gris */
+  .btn-ficha.hist-exito  { border-color:var(--rojo-sangre); color:var(--rojo-sangre); }
+  .btn-ficha.hist-exito.activo  { background:var(--rojo-sangre); color:var(--crema); border-color:var(--rojo-sangre); }
+  .btn-ficha.hist-fracaso { border-color:rgba(130,130,130,.4); color:rgba(130,130,130,.6); }
+  .btn-ficha.hist-fracaso.activo { background:rgba(100,100,100,.3); color:var(--crema); border-color:rgba(130,130,130,.5); }
+  .btn-reset-nav {
+    font-family:'Special Elite',monospace; font-size:.65rem; letter-spacing:.15em;
+    text-transform:uppercase; color:var(--texto-suave); background:none;
+    border:1px solid rgba(184,147,58,.15); padding:.35rem .7rem; cursor:pointer;
+    transition:all .2s; margin-left:.3rem;
+    -webkit-appearance:none; appearance:none;
+  }
+  .btn-reset-nav:hover { color:var(--rojo-sangre); border-color:var(--rojo-sangre); }
 
   /* ── CONTENIDO ── */
   .contenido-ficha { max-width:1025px; margin:0 auto; padding:2rem 1.5rem 4rem; position:relative; }
@@ -612,61 +625,6 @@
   body.modo-hilo * { cursor:crosshair !important; }
   body.modo-hilo .chinche { cursor:crosshair !important; }
 
-  /* ── HISTORIAL DE PROGRESO ── */
-  .historial-wrap {
-    width:100%; max-width:420px; margin:0 auto;
-  }
-  .historial-bloque {
-    border:1px solid rgba(184,147,58,.18); background:var(--carbon);
-    padding:.9rem 1.1rem .75rem;
-  }
-  .historial-header {
-    display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:.7rem;
-  }
-  .historial-titulo {
-    font-family:'Special Elite',monospace; font-size:.7rem; letter-spacing:.3em;
-    text-transform:uppercase; color:var(--texto-suave);
-  }
-  .btn-reset-historial {
-    font-family:'Special Elite',monospace; font-size:.6rem; letter-spacing:.15em;
-    text-transform:uppercase; color:var(--texto-suave); background:none;
-    border:1px solid rgba(184,147,58,.15); padding:.25rem .6rem; cursor:pointer;
-    transition:all .2s;
-  }
-  .btn-reset-historial:hover { color:var(--rojo-sangre); border-color:var(--rojo-sangre); }
-  .historial-fila {
-    display:flex; align-items:center; gap:.6rem; margin-bottom:.5rem;
-  }
-  .historial-fila:last-child { margin-bottom:0; }
-  .historial-dif {
-    font-family:'Special Elite',monospace; font-size:.65rem; letter-spacing:.15em;
-    text-transform:uppercase; color:var(--texto-suave); min-width:5rem;
-  }
-  .historial-casos {
-    display:flex; gap:.3rem; flex-wrap:wrap; flex:1;
-  }
-  .caso-dot {
-    width:1.1rem; height:1.1rem; border-radius:2px;
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Playfair Display',serif; font-size:.65rem; font-weight:900;
-    flex-shrink:0;
-  }
-  .caso-dot.exito {
-    background:rgba(100,180,100,.15); border:1px solid rgba(100,180,100,.5); color:#6ab46a;
-  }
-  .caso-dot.fracaso {
-    background:rgba(120,120,120,.1); border:1px solid rgba(130,130,130,.3); color:#666;
-  }
-  .historial-stats {
-    font-family:'Special Elite',monospace; font-size:.62rem; letter-spacing:.12em;
-    color:var(--texto-suave); white-space:nowrap;
-  }
-  .historial-vacio {
-    font-family:'Crimson Text',serif; font-size:.95rem; color:var(--texto-suave);
-    font-style:italic; text-align:center; padding:.3rem 0;
-  }
-
   .ornamento { text-align:center; color:var(--oro-viejo); opacity:.65; font-size:1rem; letter-spacing:.2em; padding:1rem; }
   .pie { text-align:center; padding:1.8rem 2rem; border-top:1px solid rgba(184,147,58,.1);
     font-family:'Special Elite',monospace; font-size:.75rem; letter-spacing:.2em;
@@ -734,17 +692,6 @@
       <button class="btn-demo" onclick="cargarJSON('json/fichas_urbano.json')">— &nbsp;Dificultad Urbano &nbsp; —</button>
       <button class="btn-demo" onclick="cargarJSON('json/fichas_metro.json')">— &nbsp;Dificultad Metropoli &nbsp; —</button>
       <button class="btn-demo" onclick="cargarJSON('json/fichas_omerta.json')">— &nbsp;Dificultad Omertá &nbsp; —</button>
-    </div>
-  </div>
-
-  <!-- HISTORIAL DE PROGRESO -->
-  <div class="historial-wrap" style="margin-top:.5rem;">
-    <div class="historial-bloque">
-      <div class="historial-header">
-        <span class="historial-titulo">Historial de resoluciones</span>
-        <button class="btn-reset-historial" onclick="resetHistorial()">↺ Reiniciar</button>
-      </div>
-      <div id="historial-contenido"></div>
     </div>
   </div>
 
@@ -1097,7 +1044,7 @@ function guardarResultadoHistorial(dificultad, fichaId, correcto) {
 function resetHistorial() {
   if (!confirm('¿Reiniciar todo el historial de resoluciones?')) return;
   try { localStorage.removeItem(HISTORIAL_KEY); } catch {}
-  renderHistorial();
+  renderNav();
 }
 
 function renderHistorial() {
@@ -1128,8 +1075,8 @@ function renderHistorial() {
   }).join('');
 }
 
-// Llamar al cargar la página para mostrar historial guardado
-renderHistorial();
+// Llamar al cargar la página para refrescar si hay fichas cargadas
+// (renderNav() se encarga de mostrar el historial en la barra)
 
 // ── INICIAR JUEGO ────────────────────────────────────────────────────────────
 function iniciarJuego(datos) {
@@ -1159,22 +1106,42 @@ function iniciarJuego(datos) {
 // ── NAV ──────────────────────────────────────────────────────────────────────
 function renderNav() {
   const nav = document.getElementById('nav-fichas');
-  nav.querySelectorAll('.btn-ficha, .nav-sep').forEach(b => b.remove());
+  nav.querySelectorAll('.btn-ficha, .nav-sep, .btn-reset-nav').forEach(b => b.remove());
   nav.style.display = 'flex';
   if (FICHAS.length <= 1) return;
   const sep = document.createElement('span');
   sep.className = 'nav-sep';
   sep.style.cssText = 'width:1px;height:1.2rem;background:rgba(184,147,58,.2);align-self:center;';
   nav.appendChild(sep);
+
+  const h = cargarHistorial();
+
   FICHAS.forEach((f, i) => {
     const btn = document.createElement('button');
-    btn.className = 'btn-ficha' +
-      (i === fichaActual ? ' activo' : '') +
-      (estado[i].resuelta ? ' resuelta' : '');
+    const dif = f.dificultad || '';
+    const entrada = (h[dif] || []).find(r => r.fichaId === f.ficha_id);
+
+    let clases = 'btn-ficha';
+    if (i === fichaActual) clases += ' activo';
+    if (estado[i].resuelta) {
+      clases += ' resuelta';
+    } else if (entrada) {
+      clases += entrada.correcto ? ' hist-exito' : ' hist-fracaso';
+    }
+
+    btn.className = clases;
     btn.textContent = `Caso #${String(f.ficha_id).padStart(2,'0')}`;
     btn.onclick = () => mostrarFicha(i);
     nav.appendChild(btn);
   });
+
+  // Botón reset al final
+  const btnReset = document.createElement('button');
+  btnReset.className = 'btn-reset-nav';
+  btnReset.textContent = '↺';
+  btnReset.title = 'Reiniciar historial';
+  btnReset.onclick = resetHistorial;
+  nav.appendChild(btnReset);
 }
 
 // ── RENDER PRINCIPAL ─────────────────────────────────────────────────────────
