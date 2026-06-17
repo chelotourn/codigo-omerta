@@ -675,6 +675,20 @@
   .regla-txt strong { color:var(--crema-suave); font-weight:600; }
   .regla-txt em { color:var(--oro-viejo); font-style:normal; }
 
+  /* ── RESPONSIVE MÓVIL ── */
+  @media (max-width: 700px) {
+    .grid-sospechosos {
+      grid-template-columns: repeat(2, 1fr);
+      gap: .6rem;
+    }
+    .contenido-ficha { padding: 1.5rem 1rem 3rem; }
+    .card-info { padding: .5rem .55rem; }
+    .card-nombre { font-size: .9rem; }
+    .card-atribs { font-size: .6rem; }
+    .chinche-bar-label { font-size: .5rem; }
+    .btn-toggle-inocente { font-size: .62rem; padding: .3rem .3rem; }
+  }
+
 </style>
 </head>
 <body>
@@ -1886,28 +1900,46 @@ function bindChinches() {
       toggleVerdeYDesconectar(el.getAttribute('data-chinche-id'));
     };
 
-    // ── TOUCH: tap simple = conectar (click-click), tap doble = verde ──
+    // ── TOUCH: toque = seleccionar/conectar (click-click), doble toque = verde ──
+    // Se maneja todo directamente con eventos touch (sin depender del click
+    // sintético del navegador): preventDefault() en touchstart puede bloquear
+    // ese click sintético y eso rompía la confirmación del segundo toque.
     let lastTap = 0;
+    let touchMovido = false;
+
     el.addEventListener('touchstart', e => {
+      touchMovido = false;
+      e.preventDefault(); // evita zoom/scroll/selección sobre la chinche
+    }, { passive: false });
+
+    el.addEventListener('touchmove', () => {
+      touchMovido = true; // fue un deslizamiento, no un toque
+    }, { passive: true });
+
+    el.addEventListener('touchend', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (touchMovido) return;
+
       const now = Date.now();
       const delta = now - lastTap;
       lastTap = now;
 
       if (delta < 300 && delta > 0) {
-        // doble tap
-        e.preventDefault();
-        e.stopPropagation();
+        // doble toque → verde / des-verde y desconectar
+        lastTap = 0;
         cancelarHilo();
         toggleVerdeYDesconectar(el.getAttribute('data-chinche-id'));
         return;
       }
 
-      // tap simple → modo click-click (igual que click de escritorio)
-      e.stopPropagation();
-      // dejamos que suba el evento click sintético del navegador
-      // pero prevenimos el scroll solo si hay hilo activo
-      if (hiloEstado.activo) {
-        e.preventDefault();
+      // toque simple → modo click-click
+      if (!hiloEstado.activo) {
+        // primer toque: marca el origen A
+        iniciarHilo(el, false);
+      } else {
+        // segundo toque: crea (o quita, si ya existía) el segmento A-B
+        confirmarHilo(el);
       }
     }, { passive: false });
   });
