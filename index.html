@@ -1044,7 +1044,12 @@ function cargarHistorial() {
 
 function guardarResultadoHistorial(dificultad, fichaId, correcto, seleccionId, generado) {
   const h = cargarHistorial();
-  if (!h[dificultad]) h[dificultad] = { generado: generado || null, casos: [] };
+  // Normalizar: si el bloque existe pero es array (formato viejo), migrarlo
+  if (!h[dificultad] || Array.isArray(h[dificultad])) {
+    h[dificultad] = { generado: generado || null, casos: [] };
+  }
+  if (!h[dificultad].casos) h[dificultad].casos = [];
+  h[dificultad].generado = h[dificultad].generado || generado || null;
   const casos = h[dificultad].casos;
   const existe = casos.findIndex(r => r.fichaId === fichaId);
   const entrada = { fichaId, correcto, seleccionId };
@@ -1072,6 +1077,12 @@ function casosHistorial(dificultad, generadoActual) {
   const h = cargarHistorial();
   const bloque = h[dificultad];
   if (!bloque) return [];
+  // Formato viejo (array directo) → descartar, no tiene timestamp para validar
+  if (Array.isArray(bloque)) {
+    delete h[dificultad];
+    try { localStorage.setItem(HISTORIAL_KEY, JSON.stringify(h)); } catch {}
+    return [];
+  }
   if (bloque.generado && generadoActual && bloque.generado !== generadoActual) {
     delete h[dificultad];
     try { localStorage.setItem(HISTORIAL_KEY, JSON.stringify(h)); } catch {}
