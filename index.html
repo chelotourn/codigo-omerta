@@ -14,6 +14,7 @@
     --tinta:       #1a1610;
     --sepia:       #2a2218;
     --oro-viejo:   #b8933a;
+	--oro-sospechoso:   #b8933a;
     --oro-suave:   #7C6327;
     --crema:       #e8dcc4;
     --crema-suave: #f0e8d4;
@@ -107,6 +108,7 @@
     --texto-principal: #ffffff;
     --texto-suave:  #ffffff;
 	--oro-suave:   #5C5C5C;
+	--oro-sospechoso:   #9b2020;
   }
   body.noir-3 .titulo-juego,
   body.noir-4 .titulo-juego,
@@ -307,8 +309,7 @@
   }
   /* estados jugador */
   .carta-sospechoso.sospechado {
-    border-color:var(--oro-viejo);
-    box-shadow:0 0 0 2px rgba(184,147,58,.35), 0 6px 20px rgba(0,0,0,.7);
+    border-color:var(--oro-sospechoso);
   }
   .carta-sospechoso.inocente-marcado {
     opacity:.38; border-color:rgba(184,147,58,.06);
@@ -432,6 +433,7 @@
     font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:900;
     cursor:pointer; transition:all .18s; line-height:1;
     display:flex; align-items:center; justify-content:center;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent; user-select:none;
   }
   .btn-vm.v-btn { border-color:rgba(100,180,100,.3); color:rgba(100,180,100,.4); }
   .btn-vm.v-btn:hover,
@@ -716,7 +718,7 @@
       <p style="margin-top:.5rem">Arrastrá el archivo o hacé clic</p>
     </div>
 
-    <button class="btn-demo" onclick="cargarDemo()">— Cargar caso de practica —</button>
+    <button class="btn-demo" onclick="cargarDemo()">— Caso de practica —</button>
 
     <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem;width:100%;margin-top:.3rem;">
       <button class="btn-demo" onclick="cargarJSON('json/fichas_urbano.json')">— Dificultad Urbano —</button>
@@ -1311,6 +1313,14 @@ function mostrarFicha(idx) {
     });
     document.querySelectorAll('.btn-vm').forEach(btn => {
       btn.addEventListener('click', () => {
+        // Guarda anti-doble-disparo: algunos navegadores móviles emiten
+        // dos eventos 'click' para un mismo toque (ghost click / doble-tap-zoom).
+        // Sin esto, el ciclo null→v→amarillo→null podía "saltarse" el null
+        // (amarillo→null→v en el mismo toque) y dar la sensación de que
+        // el botón nunca vuelve a gris.
+        const ahora = Date.now();
+        if (btn._ultimoToqueVM && ahora - btn._ultimoToqueVM < 350) return;
+        btn._ultimoToqueVM = ahora;
         marcarVM(idx, parseInt(btn.dataset.carta), btn.dataset.vm);
       });
     });
