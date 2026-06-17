@@ -1043,6 +1043,8 @@ function cargarHistorial() {
 }
 
 function guardarResultadoHistorial(dificultad, fichaId, correcto, seleccionId, generado) {
+  // No guardar historial en modo demo (sin timestamp)
+  if (!generado) return;
   const h = cargarHistorial();
   // Normalizar: si el bloque existe pero es array (formato viejo), migrarlo
   if (!h[dificultad] || Array.isArray(h[dificultad])) {
@@ -1084,6 +1086,12 @@ function casosHistorial(dificultad, generadoActual) {
     return [];
   }
   if (bloque.generado && generadoActual && bloque.generado !== generadoActual) {
+    delete h[dificultad];
+    try { localStorage.setItem(HISTORIAL_KEY, JSON.stringify(h)); } catch {}
+    return [];
+  }
+  // Si el bloque no tiene timestamp pero el JSON actual sí → descartar
+  if (!bloque.generado && generadoActual) {
     delete h[dificultad];
     try { localStorage.setItem(HISTORIAL_KEY, JSON.stringify(h)); } catch {}
     return [];
