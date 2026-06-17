@@ -565,7 +565,7 @@ TEXTOS_CARTAS = {
     39: "El culpable no era ni rico ni viejo. Lo que vi fue a alguien que podría confundirse con cualquiera.",
     40: "Era rico y de mediana edad. Esa combinación no abunda en esta sala.",
     # DUDA
-    41: "No sé quién fue. Pero sé que lo volverá a hacer si no lo encontramos.",
+    41: "Yo no he sido ni sé quién pudo hacerlo. Pero sé que lo volverá a hacer si no lo encontramos.",
     42: "Podría haber sido cualquiera. Cualquiera con suficiente razón para odiar.",
     43: "Hay cosas que no entiendo aún. Pero el culpable está en esta sala.",
     44: "Es inutil mentir, al final usted descubre la verdad.",
@@ -1146,10 +1146,18 @@ def exportar_txt_jugable(fichas: list, ruta: str):
 
 def ficha_a_dict(f: Ficha) -> dict:
     sus = {i: SOSPECHOSOS[i] for i in f.sospechosos}
+    # Setup global una sola vez — igual que tiene_solucion_unica — para que las
+    # cartas meta/veracidad se evalúen con el mismo contexto que usó la validación.
+    # Usar evaluar_carta por separado limpiaba _MAYORIA_CACHE entre declaraciones,
+    # lo que causaba que el conteo de es_verdad difiriera del campo `cantidad`.
+    ASIGNACION_EVAL.clear()
+    ASIGNACION_EVAL.update(f.asignacion)
+    _VISITADOS_EVAL.clear()
+    _MAYORIA_CACHE.clear()
     declaraciones = []
     for sid in f.sospechosos:
         carta_id = f.asignacion[sid]
-        verdad   = evaluar_carta(carta_id, f.culpable, sid, sus, f.asignacion)
+        verdad   = _evaluar_sin_setup(carta_id, f.culpable, sid, sus)
         declaraciones.append({
             "sospechoso_id"  : sid,
             "sospechoso"     : SOSPECHOSOS[sid]["nombre"],
