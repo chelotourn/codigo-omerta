@@ -436,13 +436,18 @@
     touch-action:manipulation; -webkit-tap-highlight-color:transparent; user-select:none;
   }
   .btn-vm.v-btn { border-color:rgba(100,180,100,.3); color:rgba(100,180,100,.4); }
-  .btn-vm.v-btn:hover,
   .btn-vm.v-btn.activo { background:rgba(100,180,100,.15); border-color:#6ab46a; color:#6ab46a; }
   .btn-vm.v-btn.amarillo { background:rgba(212,180,74,.15); border-color:#d4b44a; color:#d4b44a; }
   .btn-vm.m-btn { border-color:rgba(180,60,60,.3); color:rgba(180,60,60,.4); }
-  .btn-vm.m-btn:hover,
   .btn-vm.m-btn.activo { background:rgba(180,60,60,.15); border-color:#b43c3c; color:#b43c3c; }
   .btn-vm.m-btn.amarillo { background:rgba(212,180,74,.15); border-color:#d4b44a; color:#d4b44a; }
+  /* :hover solo en dispositivos con puntero real (mouse). En táctiles, :hover
+     queda "pegado" tras el toque (no hay mouseout) y simulaba el look de .activo
+     incluso cuando el botón ya estaba apagado → por eso nunca se veía gris. */
+  @media (hover:hover) and (pointer:fine) {
+    .btn-vm.v-btn:hover { background:rgba(100,180,100,.15); border-color:#6ab46a; color:#6ab46a; }
+    .btn-vm.m-btn:hover { background:rgba(180,60,60,.15); border-color:#b43c3c; color:#b43c3c; }
+  }
 
   /* VM de revelación (reemplaza los botones) */
   .decl-vm-resultado {
