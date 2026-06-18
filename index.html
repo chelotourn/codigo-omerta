@@ -99,9 +99,9 @@
     color:var(--crema-suave);
   }
 
+  body.noir-2,
   body.noir-3,
-  body.noir-4,
-  body.noir-5 {
+  body.noir-4 {
     --oro-viejo:   #ffffff;
     --crema:       #ffffff;
     --crema-suave: #ffffff;
@@ -110,17 +110,30 @@
 	--oro-suave:   #5C5C5C;
 	--oro-sospechoso:   #9b2020;
   }
+  body.noir-2 .titulo-juego,
   body.noir-3 .titulo-juego,
-  body.noir-4 .titulo-juego,
-  body.noir-5 .titulo-juego { color:#ffffff; text-shadow:none; }
+  body.noir-4 .titulo-juego { color:#ffffff; text-shadow:none; }
+  body.noir-2 .titulo-juego span,
   body.noir-3 .titulo-juego span,
-  body.noir-4 .titulo-juego span,
-  body.noir-5 .titulo-juego span { color:#9b2020; }
+  body.noir-4 .titulo-juego span { color:#9b2020; }
+  body.noir-2 .subtitulo,
+  body.noir-2 .tag,
+  body.noir-2 .decl-atrib,
+  
+  body.noir-2 .decl-id,
+  body.noir-2 .card-atribs,
+  body.noir-2 .btn-ficha,
+  body.noir-2 .btn-volver,
+  body.noir-2 .btn-sec,
+  body.noir-2 .btn-demo,
+  body.noir-2 .noir-label,
+  body.noir-2 .noir-num,
+  body.noir-2 .acusaciones-label,
   body.noir-3 .subtitulo,
   body.noir-3 .tag,
   body.noir-3 .decl-atrib,
+  body.noir-3 .decl-cat,
   
-  body.noir-3 .decl-id,
   body.noir-3 .card-atribs,
   body.noir-3 .btn-ficha,
   body.noir-3 .btn-volver,
@@ -134,35 +147,29 @@
   body.noir-4 .decl-atrib,
   body.noir-4 .decl-cat,
   
-  body.noir-4 .card-atribs,
+  body.noir-4 .card-atribs
   body.noir-4 .btn-ficha,
   body.noir-4 .btn-volver,
   body.noir-4 .btn-sec,
   body.noir-4 .btn-demo,
   body.noir-4 .noir-label,
   body.noir-4 .noir-num,
-  body.noir-4 .acusaciones-label,
-  body.noir-5 .subtitulo,
-  body.noir-5 .tag,
-  body.noir-5 .decl-atrib,
-  body.noir-5 .decl-cat,
-  
-  body.noir-5 .card-atribs
-  body.noir-5 .btn-ficha,
-  body.noir-5 .btn-volver,
-  body.noir-5 .btn-sec,
-  body.noir-5 .btn-demo,
-  body.noir-5 .noir-label,
-  body.noir-5 .noir-num,
-  body.noir-5 .acusaciones-label {
+  body.noir-4 .acusaciones-label {
     color:#a1a1a1;
   }
-  body.noir-3 .decl-cat,
-  body.noir-4 .decl-id,
-  body.noir-5 .decl-id {
+  body.noir-2 .decl-cat,
+  body.noir-3 .decl-id,
+  body.noir-4 .decl-id {
 	color:#FFFFFF;
   }
   
+  body.noir-2 .tag,
+  body.noir-2 .noir-control,
+  body.noir-2 .noir-btn,
+  body.noir-2 .btn-ficha,
+  body.noir-2 .btn-volver,
+  body.noir-2 .btn-sec,
+  body.noir-2 .btn-demo,
   body.noir-3 .tag,
   body.noir-3 .noir-control,
   body.noir-3 .noir-btn,
@@ -176,30 +183,23 @@
   body.noir-4 .btn-ficha,
   body.noir-4 .btn-volver,
   body.noir-4 .btn-sec,
-  body.noir-4 .btn-demo,
-  body.noir-5 .tag,
-  body.noir-5 .noir-control,
-  body.noir-5 .noir-btn,
-  body.noir-5 .btn-ficha,
-  body.noir-5 .btn-volver,
-  body.noir-5 .btn-sec,
-  body.noir-5 .btn-demo {
+  body.noir-4 .btn-demo {
     border-color:rgba(255,255,255,.35);
   }
   /* noir: fracaso con opacidad baja, éxito preserva rojo */
+  body.noir-2 .btn-ficha.hist-fracaso,
   body.noir-3 .btn-ficha.hist-fracaso,
-  body.noir-4 .btn-ficha.hist-fracaso,
-  body.noir-5 .btn-ficha.hist-fracaso {
+  body.noir-4 .btn-ficha.hist-fracaso {
     opacity:.3; border-color:rgba(255,255,255,.2); color:#a1a1a1;
   }
+  body.noir-2 .btn-ficha.hist-exito,
   body.noir-3 .btn-ficha.hist-exito,
-  body.noir-4 .btn-ficha.hist-exito,
-  body.noir-5 .btn-ficha.hist-exito {
+  body.noir-4 .btn-ficha.hist-exito {
     border-color:var(--rojo-sangre); color:var(--rojo-sangre);
   }
+  body.noir-2 .btn-ficha.hist-exito.activo,
   body.noir-3 .btn-ficha.hist-exito.activo,
-  body.noir-4 .btn-ficha.hist-exito.activo,
-  body.noir-5 .btn-ficha.hist-exito.activo {
+  body.noir-4 .btn-ficha.hist-exito.activo {
     background:var(--rojo-sangre); color:#fff; border-color:var(--rojo-sangre);
   }
 
@@ -777,7 +777,7 @@
   <div class="contenido-ficha" id="contenido-ficha"></div>
 </div>
 
-<div class="ornamento" id="ornamento-pie" style="display:none"><span class="span_pie">✦ ✦</span> &nbsp; UN BUEN DETECTIVE DEDUCE MÁS DE UNA MENTIRA QUE DE UNA VERDAD &nbsp; <span class="span_pie">✦ ✦</span></div>
+<div class="ornamento" id="ornamento-pie" style="display:none"><span class="span_pie">✦ ✦ &nbsp;</span>UN BUEN DETECTIVE DEDUCE MÁS DE UNA MENTIRA QUE DE UNA VERDAD<span class="span_pie">&nbsp; ✦ ✦</span></div>
 <footer class="pie">&nbsp;·&nbsp; Código Omertá &nbsp;·&nbsp; <span id="pie-info"></span></footer>
 
 <audio id="noir-audio" preload="auto" loop></audio>
@@ -802,15 +802,15 @@ function volverInicio() {
 const NOMBRES = {
   1:"El Notario", 2:"La Aprendiz", 3:"El Carnicero",
   4:"El Coronel", 5:"La Vidente", 6:"El Médico",
-  7:"El Heredero", 8:"El Archivista", 9:"El Vagabundo"
+  7:"El Heredero", 8:"El Crupier", 9:"El Vagabundo"
 };
-const EMOJIS = { 1:"📜", 2:"🔍", 3:"🔪", 4:"⭐", 5:"🔮", 6:"⚕", 7:"💰", 8:"📚", 9:"🎩" };
+const EMOJIS = { 1:"📜", 2:"🔍", 3:"🔪", 4:"⭐", 5:"🔮", 6:"⚕", 7:"💰", 8:"🂡", 9:"🎩" };
 
 // Ruta base de assets — busca pj_1.png, pj_2.png … en carpeta assets/
 const ASSETS_PATH = 'assets/';
 
 const NOIR_STORAGE_KEY = 'codigo_omerta_noir_level';
-let noirLevel = Math.min(5, Math.max(1, parseInt(localStorage.getItem(NOIR_STORAGE_KEY) || '1', 10) || 1));
+let noirLevel = Math.min(4, Math.max(1, parseInt(localStorage.getItem(NOIR_STORAGE_KEY) || '1', 10) || 1));
 let noirAudio = null;
 
 let FICHAS = [];
@@ -825,7 +825,7 @@ const imgCache = {};
 // Intenta cargar assets/pj_N.png o assets/npj_N.png según el nivel noir.
 // Si no existe, usa emoji.
 function prefijoNoirActual() {
-  return noirLevel >= 2 ? 'n' : '';
+  return 'n';
 }
 
 function urlImagenSospechoso(sid) {
@@ -889,14 +889,14 @@ function cargarJSON(url) {
 }
 
 function aplicarTemaNoir() {
-  document.body.classList.remove('noir-1', 'noir-2', 'noir-3', 'noir-4', 'noir-5');
+  document.body.classList.remove('noir-1', 'noir-2', 'noir-3', 'noir-4');
   document.body.classList.add(`noir-${noirLevel}`);
   const noirNum = document.getElementById('noir-num');
   if (noirNum) noirNum.textContent = String(noirLevel);
   const btnMenos = document.getElementById('noir-menos');
   const btnMas = document.getElementById('noir-mas');
   if (btnMenos) btnMenos.disabled = noirLevel <= 1;
-  if (btnMas) btnMas.disabled = noirLevel >= 5;
+  if (btnMas) btnMas.disabled = noirLevel >= 4;
   try { localStorage.setItem(NOIR_STORAGE_KEY, String(noirLevel)); } catch {}
   controlarAudioNoir();
 }
@@ -905,8 +905,8 @@ function controlarAudioNoir() {
   const audio = document.getElementById('noir-audio');
   if (!audio) return;
 
-  // Niveles 1, 2, 3: sin música
-  if (noirLevel < 4) {
+  // Niveles 1, 2: sin música
+  if (noirLevel < 3) {
     audio.pause?.();
     try {
       audio.removeAttribute('src');
@@ -916,8 +916,8 @@ function controlarAudioNoir() {
     return;
   }
 
-  // Nivel 4: noir_omerta.mp3 / Nivel 5: noir_omerta_n.mp3
-  const baseNombre = noirLevel === 5 ? 'noir_omerta_n' : 'noir_omerta';
+  // Nivel 3: noir_omerta.mp3 / Nivel 4: noir_omerta_n.mp3
+  const baseNombre = noirLevel === 4 ? 'noir_omerta_n' : 'noir_omerta';
 
   const candidatos = [
     `${ASSETS_PATH}${baseNombre}.mp3`,
@@ -981,17 +981,9 @@ function controlarAudioNoir() {
 }
 
 function ajustarNoir(delta) {
-  const nuevo = Math.max(1, Math.min(5, noirLevel + delta));
+  const nuevo = Math.max(1, Math.min(4, noirLevel + delta));
   if (nuevo === noirLevel) return;
   noirLevel = nuevo;
-
-  // al cambiar a nivel 2/3 hay que recargar imágenes con prefijo distinto
-  if (typeof FICHAS !== 'undefined' && FICHAS.length) {
-    for (const key of Object.keys(imgCache)) delete imgCache[key];
-    FICHAS.flatMap(f => f.sospechosos_ids || []).forEach(sid => precargarImagen(sid));
-    mostrarFicha(fichaActual);
-    renderNav();
-  }
   aplicarTemaNoir();
 }
 
