@@ -1829,7 +1829,7 @@ def main():
     print("  [1] Urbano    (sin cartas meta ni indirectas)")
     print("  [2] Metrópoli (máximo 1 carta meta o indirecta)")
     print("  [3] Omertà    (requiere al menos 1 meta y 1 indirecta)")
-    print("  [4] Mixta     (genera 3 JSON para sitio web, 10 fichas por nivel)")
+    print("  [4] Mixta     (genera 3 JSON para sitio web: 5+1 urbano, 7+1 metro, 9+1 omertà)")
     nivel = pedir_entero("  Elegí una opción [1-4]: ", minimo=1, maximo=4)
 
     # ── Modo Mixta: generación directa para sitio web ──
@@ -1839,18 +1839,20 @@ def main():
             "  [0] = Cíclico,  [1] = Distrito Industrial,  [2] = Distrito Comercial: ",
             minimo=0, maximo=2
         )
-        print("\n  → Modo MIXTA: generando 9+1 fichas por dificultad...")
+        print("\n  → Modo MIXTA: generando fichas por dificultad...")
         print("  " + "─" * 46)
         carpeta = "."
         nombres = {"urbano": "fichas_urbano.json", "metropoli": "fichas_metro.json", "omerta": "fichas_omerta.json"}
+        n_fichas_por_dif = {"urbano": 5, "metropoli": 7, "omerta": 9}
         total = 0
         for dif in ("urbano", "metropoli", "omerta"):
+            n_fichas_dif = n_fichas_por_dif[dif]
             # Igual que en el flujo normal: el cierre del Caso (ficha-conclusión)
             # solo se intenta con distrito cíclico (0); con distrito fijo (1 o 2)
             # no hay nada que comparar/desempatar entre distritos.
             if distrito_modo == 0:
                 resultado_caso = generar_caso(
-                    n_fichas=9,
+                    n_fichas=n_fichas_dif,
                     modo=modo,
                     cantidad_fija=None,
                     dificultad=dif,
@@ -1880,7 +1882,7 @@ def main():
                 total += n_exportadas
             else:
                 fichas = generar_fichas(
-                    n_fichas=9,
+                    n_fichas=n_fichas_dif,
                     modo=modo,
                     cantidad_fija=None,
                     seed=None,
