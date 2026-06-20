@@ -818,6 +818,8 @@ function volverInicio() {
   document.getElementById('nav-fichas').querySelectorAll('.btn-ficha').forEach(b => b.remove());
   // resetear input file por si quieren cargar el mismo archivo
   document.getElementById('input-json').value = '';
+  // detener la música: en la pantalla inicial no debe sonar
+  controlarAudioNoir();
 }
 
 // ── CONSTANTES ──────────────────────────────────────────────────────────────
@@ -921,6 +923,20 @@ function aplicarTemaNoir() {
 function controlarAudioNoir() {
   const audio = document.getElementById('noir-audio');
   if (!audio) return;
+
+  // La música solo suena dentro de un caso (pantalla de juego).
+  // En la pantalla inicial se mantiene en silencio aunque el nivel noir sea 3 o 4.
+  const pantallaJuego = document.getElementById('pantalla-juego');
+  const enJuego = pantallaJuego && pantallaJuego.style.display !== 'none';
+  if (!enJuego) {
+    audio.pause?.();
+    try {
+      audio.removeAttribute('src');
+      audio.load?.();
+      audio.currentTime = 0;
+    } catch {}
+    return;
+  }
 
   // Niveles 1, 2: sin música
   if (noirLevel < 3) {
