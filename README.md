@@ -68,7 +68,7 @@ El script genera salidas automatizadas listas para su distribución e integraci�
     *   *Modo Jugable:* Remueve las soluciones para su uso en partida impresa e inyecta un telegrama del Comisionado con el reglamento integrado en una interfaz CLI simulando cajas de texto de la época.
 *   **Formatos JSON:** Representación técnica estructurada limpia de objetos `Ficha` (ideal para ser consumido por interfaces y aplicaciones web).
 
-*   ## 💻 Integración con la Interfaz Web
+## 💻 Integración con la Interfaz Web
 
 La interfaz web incluida actúa como el entorno visual de testeo. Está construida en HTML5 puro y CSS adaptativo avanzado, emulando un expediente de la policía clásica.
 
