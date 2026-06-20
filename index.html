@@ -868,7 +868,7 @@ function imagenCacheada(sid, distritoId) {
 }
 
 function actualizarAvatares(sid, distritoId) {
-  document.querySelectorAll(`[data-sosp-id="${sid}"] .avatar-wrap`).forEach(wrap => {
+  document.querySelectorAll(`[data-sosp-id="${sid}"][data-distrito-id="${distritoId}"] .avatar-wrap`).forEach(wrap => {
     const url = imagenCacheada(sid, distritoId);
     if (url) {
       wrap.innerHTML = `<img src="${url}" alt="${NOMBRES[sid]||''}">`;
@@ -1441,7 +1441,7 @@ function htmlCartaSosp(sid, e, f) {
        </div>` : '';
 
   return `
-    <div class="${cls}" data-sosp-id="${sid}">
+    <div class="${cls}" data-sosp-id="${sid}" data-distrito-id="${f.distrito_id}">
       ${badge}
       <div class="chinche-bar">
         <span class="chinche-bar-label">${NOMBRES[sid]||''}</span>
