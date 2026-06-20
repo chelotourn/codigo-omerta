@@ -1,198 +1,69 @@
-# 🕶️ Código Omertá — Generador noir de fichas y casos
+# Generador de Fichas de Caso — Juego de Deducción Noir
 
-[![Estado](https://img.shields.io/badge/Estado-En%20desarrollo-orange.svg)](#)
-[![Licencia](https://img.shields.io/badge/Licencia-MIT-blue.svg)](#)
-[![Python](https://img.shields.io/badge/Python-3.9%2B-yellow.svg)](#)
+Este módulo en Python es el motor lógico y generador por fuerza bruta de acertijos de deducción social con ambientación cinematográfica *noir*. El algoritmo distribuye testimonios en forma de cartas a un pool de sospechosos y valida mediante simulación exhaustiva que exista **una única solución posible (culpable único)** bajo las restricciones dadas de verdades o mentiras.
 
-> *“Un buen detective aprende más de una mentira que de una verdad.”*
+## 🚀 Características Clave (Estado Actual)
 
-**Código Omertá** es un generador en Python de fichas de caso para un juego de deducción con estética noir. El núcleo del proyecto construye combinaciones de sospechosos y cartas por fuerza bruta, valida que cada caso tenga una solución lógica única y exporta el resultado en formatos **TXT** y **JSON**.
-
-El proyecto actual está concentrado en un solo script principal: **`codigo_omerta_v0_44.py`**.
-
----
-
-## Estado actual del proyecto
-
-El motor ya incluye, a día de hoy:
-
-- **Dos distritos jugables** con los mismos sospechosos, pero atributos distintos:
-  - Distrito Industrial
-  - Distrito Comercial
-- **72 cartas** repartidas en categorías de acusación, defensa, veracidad, descriptivas, duda, grupales, meta e indirectas.
-- **Tres dificultades**:
-  - **Urbano**: sin cartas meta ni indirectas.
-  - **Metrópoli**: permite como máximo 1 carta compleja por ficha.
-  - **Omertà**: exige al menos 1 carta meta y 1 indirecta.
-- **Modo de generación por distritos**:
-  - **Cíclico**: alterna Industrial / Comercial.
-  - **Fijo**: fuerza un solo distrito.
-- **Fichas normales** y, cuando corresponde, un **caso cerrado** con **ficha-conclusión**.
-- **Salida en consola** para jugar una ficha en pantalla y revelar después la solución.
-- **Exportación** a TXT legible y JSON técnico.
+*   **Estructura Multi-Distrito Dinámica**: Los sospechosos comparten nombres e IDs fijos, pero alteran por completo sus atributos clave (Clase y Edad) según el territorio asignado. El sistema soporta el **Distrito Industrial** (Pool 1) y el **Distrito Comercial** (Pool 2).
+*   **Modo Campaña / Generación de Casos**: Capacidad de agrupar *N* fichas bajo una misma corrida lógica interactiva para dar lugar a un **Caso**.
+*   **Ficha-Conclusión (Operación Código Omertá)**: Implementación avanzada del concepto matemático Noir. Recolecta los culpables de las fichas previas, resuelve los solapamientos de distritos mediante un sistema de desempate por apariciones y genera una ficha final sintética sobre un **Distrito 3** mutable construido en tiempo de ejecución.
+*   **Clasificación por Dificultad Exigente**:
+    *   `urbano`: De 3 a 5 sospechosos. Excluye por completo cartas de lógica meta o condicionales indirectas.
+    *   `metropoli`: De 4 a 6 sospechosos. Permite un máximo de 1 carta compleja (meta/indirecta).
+    *   `omerta`: De 5 a 8 sospechosos. Exige de forma obligatoria la presencia de al menos 1 carta meta y 1 indirecta.
+*   **Garantía de Calidad Deductiva (Anti-Solapamiento)**: Descarta fichas que contengan redundancias lógicas latentes, asegurando que no existan dos cartas en la misma partida con el mismo vector de verdad exacto para todos los candidatos.
+*   **Optimización de Rendimiento Extremo**: Inyección estática de entornos (`ASIGNACION_EVAL`), control estricto de recursión infinita mediante sets de visitados en cartas autorreferenciales y cálculo optimizado de vectores de verdad en caché para evitar la explosión combinatoria.
 
 ---
 
-## Qué resuelve el motor
+## 🗺️ Arquitectura de Datos y Distritos
 
-Cada ficha contiene:
+Cada distrito altera la ficha identitaria de los personajes presentes en la sala, complejizando el metajuego en dificultades altas:
 
-- una cantidad de sospechosos,
-- una asignación de cartas a cada sospechoso,
-- un culpable único,
-- y un conteo exacto de verdades o mentiras.
-
-El generador prueba candidatos hasta encontrar una configuración válida que cumpla las restricciones del modo elegido. También descarta fichas que repiten demasiado una misma carta, que contienen cartas redundantes o que rompen las reglas lógicas de las cartas indirectas.
-
----
-
-## Sospechosos y distritos
-
-Los mismos nombres se reutilizan en ambos distritos, pero con combinaciones distintas de clase social y edad.
-
-Sospechosos base:
-
-- El Notario
-- La Aprendiz
-- El Carnicero
-- El Coronel
-- La Vidente
-- El Médico
-- El Heredero
-- El Crupier
-- El Vagabundo
-
-Cada uno combina:
-
-- **Clase**: `rico` | `media` | `pobre`
-- **Edad**: `joven` | `mediana` | `viejo`
+| ID | Nombre del Sospechoso | Atributos Distrito 1 (Industrial) | Atributos Distrito 2 (Comercial) |
+| :--- | :--- | :--- | :--- |
+| **1** | El Notario | Rico / Viejo | Pobre / Joven |
+| **2** | La Aprendiz | Media / Joven | Rico / Viejo |
+| **3** | El Carnicero | Pobre / Mediana | Media / Joven |
+| **4** | El Coronel | Rico / Mediana | Media / Viejo |
+| **5** | La Vidente | Pobre / Viejo | Rico / Mediana |
+| **6** | El Médico | Media / Joven | Rico / Viejo |
+| **7** | El Heredero | Rico / Joven | Pobre / Mediana |
+| **8** | El Crupier | Media / Viejo | Media / Mediana |
+| **9** | El Vagabundo | Pobre / Mediana | Pobre / Joven |
 
 ---
 
-## Cartas y categorías
+## 🗂️ Categorías de Cartas (1 a 72)
 
-El juego trabaja con estas familias de cartas:
+El motor procesa de forma síncrona reglas semánticas complejas distribuidas en las siguientes categorías:
 
-- **Acusación**: apunta a un culpable concreto o grupo concreto.
-- **Defensa**: descarta sospechosos o perfiles.
-- **Veracidad**: habla sobre quién miente o dice la verdad.
-- **Descriptiva**: define rasgos del culpable.
-- **Duda**: afirmaciones más ambiguas o débiles.
-- **Grupal**: relaciones entre varios sospechosos.
-- **Meta**: evalúan la estructura lógica de la propia ficha.
-- **Indirecta**: condiciones del tipo “si A, entonces B”.
-
----
-
-## Filtros de validación
-
-Antes de aceptar una ficha, el motor comprueba varias cosas:
-
-- que exista **solución única**,
-- que la dificultad elegida se respete,
-- que no haya **solapamientos lógicos** entre cartas,
-- que las cartas indirectas no apunten a sospechosos ausentes,
-- y que el reparto de cartas mantenga diversidad dentro de la corrida.
+1.  **Acusación (1–11):** Apuntan a culpables específicos o combinaciones directas de sus atributos.
+2.  **Defensa (12–20):** Excluyen sospechosos o descartan rasgos del culpable ("*El culpable no era rico*").
+3.  **Veracidad (21–30):** Evalúan la honestidad intrínseca de subgrupos enteros presentes en la sala basados en sus condiciones físicas.
+4.  **Descriptivas (31–40):** Aportan datos tangibles sobre la fisonomía, transporte o estatus del asesino.
+5.  **Duda (41–50):** Cartas ambiguas, tautologías o falsedades directas que actúan como ruido lógico.
+6.  **Grupal (51–56):** Relacionan coartadas y nexos entre múltiples sospechosos a la vez.
+7.  **Meta (57–64):** Analizan y condicionan su veracidad al comportamiento del resto de testimonios de la ficha ("*La mayoría de las declaraciones escuchadas son mentiras*").
+8.  **Indirectas (65–72):** Estructuras lógicas condicionales puras ($A \rightarrow B$). Si el antecedente no se cumple o referencia a un sospechoso ausente, la ficha se invalida o procesa el estado como información deductiva según las reglas de juego noir.
 
 ---
 
-## Modos de uso
+## ⚙️ Reglas del Motor de Fuerza Bruta
 
-Al ejecutar el script, el programa pregunta:
+Para que una ficha sea guardada y considerada apta para impresión, el generador realiza los siguientes filtros concurrentes en su bucle principal:
 
-1. **Dificultad**
-2. **Cantidad de sospechosos por ficha**
-3. **Distrito de generación**
-   - `0` = cíclico
-   - `1` = Industrial
-   - `2` = Comercial
-4. **Cantidad de verdades**
-5. **Cantidad de fichas**
-6. **Seed**
-7. **Si querés ofuscar las respuestas** en el TXT
-
-### Modo rápido
-
-Si pedís **1 ficha**, el script la muestra directamente en pantalla y permite revelar la solución al final.
-
-### Dossier
-
-Si pedís **2 a 50 fichas**, el script genera archivos en la carpeta actual.
+1.  **Restricciones de Presencia**: Las cartas en tercera persona que nombran o dependen de un Sospechoso específico (ej. Crupier, Vagabundo) quedan prohibidas si la entidad no fue seleccionada en el muestreo de la partida.
+2.  **Límite de Diversidad Estricto**: Hardcodeado para evitar la fatiga del jugador. Ninguna carta puede aparecer en más del **18%** del total de fichas generadas en la corrida.
+3.  **Filtrado de Vacías**: Máximo una única carta por ficha del set de cartas triviales o narrativas (`CARTAS_SIEMPRE_VERDAD`), manteniendo el peso analítico del juego.
+4.  **Validación de Solución Única**: Simula el escenario asumiendo a cada sospechoso secuencialmente como culpable. Si el conteo exacto de verdades o mentiras se cumple para más de un sospechoso, la combinación es descartada inmediatamente.
 
 ---
 
-## Archivos generados
+## 💾 Exportación y Formatos
 
-### Generación normal
-
-Cuando el caso no se cierra automáticamente, el programa genera:
-
-- `fichas_YYYYMMDD_HHMMSS.txt`
-- `fichas_YYYYMMDD_HHMMSS.json`
-
-### Caso cerrado
-
-Cuando se puede resolver el cierre del caso, exporta:
-
-- `fichas_YYYYMMDD_HHMMSS.txt`
-- `fichas_YYYYMMDD_HHMMSS.json`
-
-En ese caso, el JSON incluye además un bloque `caso` con metadatos del cierre y, si existe, la ficha-conclusión.
-
-### Modo mixto
-
-La opción **4** genera tres archivos JSON:
-
-- `fichas_urbano.json`
-- `fichas_metro.json`
-- `fichas_omerta.json`
-
-Cada uno corresponde a una dificultad distinta.
-
----
-
-## Estructura del JSON
-
-Cada ficha exportada incluye, entre otros datos:
-
-- `ficha_id`
-- `distrito_id`
-- `distrito_nombre`
-- `es_conclusion`
-- `n_sospechosos`
-- `sospechosos_ids`
-- `modo`
-- `cantidad`
-- `dificultad`
-- `culpable_id`
-- `culpable_nombre`
-- `declaraciones`
-
-Cada declaración trae su sospechoso, carta, categoría, texto y estado de verdad/mentira.
-
----
-
-## Cómo ejecutar
-
-```bash
-python codigo_omerta_v0_44.py
-```
-
----
-
-## Requisitos
-
-- Python 3.9 o superior
-- No requiere dependencias externas
-
----
-
-## Nota sobre el desarrollo
-
-Este README refleja el estado del generador **según el script actual**. Si más adelante se reincorpora una interfaz web o se separa el motor en varios módulos, conviene ampliar esta documentación con la nueva arquitectura.
-
----
-
-## Licencia
-
-Este proyecto se distribuye bajo licencia **MIT**.
+El script genera salidas automatizadas listas para su distribución e integración:
+*   **Formatos TXT (Doble Propósito):**
+    *   *Modo Desarrollo:* Muestra la ficha técnica, culpable expuesto y la resolución booleana (V/M) de cada testimonio.
+    *   *Modo Jugable:* Remueve las soluciones para su uso en partida impresa e inyecta un telegrama del Comisionado con el reglamento integrado en una interfaz CLI simulando cajas de texto de la época.
+*   **Formatos JSON:** Representación técnica estructurada limpia de objetos `Ficha` (ideal para ser consumido por interfaces y aplicaciones web).
