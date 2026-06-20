@@ -283,6 +283,10 @@
     font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700;
     font-style:italic; color:var(--crema-suave); margin-bottom:.35rem;
   }
+  .ficha-distrito {
+    font-family:'Special Elite',monospace; font-size:.78rem; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--oro-viejo); margin-bottom:.6rem;
+  }
   .ficha-tags { display:flex; gap:.5rem; flex-wrap:wrap; }
   .tag {
     font-family:'Special Elite',monospace; font-size:.75rem; letter-spacing:.2em;
@@ -828,35 +832,30 @@ let estado = {};
 const imgCache = {};
 
 // ── CARGA DE IMÁGENES INDIVIDUALES ──────────────────────────────────────────
-// Intenta cargar assets/pj_N.png o assets/npj_N.png según el nivel noir.
-// Si no existe, usa emoji.
-function prefijoNoirActual() {
-  return 'n';
+// Intenta cargar assets/pj_{distrito_id}_{sid}.png. Si no existe, usa emoji.
+// El distrito_id varía la skin del personaje según el distrito de la ficha actual.
+function urlImagenSospechoso(sid, distritoId) {
+  return `${ASSETS_PATH}pj_${distritoId}_${sid}.png`;
 }
 
-function urlImagenSospechoso(sid) {
-  const pref = prefijoNoirActual();
-  return `${ASSETS_PATH}${pref}pj_${sid}.png`;
-}
-
-function precargarImagen(sid) {
-  const key = `${noirLevel}:${sid}`;
+function precargarImagen(sid, distritoId) {
+  const key = `${distritoId}:${sid}`;
   if (key in imgCache) return;
   imgCache[key] = null; // marca como "intentado"
-  const url = urlImagenSospechoso(sid);
+  const url = urlImagenSospechoso(sid, distritoId);
   const img = new Image();
-  img.onload  = () => { imgCache[key] = url; actualizarAvatares(sid); };
+  img.onload  = () => { imgCache[key] = url; actualizarAvatares(sid, distritoId); };
   img.onerror = () => { imgCache[key] = null; };
   img.src = url;
 }
 
-function imagenCacheada(sid) {
-  return imgCache[`${noirLevel}:${sid}`] || null;
+function imagenCacheada(sid, distritoId) {
+  return imgCache[`${distritoId}:${sid}`] || null;
 }
 
-function actualizarAvatares(sid) {
+function actualizarAvatares(sid, distritoId) {
   document.querySelectorAll(`[data-sosp-id="${sid}"] .avatar-wrap`).forEach(wrap => {
-    const url = imagenCacheada(sid);
+    const url = imagenCacheada(sid, distritoId);
     if (url) {
       wrap.innerHTML = `<img src="${url}" alt="${NOMBRES[sid]||''}">`;
     } else {
@@ -1185,9 +1184,16 @@ function iniciarJuego(datos) {
     };
   });
 
-  // Precargar imágenes de todos los personajes involucrados
-  const sids = new Set(FICHAS.flatMap(f => f.sospechosos_ids));
-  sids.forEach(sid => precargarImagen(sid));
+  // Precargar imágenes de todos los personajes involucrados, por distrito de cada ficha
+  const combos = new Set();
+  FICHAS.forEach(f => {
+    const distritoId = f.distrito_id;
+    f.sospechosos_ids.forEach(sid => combos.add(`${distritoId}:${sid}`));
+  });
+  combos.forEach(key => {
+    const [distritoId, sid] = key.split(':').map(Number);
+    precargarImagen(sid, distritoId);
+  });
 
   document.getElementById('pantalla-carga').style.display = 'none';
   document.getElementById('pantalla-juego').style.display = 'block';
@@ -1254,6 +1260,7 @@ function mostrarFicha(idx) {
       <div class="ficha-numero">${String(f.ficha_id).padStart(2,'0')}</div>
       <div class="ficha-meta">
         <div class="ficha-titulo">TELEGRAMA DEL COMISIONADO</div>
+        <div class="ficha-distrito">${f.distrito_nombre || ''}</div>
         <div class="ficha-tags">
           <span class="tag tag-dificultad">Dificultad ${dif}</span>
           <span class="tag tag-info">${f.n_sospechosos} sospechosos</span>
@@ -1294,7 +1301,7 @@ function mostrarFicha(idx) {
   `;
 
   // Aplicar imágenes ya cacheadas
-  f.sospechosos_ids.forEach(sid => { if (imagenCacheada(sid)) actualizarAvatares(sid); });
+  f.sospechosos_ids.forEach(sid => { if (imagenCacheada(sid, f.distrito_id)) actualizarAvatares(sid, f.distrito_id); });
 
   // Bind de eventos (sólo si no está resuelta)
   if (!e.resuelta) {
@@ -1374,7 +1381,7 @@ function htmlCartaSosp(sid, e, f) {
   }
 
   const sosp = f.declaraciones.find(d => d.sospechoso_id===sid) || {};
-  const avatarUrl = imagenCacheada(sid);
+  const avatarUrl = imagenCacheada(sid, f.distrito_id);
   const avatarInner = avatarUrl
     ? `<img src="${avatarUrl}" alt="${NOMBRES[sid]||''}">`
     : `<div class="avatar-emoji">${EMOJIS[sid]||'?'}</div>`;
