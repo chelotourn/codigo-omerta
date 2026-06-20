@@ -646,11 +646,23 @@
     box-shadow:0 0 0 2px rgba(212,180,74,.9), 0 0 14px rgba(212,180,74,.6);
     transform:scale(1.22);
   }
+  .chinche.marcada-azul {
+    background:radial-gradient(circle at 35% 30%, #7ab8ff, #2a5fa8);
+    box-shadow:0 0 0 2px rgba(74,120,212,.7), 0 0 10px rgba(74,120,212,.5);
+  }
+  .chinche.marcada-azul:hover {
+    background:radial-gradient(circle at 35% 30%, #a0d0ff, #3a72c0);
+    box-shadow:0 0 0 2px rgba(74,120,212,.9), 0 0 14px rgba(74,120,212,.6);
+    transform:scale(1.22);
+  }
   .hilo-line.amarilla {
     stroke:#d4b44a; filter:drop-shadow(0 0 2px rgba(212,180,74,.5));
   }
   .hilo-line.verde {
     stroke:#4a8a4a; filter:drop-shadow(0 0 2px rgba(74,138,74,.5));
+  }
+  .hilo-line.azul {
+    stroke:#4a78d4; filter:drop-shadow(0 0 2px rgba(74,120,212,.5));
   }
   .hilo-line.preview.verde {
     stroke:#4a8a4a;
@@ -1177,7 +1189,8 @@ function iniciarJuego(datos) {
       acusaciones: {},
       hilos:       [],
       chinchesVerdes:    new Set(),
-      chinchesAmarillos: new Set()
+      chinchesAmarillos: new Set(),
+      chinchesAzules:    new Set()
     };
   });
 
@@ -1336,10 +1349,20 @@ function mostrarFicha(idx) {
         // Sin esto, el ciclo null→v→amarillo→null podía "saltarse" el null
         // (amarillo→null→v en el mismo toque) y dar la sensación de que
         // el botón nunca vuelve a gris.
+        // También actúa como guarda frente al doble clic real de mouse: el
+        // segundo 'click' de un dblclick cae dentro de la ventana y se ignora,
+        // dejando que sea el evento 'dblclick' quien decida el resultado final.
         const ahora = Date.now();
         if (btn._ultimoToqueVM && ahora - btn._ultimoToqueVM < 350) return;
         btn._ultimoToqueVM = ahora;
         marcarVM(idx, parseInt(btn.dataset.carta), btn.dataset.vm);
+      });
+      // Doble clic en V o en M → ambos (V y M de esa misma declaración) a amarillo
+      btn.addEventListener('dblclick', ev => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        btn._ultimoToqueVM = Date.now(); // evita que un click residual reabra el ciclo normal
+        marcarAmbosAmarillo(idx, parseInt(btn.dataset.carta));
       });
     });
     // Clic en nombre del personaje en declaraciones = toggle inocente
@@ -1434,8 +1457,9 @@ function htmlDeclaracion(d, e) {
   } else {
     // botones interactivos V / M
     const marcaActual = e.marcasVM[d.carta_id] || null;
-    const vCls = marcaActual === 'v' ? 'activo' : (marcaActual === 'v_amarillo' ? 'amarillo' : '');
-    const mCls = marcaActual === 'm' ? 'activo' : (marcaActual === 'm_amarillo' ? 'amarillo' : '');
+    const ambosAmarillo = marcaActual === 'ambos_amarillo';
+    const vCls = ambosAmarillo ? 'amarillo' : (marcaActual === 'v' ? 'activo' : (marcaActual === 'v_amarillo' ? 'amarillo' : ''));
+    const mCls = ambosAmarillo ? 'amarillo' : (marcaActual === 'm' ? 'activo' : (marcaActual === 'm_amarillo' ? 'amarillo' : ''));
     marcadorHTML = `
       <div class="decl-marcador">
         <button class="btn-vm v-btn ${vCls}"
@@ -1562,6 +1586,19 @@ function marcarVM(idx, cartaId, vm) {
       btn.classList.add('amarillo');
     }
     // El otro botón se limpia siempre
+  });
+}
+
+// Doble clic en V o M → marcar AMBOS (V y M de la misma declaración) en amarillo
+function marcarAmbosAmarillo(idx, cartaId) {
+  const e = estado[idx];
+  if (e.resuelta) return;
+
+  e.marcasVM[cartaId] = 'ambos_amarillo';
+
+  document.querySelectorAll(`.btn-vm[data-carta="${cartaId}"]`).forEach(btn => {
+    btn.classList.remove('activo');
+    btn.classList.add('amarillo');
   });
 }
 
@@ -1836,7 +1873,8 @@ function dibujarHilos(idx) {
     const origenId = h.origen || h.a;
     const esVerde    = verdes.has(origenId);
     const esAmarillo = (estado[idx].chinchesAmarillos || new Set()).has(origenId);
-    const claseHilo = esVerde ? 'hilo-line verde' : esAmarillo ? 'hilo-line amarilla' : 'hilo-line';
+    const esAzul     = (estado[idx].chinchesAzules || new Set()).has(origenId);
+    const claseHilo = esVerde ? 'hilo-line verde' : esAmarillo ? 'hilo-line amarilla' : esAzul ? 'hilo-line azul' : 'hilo-line';
     line.setAttribute('class', claseHilo);
     line.style.pointerEvents = 'stroke';
     line.style.cursor = 'pointer';
@@ -1854,17 +1892,21 @@ function actualizarChinchesConHilo(idx) {
   const hilos = (estado[idx] || {}).hilos || [];
   const verdes    = (estado[idx] || {}).chinchesVerdes    || new Set();
   const amarillos = (estado[idx] || {}).chinchesAmarillos || new Set();
+  const azules    = (estado[idx] || {}).chinchesAzules    || new Set();
   // Solo los ORÍGENES de hilos se ponen rojos; los destinos se quedan como estaban
   const origenes = new Set(hilos.map(h => h.origen || h.a));
   document.querySelectorAll('.chinche').forEach(c => {
     const id = c.getAttribute('data-chinche-id');
     const esVerde    = verdes.has(id);
     const esAmarillo = amarillos.has(id);
-    c.classList.remove('marcada-verde', 'marcada-amarilla', 'tiene-hilo');
+    const esAzul     = azules.has(id);
+    c.classList.remove('marcada-verde', 'marcada-amarilla', 'marcada-azul', 'tiene-hilo');
     if (esVerde) {
       c.classList.add('marcada-verde');
     } else if (esAmarillo) {
       c.classList.add('marcada-amarilla');
+    } else if (esAzul) {
+      c.classList.add('marcada-azul');
     } else {
       c.classList.toggle('tiene-hilo', origenes.has(id));
     }
@@ -1898,16 +1940,22 @@ function toggleVerdeYDesconectar(chincheId) {
   if (!estado[fichaActual]) return;
   if (!estado[fichaActual].chinchesVerdes)    estado[fichaActual].chinchesVerdes    = new Set();
   if (!estado[fichaActual].chinchesAmarillos) estado[fichaActual].chinchesAmarillos = new Set();
+  if (!estado[fichaActual].chinchesAzules)    estado[fichaActual].chinchesAzules    = new Set();
   const verdes    = estado[fichaActual].chinchesVerdes;
   const amarillos = estado[fichaActual].chinchesAmarillos;
+  const azules    = estado[fichaActual].chinchesAzules;
 
   if (verdes.has(chincheId)) {
     // verde → amarillo (sin tocar hilos)
     verdes.delete(chincheId);
     amarillos.add(chincheId);
   } else if (amarillos.has(chincheId)) {
-    // amarillo → apagado (sin tocar hilos)
+    // amarillo → azul (sin tocar hilos)
     amarillos.delete(chincheId);
+    azules.add(chincheId);
+  } else if (azules.has(chincheId)) {
+    // azul → apagado (sin tocar hilos)
+    azules.delete(chincheId);
   } else {
     // apagado/roja → verde (sin tocar hilos, solo cambia el color)
     verdes.add(chincheId);
