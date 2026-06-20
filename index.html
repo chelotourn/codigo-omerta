@@ -927,7 +927,7 @@ function controlarAudioNoir() {
   // La música solo suena dentro de un caso (pantalla de juego).
   // En la pantalla inicial se mantiene en silencio aunque el nivel noir sea 3 o 4.
   const pantallaJuego = document.getElementById('pantalla-juego');
-  const enJuego = pantallaJuego && pantallaJuego.style.display !== 'none';
+  const enJuego = !!pantallaJuego && getComputedStyle(pantallaJuego).display !== 'none';
   if (!enJuego) {
     audio.pause?.();
     try {
