@@ -67,3 +67,26 @@ El script genera salidas automatizadas listas para su distribución e integraci�
     *   *Modo Desarrollo:* Muestra la ficha técnica, culpable expuesto y la resolución booleana (V/M) de cada testimonio.
     *   *Modo Jugable:* Remueve las soluciones para su uso en partida impresa e inyecta un telegrama del Comisionado con el reglamento integrado en una interfaz CLI simulando cajas de texto de la época.
 *   **Formatos JSON:** Representación técnica estructurada limpia de objetos `Ficha` (ideal para ser consumido por interfaces y aplicaciones web).
+
+*   ## 💻 Integración con la Interfaz Web
+
+La interfaz web incluida actúa como el entorno visual de testeo. Está construida en HTML5 puro y CSS adaptativo avanzado, emulando un expediente de la policía clásica.
+
+Puedes acceder a la versión desplegada en vivo aquí:  
+🚀 **[Probar Demo en GitHub Pages](https://chelotourn.github.io/codigo-omerta/)**
+
+---
+
+### ¿Cómo jugar un caso?
+1. Genera tus archivos utilizando el script local en Python.
+2. Abre la demo en la web o el entorno local.
+3. Utiliza el módulo **"Carga de Expediente"** para arrastrar o seleccionar el archivo `.json` exportado.
+4. La interfaz renderizará automáticamente las tarjetas de los sospechosos activos, sus atributos visuales y sus declaraciones en formato de lista de chequeo interactiva (`V` para Verdad, `M` para Mentira), lo que permite realizar el proceso de descarte de forma cómoda.
+
+NOTA: Se han añadido 3 ficheros de casos en la interfaz de inicio, uno para cada nivel de dificultad. En su interior dispondrás de 10 casos jugables para evaluar el desafío
+
+---
+
+## 📝 Licencia
+
+Este proyecto se distribuye bajo la licencia **MIT**. Siéntete libre de utilizar el motor generador, modificar la base de datos de las cartas o adaptar la lógica meta a tus propios desarrollos de juegos de mesa o digitales.
