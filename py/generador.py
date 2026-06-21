@@ -17,11 +17,20 @@ from typing import Optional
 # ─────────────────────────────────────────────
 
 PORC_MAX_REPETICION_CARTA = 0.18  # tope hardcodeado: ninguna carta puede aparecer
-                                   # en más del 30% de las fichas de una misma corrida
+                                   # en más del 18% de las fichas de una misma corrida
 
 MOSTRAR_INFORME_CARTAS = True      # si True, imprime al final de cada corrida el listado
                                    # de cartas ordenado por cantidad de apariciones
-                                   
+
+# ── Carta Omertá ────────────────────────────────────────────────────────────
+# Tope de cuántas cartas puede silenciar Omertá en una misma ficha. Si el
+# apagón generado supera este número, la ficha se descarta y se reintenta.
+TOPE_CARTAS_APAGADAS_OMERTA = 4
+
+# Mínimo de cartas que deben quedar "vivas" (no silenciadas) en la ficha,
+# para garantizar que sigue habiendo señal deductiva suficiente.
+MINIMO_CARTAS_VIVAS_TRAS_OMERTA = 2
+
 SOSPECHOSOS_1 = {
     1: {"nombre": "El Notario",   "clase": "rico",  "edad": "viejo"},
     2: {"nombre": "La Aprendiz",  "clase": "media", "edad": "joven"},
@@ -71,22 +80,9 @@ SOSPECHOSOS = SOSPECHOSOS_1
 
 
 # ── Helpers para lógica meta ─────────────────────────────────────────────────
-# Estas funciones inspeccionan las cartas asignadas a otros sospechosos
-# y evalúan si sus declaraciones son verdad/mentira dado el culpable.
-# Se usan en la categoría "meta".
-
-def _cartas_de_categoria(asignacion_global, categoria, sus):
-    """Devuelve los sospechoso_ids que tienen carta de la categoría dada."""
-    if asignacion_global is None:
-        return []
-    return [sid for sid, cid in asignacion_global.items()
-            if CATEGORIAS_CARTAS.get(cid) == categoria]
-
-def _declarante_miente(sid, c, sus, asignacion_global):
-    """True si el sospechoso sid miente dado el culpable c."""
-    if asignacion_global is None or sid not in asignacion_global:
-        return False
-    return not evaluar_carta_simple(asignacion_global[sid], c, sid, sus)
+# evaluar_carta_simple inspecciona las cartas asignadas a otros sospechosos
+# y evalúa si sus declaraciones son verdad/mentira dado el culpable.
+# Se usa en la categoría "meta".
 
 # Set de cartas actualmente en evaluación — usado para detectar recursión.
 # Cuando evaluar_carta_simple detecta que ya está evaluando una carta,
@@ -95,10 +91,11 @@ _VISITADOS_EVAL: set = set()
 
 def evaluar_carta_simple(carta_id, culpable_id, declarante_id, sus):
     """Evaluación con protección anti-recursión via set de visitados.
-    Para cartas de veracidad (21-30) y meta (57-73): usa CARTAS (evaluación completa)
-    pero registra la carta en _VISITADOS_EVAL antes de entrar, y si ya está registrada
+    Para cartas de veracidad (21-30), meta/indirecta (57-72) y la carta
+    especial Omertá (73): usa CARTAS (evaluación completa) pero registra la
+    carta en _VISITADOS_EVAL antes de entrar, y si ya está registrada
     (ciclo), devuelve True para cortar la recursión sin crashear."""
-    if carta_id in range(21, 31) or carta_id in range(57, 73):
+    if carta_id in range(21, 31) or carta_id in range(57, 73) or carta_id == ID_CARTA_OMERTA:
         # Evaluación completa con protección anti-recursión
         key = (carta_id, culpable_id, declarante_id)
         if key in _VISITADOS_EVAL:
@@ -375,17 +372,199 @@ CARTAS_META = {
     63: _meta(lambda c, s, sus, asig: _hay_contradiccion_acusacion_defensa(c, s, sus, asig)),
 }
 
+# ── CARTA ESPECIAL: OMERTÁ (73) ──────────────────────────────────────────────
+# "Aquí dentro nadie habla. Quien me acuse, directa o indirectamente, será
+# silenciado." Exclusiva de la ficha-conclusión del Caso, en dificultad
+# metrópoli y omertá (nunca en fichas normales ni en urbano).
+#
+# Efecto: protege a su propio DECLARANTE (no al culpable de la ronda) — si
+# otra carta de la mesa lo nombra, o si su perfil real (clase+edad) encaja
+# en lo que esa carta exige del culpable, esa carta queda SILENCIADA: no
+# cuenta como verdad ni como mentira en el total de la partida. El efecto
+# es independiente de quién resulte ser el culpable real.
+#
+# La propia carta Omertá es verdad si y solo si logró silenciar al menos
+# una carta; si nadie la desafiaba, es mentira (la amenaza fue vacía).
+ID_CARTA_OMERTA = 73
+
+# Categorías cuya verdad/mentira depende DIRECTAMENTE del atributo (clase o
+# edad) del culpable evaluado. Acusación, descriptiva y grupal entran
+# siempre; de duda, solo la 43 ("pobre y no viejo").
+CATS_SENSIBLES_ATRIBUTO = {"acusación", "descriptiva", "grupal"}
+CARTAS_DUDA_SENSIBLES = {43}
+
+# Excepción puntual: la 39 está categorizada como "descriptiva" pero es en
+# esencia una defensa por exclusión ("el culpable NO era ni rico ni viejo")
+# — niega un atributo en vez de afirmarlo. Es la única negativa del bloque
+# 31-40; se excluye a mano en vez de generalizar una regla de "negación".
+CARTAS_EXCLUIDAS_OMERTA = {39}
+
+# Indirectas cuyo antecedente A no depende del atributo del culpable, pero
+# cuyo consecuente B sí — Omertá las apaga únicamente cuando A se cumple.
+# Decisión explícita: SOLO estas tres entran al criterio condicional, no se
+# generaliza a 67/68/70/72 aunque tengan estructura similar.
+INDIRECTAS_CONDICIONADAS_A_PREMISA = {66, 69, 71}
+
+
+def _omerta_valor_carta(cid_otra, c, sid_otra, sus, asignacion):
+    """Evalúa cid_otra(c, sid_otra, sus) inyectando ASIGNACION_EVAL primero,
+    para que funcione tanto con cartas simples (CARTAS_BASE) como con
+    cartas envueltas en _meta (que leen el global ASIGNACION_EVAL en vez
+    de recibir asig como argumento explícito).
+
+    Protección anti-ciclo: usa el MISMO mecanismo de _VISITADOS_EVAL que
+    evaluar_carta_simple (agregar la clave antes de evaluar, descartarla al
+    salir) en vez de limpiar/restaurar el set completo — necesario porque
+    Omertá puede depender de una indirecta (66/69/71) cuya premisa A a su
+    vez evalúa la propia carta Omertá para otro declarante.
+
+    CRÍTICO: `asignacion` puede ser el MISMO objeto que ASIGNACION_EVAL
+    (cuando se llega aquí desde una carta _meta). Se copia a una variable
+    local ANTES de tocar ASIGNACION_EVAL para no vaciarla por aliasing."""
+    key = (cid_otra, c, sid_otra)
+    if key in _VISITADOS_EVAL:
+        return True   # ciclo detectado: cortar con True (conservador)
+
+    asignacion_a_inyectar = dict(asignacion)
+    asignacion_previa = dict(ASIGNACION_EVAL)
+    ASIGNACION_EVAL.clear()
+    ASIGNACION_EVAL.update(asignacion_a_inyectar)
+    _VISITADOS_EVAL.add(key)
+    try:
+        fn = CARTAS.get(cid_otra)
+        if fn is None:
+            return True
+        return fn(c, sid_otra, sus)
+    except Exception:
+        return True
+    finally:
+        _VISITADOS_EVAL.discard(key)
+        ASIGNACION_EVAL.clear()
+        ASIGNACION_EVAL.update(asignacion_previa)
+
+
+def _antecedente_A_indirecta_omerta(cid_otra, c, sus, asignacion):
+    """Replica el antecedente A de las indirectas 66/69/71, en sus propios
+    términos (sin tocar B), para decidir si Omertá debe considerarlas. A se
+    evalúa contra el culpable REAL de la ronda (c), no contra el declarante
+    de Omertá — A no depende de "quién protege Omertá"."""
+    asignacion_a_inyectar = dict(asignacion)
+    asignacion_previa = dict(ASIGNACION_EVAL)
+    ASIGNACION_EVAL.clear()
+    ASIGNACION_EVAL.update(asignacion_a_inyectar)
+    try:
+        if cid_otra == 66:
+            if 9 not in asignacion:
+                return False
+            return not _omerta_valor_carta(asignacion[9], c, 9, sus, asignacion)
+        if cid_otra == 69:
+            return _hay_media_mintiendo(c, None, sus, asignacion)
+        if cid_otra == 71:
+            return _mayoria_miente_simple(c, None, sus, asignacion)
+        return False
+    finally:
+        ASIGNACION_EVAL.clear()
+        ASIGNACION_EVAL.update(asignacion_previa)
+
+
+def _omerta_carta_apunta_a(cid_otra, sid_otra, c, sus, asig, declarante_omerta):
+    """¿La carta cid_otra (de sid_otra) 'apunta' al declarante de Omertá?
+    Funciona independientemente de si declarante_omerta es o no el culpable
+    real evaluado (c) — Omertá protege a su propio declarante, no al
+    culpable de la ronda.
+
+    Alcance:
+      1) Identidad explícita: la carta nombra al declarante_omerta por id
+         (acusación/defensa directa, descriptiva 37-38, grupales 51-53).
+         NO incluye 66/67/68: esos mencionan un sospechoso fijo como sujeto
+         de una premisa condicional, no como acusación/defensa directa.
+      2) Atributo directo: acusación/descriptiva/grupal siempre; duda solo
+         la 43. Se evalúa la lambda original de la carta poniendo a
+         declarante_omerta en el rol de "culpable", con sus atributos
+         reales — si da True, su perfil encaja en lo que la carta exige.
+      3) Indirectas 66/69/71 (únicas): solo si su antecedente A es verdadero.
+
+    Las demás cartas (incluida la 39, excluida a mano) nunca entran.
+    """
+    NOMBRA_ID = {
+        1: (3,), 2: (1,), 3: (6,), 4: (5,), 5: (2,), 6: (4,),
+        7: (8, 9), 8: (3, 7), 9: (2, 5),
+        12: (1,), 13: (3,), 14: (4,), 15: (6,),
+        16: (1, 4), 17: (2, 5), 18: (3, 6),
+        37: (4,), 38: (2,),
+        51: (1, 4), 52: (2, 3), 53: (5, 6),
+    }
+    if cid_otra in NOMBRA_ID and declarante_omerta in NOMBRA_ID[cid_otra]:
+        return True
+
+    if cid_otra in CARTAS_EXCLUIDAS_OMERTA:
+        return False
+
+    cat = CATEGORIAS_CARTAS.get(cid_otra)
+
+    if cid_otra in INDIRECTAS_CONDICIONADAS_A_PREMISA:
+        if not _antecedente_A_indirecta_omerta(cid_otra, c, sus, asig):
+            return False
+    elif cat == "duda":
+        if cid_otra not in CARTAS_DUDA_SENSIBLES:
+            return False
+    elif cat not in CATS_SENSIBLES_ATRIBUTO:
+        return False
+
+    if cid_otra in NOMBRA_ID:
+        return False
+
+    return _omerta_valor_carta(cid_otra, declarante_omerta, sid_otra, sus, asig)
+
+
+def calcular_cartas_silenciadas(asignacion: dict, candidato: int, sus: dict) -> set:
+    """Devuelve el set de sospechoso_ids cuya carta queda silenciada por
+    Omertá. Vacío si no hay carta Omertá en la mesa. No depende de que
+    `candidato` sea el declarante de Omertá — Omertá protege a su propio
+    declarante sea quien sea el culpable evaluado; `candidato` solo se usa
+    para la premisa A de 66/69/71.
+
+    Punto de entrada robusto: sincroniza ASIGNACION_EVAL con `asignacion`
+    antes de evaluar nada (puede llamarse desde fuera de cualquier
+    evaluación en curso). `asignacion` puede ser el MISMO objeto que
+    ASIGNACION_EVAL (si se llega aquí desde _omerta_es_verdad) — por eso se
+    congela `asignacion_a_usar = dict(asignacion)` ANTES de tocar el global."""
+    asignacion_a_usar = dict(asignacion)
+    asignacion_previa = dict(ASIGNACION_EVAL)
+    ASIGNACION_EVAL.clear()
+    ASIGNACION_EVAL.update(asignacion_a_usar)
+    try:
+        declarante_omerta = next((sid for sid, cid in asignacion_a_usar.items() if cid == ID_CARTA_OMERTA), None)
+        if declarante_omerta is None:
+            return set()
+        items_fijos = list(asignacion_a_usar.items())
+        silenciadas = set()
+        for sid_otra, cid_otra in items_fijos:
+            if sid_otra == declarante_omerta:
+                continue
+            if _omerta_carta_apunta_a(cid_otra, sid_otra, candidato, sus, asignacion_a_usar, declarante_omerta):
+                silenciadas.add(sid_otra)
+        return silenciadas
+    finally:
+        ASIGNACION_EVAL.clear()
+        ASIGNACION_EVAL.update(asignacion_previa)
+
+
+def _omerta_es_verdad(c, s, sus, asig):
+    """Omertá es verdad si y solo si efectivamente logró silenciar al menos
+    una carta de la mesa. Si nadie la desafiaba, es mentira."""
+    silenciadas = calcular_cartas_silenciadas(asig, c, sus)
+    return len(silenciadas) > 0
+
+
+CARTAS_OMERTA = {
+    ID_CARTA_OMERTA: _meta(_omerta_es_verdad),
+}
+
 # ── INDIRECTAS (65–72) — confesión condicional indirecta ─────────────────────
 # Usan evaluar_carta_simple para no recursar.
 # Las cartas que referencian al Crupier (8), Vagabundo (9) o Heredero (7)
 # solo se pueden asignar si ese sospechoso está presente en la partida.
-
-def _hay_acusacion_al_culpable(c, s, sus, asig):
-    """¿Alguna carta de acusación apunta al culpable y es verdad?"""
-    return any(
-        CATEGORIAS_CARTAS.get(cid) == "acusación" and evaluar_carta_simple(cid, c, sid, sus)
-        for sid, cid in asig.items()
-    )
 
 def _hay_media_mintiendo(c, s, sus, asig):
     """¿Algún sospechoso de clase media (excl. declarante) miente?"""
@@ -525,7 +704,7 @@ CARTAS_INDIRECTAS = {
     ),
 }
 
-CARTAS = {**CARTAS_BASE, **CARTAS_META, **CARTAS_INDIRECTAS}
+CARTAS = {**CARTAS_BASE, **CARTAS_META, **CARTAS_INDIRECTAS, **CARTAS_OMERTA}
 
 # ── Validación de cartas indirectas ──────────────────────────────────────────
 # Evalúa si la condición A de cada carta indirecta presente en la ficha
@@ -603,7 +782,7 @@ TEXTOS_CARTAS = {
     8:  "El Carnicero o el Heredero. Cualquiera de los dos tiene las manos entrenadas para esto.",
     9:  "Fue la Aprendiz o la Vidente. El instinto lo dice. Las pruebas, también.",
     10: "El asesino ya tenía la edad de quien no teme nada y el dinero de quien nunca tuvo que temerlo.",
-    11: "El asesino tenía los bolsillos vacíos y sintiendo el peso de los años se negó llegar a viejo en la miseria. No lo culpo",
+    11: "El asesino tenía los bolsillos vacíos y sintiendo el peso de los años se negó a llegar a viejo en la miseria. No lo culpo",
     # DEFENSA
     12: "El Notario no tiene el temple. Conozco a los que pueden hacer algo así. Él no.",
     13: "El Carnicero es muchas cosas. Un asesino no es una de ellas. Que quede claro.",
@@ -615,12 +794,12 @@ TEXTOS_CARTAS = {
     19: "El culpable no era rico. Vi sus ropas. Menuda falta de gusto.",
     20: "Quien lo hizo era joven. Lo delataba el nerviosismo. La vejez da paciencia para el crimen.",
     # VERACIDAD
-    21: "Esos viejos en la sala saben más de lo que dicen. Eligieron con cuidado que contar y que ocultar.",
+    21: "Todos esos viejos en la sala saben más de lo que dicen. Eligieron con cuidado que contar y sobre todo que ocultar.",
     22: "Desconfíen de todos los demas ricos. El porte da una confianza que cuesta distinguir de la inocencia.",
     23: "A su edad los viejos ya no se gastan en mentir. No temen a la verdad.",
     24: "Los pobres no mienten pues hoy han comido bien. Yo les creo.",
     25: "La experiencia no se oculta. Quien tiene mediana edad ya ha aprendido a mentir y lo hará.",
-    26: "La descripciones que he escuchado son muy vagas y quienes dudan carecen de condiciona. Aquí alguien esta mintiendo.",
+    26: "Las descripciones que he escuchado esconden algo y quienes han dudado al hablar lo confirman. Aquí alguien está mintiendo.",
     27: "Los de clase media no mienten. Son de fiar.",
     28: "Los jóvenes de hoy no tienen respeto por la verdad. Al menos uno de ellos miente.",
     29: "Entre tanta gente pobre seguro hay algun mentiroso. Así es esta gente.",
@@ -672,6 +851,8 @@ TEXTOS_CARTAS = {
     70: "Si el culpable esgrime una defensa esta noche, algún inocente también miente para cubrirlo. La complicidad tiene sus reglas.",
     71: "Si la mayoria de los demás sospechosos miente, el culpable tiene años encima. La vejez enseña a esconderse.",
     72: "Si nadie acusa directamente al culpable, es porque este los está presionando. Pero los pobres no tienen nada que perder y dirán la verdad.",
+    # OMERTA
+    73: "Solo tengo una palabra para usted, detective: Omertá. Quien me acuse, directa o indirectamente, será silenciado.",
 }
 
 
@@ -692,6 +873,7 @@ CATEGORIAS_CARTAS = {
     61: "meta",      62: "meta",      63: "meta",      64: "indirecta",
     65: "indirecta", 66: "indirecta", 67: "indirecta", 68: "indirecta",
     69: "indirecta", 70: "indirecta", 71: "indirecta", 72: "indirecta",
+    73: "omerta",
 }
 
 # ─────────────────────────────────────────────
@@ -733,16 +915,15 @@ def _evaluar_sin_setup(carta_id: int, culpable_id: int, declarante_id: int, sus:
     fn = CARTAS[carta_id]
     return fn(culpable_id, declarante_id, sus)
 
-def contar_verdades(asignacion: dict, culpable_id: int, sus: dict) -> int:
-    return sum(
-        1 for sosp_id, carta_id in asignacion.items()
-        if evaluar_carta(carta_id, culpable_id, sosp_id, sus, asignacion)
-    )
-
 def tiene_solucion_unica(asignacion: dict, sus: dict, modo: str, cantidad: int) -> Optional[int]:
     """Busca un único culpable que satisfaga el conteo de verdades/mentiras.
     Optimización: inyecta ASIGNACION_EVAL una sola vez por candidato (no por carta)
-    y usa _evaluar_sin_setup para evitar el overhead de clear+update en cada carta."""
+    y usa _evaluar_sin_setup para evitar el overhead de clear+update en cada carta.
+
+    Cartas silenciadas por Omertá quedan EXCLUIDAS del conteo de verdades y
+    del de mentiras — el universo evaluable para ese candidato se reduce,
+    en vez de que la carta silenciada "cuente" hacia cualquiera de los dos
+    lados con su valor lógico de fondo."""
     n = len(sus)
     soluciones = []
     items = list(asignacion.items())   # materializar para no re-iterar el dict
@@ -752,11 +933,13 @@ def tiene_solucion_unica(asignacion: dict, sus: dict, modo: str, cantidad: int) 
         ASIGNACION_EVAL.update(asignacion)
         _VISITADOS_EVAL.clear()
         _MAYORIA_CACHE.clear()
+        silenciadas = calcular_cartas_silenciadas(asignacion, candidato, sus)
+        n_evaluable = n - len(silenciadas)
         verdades = sum(
             1 for sosp_id, carta_id in items
-            if _evaluar_sin_setup(carta_id, candidato, sosp_id, sus)
+            if sosp_id not in silenciadas and _evaluar_sin_setup(carta_id, candidato, sosp_id, sus)
         )
-        mentiras = n - verdades
+        mentiras = n_evaluable - verdades
         if modo == "verdades" and verdades == cantidad:
             soluciones.append(candidato)
             if len(soluciones) > 1:
@@ -856,10 +1039,72 @@ def validar_sin_solapamiento(asignacion: dict, sus: dict) -> bool:
     return True
 
 
+# Requisitos de categoría por carta: {carta_id: [categoría1, categoría2, ...]}
+# Cada categoría listada debe estar presente en la ASIGNACIÓN FINAL de la ficha
+# (en algún OTRO sospechoso, no en el propio declarante de la carta) para que
+# la carta tenga sentido narrativo/lógico. El chequeo de _armar_asignacion_cartas
+# (líneas ~906-933) solo mira el pool de cartas aún no usadas en el momento del
+# reparto — no garantiza que esas categorías terminen siendo repartidas. Esta
+# función valida sobre el resultado final, una vez completada toda la asignación.
+REQUISITOS_CATEGORIA_CARTA = {
+    26: ["descriptiva", "duda"],
+    57: ["defensa"],
+    58: ["acusación"],
+    59: ["defensa"],
+    61: ["descriptiva"],
+    63: ["acusación", "defensa"],
+    65: ["defensa", "descriptiva"],
+    72: ["acusación"],
+}
+
+def validar_requisitos_categoria(asignacion: dict) -> bool:
+    """
+    Devuelve True si, para cada carta de la ficha que requiere categorías
+    de apoyo (ver REQUISITOS_CATEGORIA_CARTA), esas categorías están
+    efectivamente presentes en la asignación final, en algún sospechoso
+    distinto del declarante de esa carta.
+
+    Esto reemplaza la garantía incompleta de _armar_asignacion_cartas, que
+    solo chequeaba disponibilidad en el pool al momento de repartir la carta,
+    no presencia real en el resultado final.
+    """
+    for declarante_id, carta_id in asignacion.items():
+        requeridas = REQUISITOS_CATEGORIA_CARTA.get(carta_id)
+        if not requeridas:
+            continue
+        categorias_presentes = {
+            CATEGORIAS_CARTAS.get(cid)
+            for sid, cid in asignacion.items()
+            if sid != declarante_id
+        }
+        if not all(cat in categorias_presentes for cat in requeridas):
+            return False
+    return True
+
+
+def validar_tope_omerta(asignacion: dict, sus: dict) -> bool:
+    """
+    Si la ficha tiene carta Omertá, calcula cuántas cartas quedarían
+    silenciadas y descarta la ficha si:
+      (a) el apagón supera TOPE_CARTAS_APAGADAS_OMERTA, o
+      (b) las cartas que quedan vivas son menos que MINIMO_CARTAS_VIVAS_TRAS_OMERTA.
+    Si no hay carta Omertá, no filtra nada (True directo).
+    """
+    declarante_omerta = next((sid for sid, cid in asignacion.items() if cid == ID_CARTA_OMERTA), None)
+    if declarante_omerta is None:
+        return True
+    silenciadas = calcular_cartas_silenciadas(asignacion, declarante_omerta, sus)
+    n_vivas = len(asignacion) - 1 - len(silenciadas)  # -1: la propia carta Omertá no se autoevalúa
+    if len(silenciadas) > TOPE_CARTAS_APAGADAS_OMERTA:
+        return False
+    if n_vivas < MINIMO_CARTAS_VIVAS_TRAS_OMERTA:
+        return False
+    return True
 
 
 def _armar_asignacion_cartas(sosp_ids: list, SOSPECHOSOS: dict, ids_cartas: list,
-                              fichas_por_carta: dict, limite_repeticion_carta: int):
+                              fichas_por_carta: dict, limite_repeticion_carta: int,
+                              permitir_omerta: bool = False):
     """
     Reparte una carta a cada sospechoso de sosp_ids, respetando todas las
     restricciones de presencia / tercera persona / pluralidad / diversidad.
@@ -868,6 +1113,11 @@ def _armar_asignacion_cartas(sosp_ids: list, SOSPECHOSOS: dict, ids_cartas: list
     reusarse tanto para una ficha normal (sosp_ids muestreados al azar de un
     solo distrito) como para la ficha-conclusión de un Caso (sosp_ids fijos,
     viniendo de un pool ya resuelto — el "Distrito 3" dinámico).
+
+    permitir_omerta: la carta 73 (Omertá) solo se reparte si este flag es
+    True. Por diseño, Omertá es exclusiva de la ficha-conclusión del Caso
+    en dificultad metrópoli y omertá — en fichas normales y en urbano
+    queda vetada.
 
     Devuelve (asignacion, sus) si se pudo completar, o None si algún
     sospechoso se quedó sin cartas disponibles en el pool.
@@ -881,6 +1131,8 @@ def _armar_asignacion_cartas(sosp_ids: list, SOSPECHOSOS: dict, ids_cartas: list
             if cid not in cartas_usadas
             # Diversidad: la carta ya alcanzó su tope de fichas en esta corrida
             and fichas_por_carta[cid] < limite_repeticion_carta
+            # Carta especial Omertá: solo disponible si se permite explícitamente
+            and not (cid == ID_CARTA_OMERTA and not permitir_omerta)
             # Restricciones de presencia: el sospechoso nombrado debe estar en la partida
             and not (cid == 1  and 3 not in sosp_ids)
             and not (cid == 2  and 1 not in sosp_ids)
@@ -987,6 +1239,12 @@ def _armar_asignacion_cartas(sosp_ids: list, SOSPECHOSOS: dict, ids_cartas: list
             and not (cid == 51 and sid in (1, 4))
             and not (cid == 52 and sid in (2, 3))
             and not (cid == 53 and sid in (5, 6))
+            # Carta 54: el declarante no puede ser rico — el texto habla de
+            # "los ricos" como un grupo ajeno ("ellos"), y la lógica ya excluye
+            # al declarante al evaluar si "alguno rico miente". Si el propio
+            # declarante fuera rico, el texto se leería como ambiguo/auto-
+            # incluyente aunque la lógica lo excluya, induciendo a error.
+            and not (cid == 54 and SOSPECHOSOS[sid]["clase"] == "rico")
             # Indirectas: no pueden asignarse al sospechoso que referencian
             # #65 ya no referencia a un sospechoso nombrado; restricciones se manejan abajo
             and not (cid == 66 and sid == 9)   # #66 referencia al Vagabundo
@@ -1110,6 +1368,12 @@ def generar_fichas(n_fichas: int, modo: str, cantidad_fija: Optional[int],
         if not validar_sin_solapamiento(asignacion, sus):
             continue
 
+        # Validar requisitos de categoría (carta 26, 57, 58, 59, 61, 63, 65, 72):
+        # descarta fichas donde la carta exige una categoría de apoyo (descriptiva,
+        # duda, acusación, defensa) que terminó NO estando presente en el reparto final.
+        if not validar_requisitos_categoria(asignacion):
+            continue
+
         culpable = culpable_tentativo
 
         # Validar cartas indirectas: descarta fichas donde A referencia a un
@@ -1155,7 +1419,7 @@ def generar_fichas(n_fichas: int, modo: str, cantidad_fija: Optional[int],
         usadas = {cid: cnt for cid, cnt in fichas_por_carta.items() if cnt > 0}
         ordenadas = sorted(usadas.items(), key=lambda x: x[1], reverse=True)
         print(f"\n  {sep}")
-        print(f"  INFORME DE CARTAS — apariciones por ficha")
+        print("  INFORME DE CARTAS — apariciones por ficha")
         print(f"  {sep}")
         for cid, cnt in ordenadas:
             cat = CATEGORIAS_CARTAS.get(cid, "?")
@@ -1401,14 +1665,22 @@ def _generar_ficha_conclusion(distrito_3: dict, distrito_origen_por_sospechoso: 
     Paso D del documento de diseño: reparte cartas sobre el Distrito 3 ya
     construido y validado, reusando exactamente el mismo motor de reglas
     (_armar_asignacion_cartas, tiene_solucion_unica, validar_dificultad,
-    validar_sin_solapamiento, validar_indirectas_en_ficha) que cualquier
+    validar_sin_solapamiento, validar_requisitos_categoria,
+    validar_indirectas_en_ficha) que cualquier
     ficha normal — la diferencia es que sosp_ids es FIJO (los nombres únicos
     sobrevivientes del Paso B) en vez de muestreado al azar.
+
+    La carta Omertá (73) es exclusiva de esta ficha (la conclusión del
+    Caso) y solo en dificultad metrópoli y omertá — en urbano queda vetada,
+    igual que en cualquier ficha normal. Cuando se permite, su presencia
+    está GARANTIZADA: se reintenta hasta que el reparto la incluya, no se
+    inserta a mano sobre una asignación ya armada.
     """
     sosp_ids = sorted(distrito_3.keys())
     n_sosp = len(sosp_ids)
     ids_cartas = list(CARTAS.keys())
     min_verdades = {"urbano": 1, "metropoli": 2, "omerta": 3}[dificultad]
+    permitir_omerta = dificultad in ("metropoli", "omerta")
 
     # Sin límite de diversidad entre cartas para la ficha-conclusión: es una
     # sola ficha, no una corrida — fichas_por_carta queda en cero siempre,
@@ -1426,10 +1698,17 @@ def _generar_ficha_conclusion(distrito_3: dict, distrito_origen_por_sospechoso: 
             ids_cartas=ids_cartas,
             fichas_por_carta=fichas_por_carta_vacio,
             limite_repeticion_carta=limite_repeticion_carta,
+            permitir_omerta=permitir_omerta,
         )
         if resultado is None:
             continue
         asignacion, sus = resultado
+
+        # Garantizar Omertá en metrópoli/omertá: si el reparto al azar no la
+        # incluyó esta vez, descartar y reintentar — nunca insertarla a mano
+        # sobre una asignación ya armada (rompería la validez del resto).
+        if permitir_omerta and ID_CARTA_OMERTA not in asignacion.values():
+            continue
 
         cantidad = cantidad_fija if cantidad_fija is not None else random.randint(min_verdades, n_sosp - 1)
         if cantidad >= n_sosp or cantidad < min_verdades:
@@ -1453,6 +1732,12 @@ def _generar_ficha_conclusion(distrito_3: dict, distrito_origen_por_sospechoso: 
         if not validar_sin_solapamiento(asignacion, sus):
             continue
 
+        if not validar_requisitos_categoria(asignacion):
+            continue
+
+        if not validar_tope_omerta(asignacion, sus):
+            continue
+
         culpable = culpable_tentativo
 
         if not validar_indirectas_en_ficha(asignacion, culpable, sus):
@@ -1473,6 +1758,150 @@ def _generar_ficha_conclusion(distrito_3: dict, distrito_origen_por_sospechoso: 
         )
 
     return None   # no se encontró una asignación de cartas con solución única para el Distrito 3
+
+
+# ── PRUEBA: generación rápida de un Distrito 3 sintético para iterar Omertá ──
+def generar_distrito_3_aleatorio(dificultad: str) -> tuple:
+    """
+    Sustituto rápido del Paso A+B+C reales del Caso, para poder probar la
+    carta Omertá (y casos finales en general) sin tener que generar y cerrar
+    un Caso completo cada vez. Toma una muestra al azar de sospechosos
+    (mezclando ambos distritos, igual que haría un Distrito 3 real) y les
+    asigna los atributos de uno de los dos distritos de origen, también al
+    azar — así el resultado tiene la misma "forma" que un Distrito 3 real
+    sin tener que correr los Pasos A/B/C.
+
+    Devuelve (distrito_3, distrito_origen_por_sospechoso) — el segundo es
+    {sospechoso_id: 1 o 2}, de qué distrito salieron los atributos de cada
+    sospechoso, para poder informarlo luego en el JSON igual que en una
+    ficha-conclusión real.
+    """
+    rango_sosp = RANGO_SOSPECHOSOS_POR_DIFICULTAD[dificultad]
+    n_sosp = random.randint(*rango_sosp)
+    ids_todos = list(SOSPECHOSOS_1.keys())
+    sosp_ids = random.sample(ids_todos, min(n_sosp, len(ids_todos)))
+
+    distrito_3 = {}
+    distrito_origen_por_sospechoso = {}
+    for nombre_id in sosp_ids:
+        origen = random.choice([1, 2])
+        atributos = sospechosos_del_distrito(origen)[nombre_id]
+        distrito_3[nombre_id] = {
+            "nombre": atributos["nombre"],
+            "clase":  atributos["clase"],
+            "edad":   atributos["edad"],
+        }
+        distrito_origen_por_sospechoso[nombre_id] = origen
+    return distrito_3, distrito_origen_por_sospechoso
+
+
+def _generar_ficha_conclusion_prueba(distrito_3: dict, distrito_origen_por_sospechoso: dict,
+                                      modo: str, cantidad_fija: Optional[int],
+                                      dificultad: str, max_intentos: int = 200_000,
+                                      distrito_id: int = ID_DISTRITO_SINTESIS) -> Optional[Ficha]:
+    """
+    Variante de _generar_ficha_conclusion que:
+      1) FUERZA que la carta Omertá (73) esté presente en la asignación
+         (reintenta hasta lograrlo, igual que con cualquier otra condición
+         de descarte del motor — no se "inserta" la carta a mano).
+      2) Aplica validar_tope_omerta para descartar asignaciones donde el
+         apagón resultante sea demasiado grande o deje muy poca señal.
+
+    El resto de las reglas (solución única, dificultad, solapamiento,
+    requisitos de categoría, indirectas) son exactamente las mismas que en
+    cualquier ficha — Omertá no se exime de ninguna validación existente,
+    solo agrega una más encima.
+
+    distrito_id: a qué slot de DISTRITOS apunta la ficha resultante mientras
+    se genera. Por defecto ID_DISTRITO_SINTESIS (3), pero al generar un LOTE
+    de varias fichas de prueba cada una necesita su propio slot interno —
+    si todas compartieran el mismo slot 3 se pisarían entre sí mientras se
+    generan, ya que sospechosos_del_distrito() siempre lee el valor ACTUAL
+    de DISTRITOS[distrito_id]. El slot final que ve el JSON/UI se fuerza a 3
+    al exportar (ver "Probar casos finales" en main), independientemente del
+    slot interno usado aquí.
+    """
+    sosp_ids = sorted(distrito_3.keys())
+    n_sosp = len(sosp_ids)
+    ids_cartas = list(CARTAS.keys())
+    min_verdades = {"urbano": 1, "metropoli": 2, "omerta": 3}[dificultad]
+
+    fichas_por_carta_vacio = {cid: 0 for cid in ids_cartas}
+    limite_repeticion_carta = n_sosp
+
+    intentos = 0
+    while intentos < max_intentos:
+        intentos += 1
+
+        resultado = _armar_asignacion_cartas(
+            sosp_ids=sosp_ids,
+            SOSPECHOSOS=distrito_3,
+            ids_cartas=ids_cartas,
+            fichas_por_carta=fichas_por_carta_vacio,
+            limite_repeticion_carta=limite_repeticion_carta,
+            permitir_omerta=True,
+        )
+        if resultado is None:
+            continue
+        asignacion, sus = resultado
+
+        # Forzar presencia de Omertá: si esta asignación no la incluyó
+        # (el reparto es al azar dentro del pool permitido), se descarta y
+        # se reintenta — no se inserta la carta a mano en una asignación ya
+        # armada, para no romper la validez del resto del reparto.
+        if ID_CARTA_OMERTA not in asignacion.values():
+            continue
+
+        cantidad = cantidad_fija if cantidad_fija is not None else random.randint(min_verdades, n_sosp - 1)
+        if cantidad >= n_sosp or cantidad < min_verdades:
+            continue
+
+        mentiras_en_partida = n_sosp - cantidad if modo == "verdades" else cantidad
+        if 62 in asignacion.values() and mentiras_en_partida < 2:
+            continue
+
+        culpable_tentativo = tiene_solucion_unica(asignacion, sus, modo, cantidad)
+        if culpable_tentativo is None:
+            continue
+
+        n_vacias = sum(1 for cid in asignacion.values() if cid in CARTAS_SIEMPRE_VERDAD)
+        if n_vacias > 1:
+            continue
+
+        if not validar_dificultad(asignacion, dificultad):
+            continue
+
+        if not validar_sin_solapamiento(asignacion, sus):
+            continue
+
+        if not validar_requisitos_categoria(asignacion):
+            continue
+
+        # Chequeo propio de Omertá: tope de apagado + mínimo de cartas vivas.
+        if not validar_tope_omerta(asignacion, sus):
+            continue
+
+        culpable = culpable_tentativo
+
+        if not validar_indirectas_en_ficha(asignacion, culpable, sus):
+            continue
+
+        return Ficha(
+            id=0,
+            n_sospechosos=n_sosp,
+            sospechosos=sosp_ids,
+            asignacion=asignacion,
+            culpable=culpable,
+            modo=modo,
+            cantidad=cantidad,
+            dificultad=dificultad,
+            distrito=distrito_id,
+            distrito_origen=dict(distrito_origen_por_sospechoso),
+            es_conclusion=True,
+        )
+
+    return None
+
 
 # ─────────────────────────────────────────────
 #  EXPORTACIÓN TXT
@@ -1552,7 +1981,7 @@ def ficha_a_txt(f: Ficha) -> str:
     bloques.append(separador())
     culp_nombre = pool[f.culpable]["nombre"]
     bloques.append(linea(f"CULPABLE: {f.culpable}  [{culp_nombre}]"))
-    bloques.append(linea(f"          [NÚMERO OCULTO EN TINTA ROJA]"))
+    bloques.append(linea("          [NÚMERO OCULTO EN TINTA ROJA]"))
     bloques.append(separador())
     bloques.append(linea("DECLARACIONES  (V = verdad  M = mentira)"))
     bloques.append(separador())
@@ -1577,7 +2006,7 @@ def exportar_txt(fichas: list, ruta: str):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M")
     cabecera = "\n".join([
         "═" * (W + 2),
-        f"  FICHAS DE CASO  —  Juego de deducción noir",
+        "  FICHAS DE CASO  —  Juego de deducción noir",
         f"  Generado: {ts}   Total: {len(fichas)} fichas",
         "═" * (W + 2),
     ])
@@ -1589,7 +2018,6 @@ def exportar_txt(fichas: list, ruta: str):
 def ficha_a_txt_jugable(f: Ficha) -> str:
     """Versión jugable: sin culpable visible ni V/M en declaraciones."""
     pool = sospechosos_del_distrito(f.distrito)
-    sus = {i: pool[i] for i in f.sospechosos}
     bloques = []
 
     bloques.append(tope_sup())
@@ -1651,7 +2079,7 @@ def exportar_txt_jugable(fichas: list, ruta: str):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M")
     cabecera = "\n".join([
         "═" * (W + 2),
-        f"  FICHAS DE CASO  —  CÓDIGO OMERTÁ",
+        "  FICHAS DE CASO  —  CÓDIGO OMERTÁ",
         f"  Generado: {ts}   Total: {len(fichas)} fichas",
         "═" * (W + 2),
     ])
@@ -1757,7 +2185,7 @@ def exportar_caso(resultado_caso: dict, ruta_base: str, jugable: bool = False):
               else "CASO ABIERTO — sin ficha-conclusión (no convergió)")
     cabecera = "\n".join([
         "═" * (W + 2),
-        f"  CASO — CÓDIGO OMERTÁ",
+        "  CASO — CÓDIGO OMERTÁ",
         f"  Generado: {ts}   Fichas del Caso: {len(fichas)}   {estado_caso}",
         f"  Reintentos de Caso: {resultado_caso['reintentos_caso']}",
         f"  {resultado_caso.get('motivo', '')}",
@@ -1830,7 +2258,128 @@ def main():
     print("  [2] Metrópoli (máximo 1 carta meta o indirecta)")
     print("  [3] Omertà    (requiere al menos 1 meta y 1 indirecta)")
     print("  [4] Mixta     (genera 3 JSON para sitio web: 5+1 urbano, 7+1 metro, 9+1 omertà)")
-    nivel = pedir_entero("  Elegí una opción [1-4]: ", minimo=1, maximo=4)
+    print("  [5] Probar casos finales (genera Distritos 3 sintéticos forzando Omertá)")
+    nivel = pedir_entero("  Elegí una opción [1-5]: ", minimo=1, maximo=5)
+
+    # ── Probar casos finales: generación rápida de fichas-conclusión con ──
+    # Omertá forzada, sin tener que generar y cerrar un Caso completo cada
+    # vez. Útil para iterar el balance de la carta Omertá (tope de cartas
+    # apagadas / mínimo de cartas vivas) de forma aislada.
+    if nivel == 5:
+        dificultad_prueba = {1: "urbano", 2: "metropoli", 3: "omerta"}[
+            pedir_entero(
+                "\n  ¿Dificultad para el Distrito 3 de prueba?\n"
+                "  [1] Urbano [2] Metrópoli [3] Omertà: ", minimo=1, maximo=3)
+        ]
+        n_fichas_prueba = pedir_entero(
+            "\n  ¿Cuántos casos finales de prueba generar? [1-50]: ",
+            minimo=1, maximo=50
+        )
+        print(f"\n  Tope actual de cartas apagadas por Omertá: {TOPE_CARTAS_APAGADAS_OMERTA}")
+        print(f"  Mínimo de cartas vivas exigido: {MINIMO_CARTAS_VIVAS_TRAS_OMERTA}")
+        print("  (editar TOPE_CARTAS_APAGADAS_OMERTA / MINIMO_CARTAS_VIVAS_TRAS_OMERTA")
+        print("   al inicio del archivo para ajustar el balance entre corridas)")
+        print(f"  Generando {n_fichas_prueba} casos finales de prueba...")
+
+        max_intentos_distrito = 500
+        fichas = []
+        resumenes = []   # (n_silenciadas, n_intentos_distrito) por ficha, para el resumen final
+
+        for n_ficha in range(1, n_fichas_prueba + 1):
+            slot_interno = 1000 + n_ficha   # slot único por ficha del lote, no pisa 1/2/3 reales
+            intento_distrito = 0
+            ficha = None
+            distrito_3 = None
+            while intento_distrito < max_intentos_distrito and ficha is None:
+                intento_distrito += 1
+                distrito_3, distrito_origen_por_sospechoso = generar_distrito_3_aleatorio(dificultad_prueba)
+                DISTRITOS[slot_interno] = {
+                    "nombre": f"Operación Código Omertá (prueba #{n_ficha})",
+                    "sospechosos": distrito_3,
+                }
+                ficha = _generar_ficha_conclusion_prueba(
+                    distrito_3=distrito_3,
+                    distrito_origen_por_sospechoso=distrito_origen_por_sospechoso,
+                    modo=modo,
+                    cantidad_fija=None,
+                    dificultad=dificultad_prueba,
+                    max_intentos=20_000,
+                    distrito_id=slot_interno,
+                )
+
+            if ficha is None:
+                print(f"\n  Caso final #{n_ficha}: no se logró armar tras "
+                      f"{intento_distrito} Distritos-3 de prueba. Se omite y se sigue con el próximo.")
+                continue
+
+            ficha.id = n_ficha
+            sus = {i: distrito_3[i] for i in ficha.sospechosos}
+            silenciadas = calcular_cartas_silenciadas(ficha.asignacion, ficha.culpable, sus)
+            fichas.append(ficha)
+            resumenes.append((len(silenciadas), intento_distrito))
+            print(f"  Caso final #{n_ficha}: listo (silenciadas={len(silenciadas)}, "
+                  f"intentos de distrito={intento_distrito})")
+
+        if not fichas:
+            print("\n  No se logró armar ningún caso final con Omertá. Probá subir el tope.")
+            return
+
+        carpeta = "."
+        ts_archivo = datetime.now().strftime("%Y%m%d_%H%M%S")
+        ruta_txt  = os.path.join(carpeta, f"casos_finales_{ts_archivo}.txt")
+        ruta_json = os.path.join(carpeta, f"casos_finales_{ts_archivo}.json")
+
+        # ── Forzar distrito_id=3 de cara afuera (TXT/JSON), aunque cada ──
+        # ficha se generó en su propio slot interno para no pisarse entre
+        # sí durante la búsqueda. Se exporta ficha por ficha: antes de cada
+        # una se carga DISTRITOS[3] con el pool correcto de esa ficha, y la
+        # ficha se reapunta a distrito=3 — así nunca hay dos fichas leyendo
+        # el slot 3 al mismo tiempo con datos ajenos.
+        bloques_txt = []
+        dicts_json = []
+        for f in fichas:
+            pool_ficha = sospechosos_del_distrito(f.distrito)  # slot interno único (1000+n)
+            DISTRITOS[ID_DISTRITO_SINTESIS] = {
+                "nombre": "Caso final — Código Omertá",
+                "sospechosos": pool_ficha,
+            }
+            f.distrito = ID_DISTRITO_SINTESIS
+            bloques_txt.append(ficha_a_txt(f))
+            dicts_json.append(ficha_a_dict(f))
+
+        cabecera_txt = "\n".join([
+            "═" * (W + 2),
+            "  CASOS FINALES DE PRUEBA — CÓDIGO OMERTÁ",
+            f"  Generado: {datetime.now().strftime('%Y-%m-%d %H:%M')}   "
+            f"Casos: {len(fichas)}/{n_fichas_prueba}",
+            f"  Tope cartas apagadas: {TOPE_CARTAS_APAGADAS_OMERTA}   "
+            f"Mínimo cartas vivas: {MINIMO_CARTAS_VIVAS_TRAS_OMERTA}",
+            "═" * (W + 2),
+        ])
+        with open(ruta_txt, "w", encoding="utf-8") as fh:
+            fh.write(REGLAMENTO + "\n" + cabecera_txt + "\n\n" + "\n\n".join(bloques_txt) + "\n")
+        print(f"\n  TXT guardado  →  {ruta_txt}")
+
+        datos_json = {
+            "generado"    : datetime.now().isoformat(),
+            "total_fichas": len(fichas),
+            "fichas"      : dicts_json,
+        }
+        with open(ruta_json, "w", encoding="utf-8") as fh:
+            json.dump(datos_json, fh, ensure_ascii=False, indent=2)
+        print(f"  JSON guardado →  {ruta_json}")
+
+        conteos = [n for n, _ in resumenes]
+        print()
+        print("╔══════════════════════════════════════════════╗")
+        print(f"║  Listo. {len(fichas)}/{n_fichas_prueba} casos finales de prueba generados.   ║")
+        print("╚══════════════════════════════════════════════╝")
+        print(f"  Tope configurado: {TOPE_CARTAS_APAGADAS_OMERTA} "
+              f"| Mínimo de cartas vivas: {MINIMO_CARTAS_VIVAS_TRAS_OMERTA}")
+        print(f"  Cartas silenciadas por ficha: {conteos}")
+        print(f"  Promedio de silenciadas: {sum(conteos)/len(conteos):.2f}")
+        print(f"  Fichas con Omertá activada (≥1 silenciada): {sum(1 for n in conteos if n > 0)}/{len(fichas)}")
+        return
 
     # ── Modo Mixta: generación directa para sitio web ──
     if nivel == 4:
@@ -1982,7 +2531,7 @@ def main():
         # ── Botón de resolución ──────────────────────────────────────────────
         print()
         print(f"  {'─' * (W - 2)}")
-        print(f"  Presioná [Enter] para revelar la solución.")
+        print("  Presioná [Enter] para revelar la solución.")
         respuesta = input("  → ").strip().upper()
         if respuesta == "S":
             return
@@ -1995,13 +2544,13 @@ def main():
 
         print()
         print(f"  {'═' * (W - 2)}")
-        print(f"  SOLUCIÓN")
+        print("  SOLUCIÓN")
         print(f"  {'═' * (W - 2)}")
         print(f"  Distrito: {nombre_distrito(f.distrito)}")
         print(f"  Culpable: {f.culpable}  [{culp_nombre}]")
         print()
         print(f"  {'─' * (W - 2)}")
-        print(f"  DECLARACIONES  (V = verdad  M = mentira)")
+        print("  DECLARACIONES  (V = verdad  M = mentira)")
         print(f"  {'─' * (W - 2)}")
 
         for sid in f.sospechosos:
