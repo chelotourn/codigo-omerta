@@ -1565,6 +1565,13 @@ function htmlCartaSosp(sid, e, f) {
     </div>`;
 }
 
+// ── RESALTAR PALABRA "OMERTÁ" ────────────────────────────────────────────────
+function resaltarOmerta(texto) {
+  if (!texto) return texto;
+  // Coincide con Omertá / Omerta / OMERTÁ / omertá, etc. (con o sin tilde, cualquier capitalización)
+  return texto.replace(/omert[áa]/gi, (match) => `<span style="color:#9b2020; font-weight:600;">${match}</span>`);
+}
+
 // ── HTML DECLARACIÓN ─────────────────────────────────────────────────────────
 function htmlDeclaracion(d, e) {
   let cls = 'declaracion';
@@ -1615,7 +1622,7 @@ function htmlDeclaracion(d, e) {
             <div class="chinche" data-chinche-id="d${d.carta_id}-2" title="Conectar hilo"></div>
            </div>
         </div>
-        <div class="decl-texto">"${d.carta_texto}"</div>
+        <div class="decl-texto">"${resaltarOmerta(d.carta_texto)}"</div>
       </div>
       ${marcadorHTML}
     </div>`;
