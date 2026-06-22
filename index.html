@@ -1415,7 +1415,7 @@ function mostrarFicha(idx) {
 
     <div class="resultado ${e.resuelta?(e.correcto?'correcto':'incorrecto'):''}"
          id="resultado" style="${e.resuelta?'display:block':'display:none'}">
-      <div class="resultado-titulo ${e.correcto && esFichaFinal(f) ? 'titulo-omerta-roto' : ''}">${e.correcto ? (esFichaFinal(f) ? 'El Omertá ha sido Roto' : 'Buen Trabajo Detective') : 'Acusación incorrecta'}</div>
+      <div class="resultado-titulo ${e.correcto && esFichaFinal(f) ? 'titulo-omerta-roto' : ''}">${e.correcto ? (esFichaFinal(f) ? 'El Omertá se ha Roto' : 'Buen Trabajo Detective') : 'Acusación incorrecta'}</div>
       <div class="resultado-detalle">${e.resuelta?htmlResultado(f,e):''}</div>
     </div>
 
