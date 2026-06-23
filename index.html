@@ -779,8 +779,6 @@
       <p style="margin-top:.5rem">Arrastrá el archivo o hacé clic</p>
     </div>
 
-    <button class="btn-demo" onclick="cargarDemo()">— Caso de practica —</button>
-
     <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem;width:100%;margin-top:.3rem;">
       <button class="btn-demo" onclick="cargarJSON('json/fichas_urbano.json')">— Dificultad Urbano —</button>
       <button class="btn-demo" onclick="cargarJSON('json/fichas_metro.json')">— Dificultad Metropoli —</button>
@@ -1068,63 +1066,6 @@ document.addEventListener('click', (ev) => {
 
 // Aplicar tema inicial
 aplicarTemaNoir();
-
-// ── DEMO ────────────────────────────────────────────────────────────────────
-function cargarDemo() {
-  iniciarJuego({
-    "total_fichas": 1,
-    "fichas": [
-      {
-      "ficha_id": 3,
-      "distrito_id": 2,
-      "distrito_nombre": "Distrito Comercial",
-      "n_sospechosos": 3,
-      "sospechosos_ids": [
-        3,
-        7,
-        9
-      ],
-      "modo": "verdades",
-      "cantidad": 2,
-      "dificultad": "urbano",
-      "culpable_id": 7,
-      "culpable_nombre": "El Heredero",
-      "declaraciones": [
-        {
-          "sospechoso_id": 3,
-          "sospechoso": "El Carnicero",
-          "clase": "media",
-          "edad": "joven",
-          "carta_id": 11,
-          "carta_categoria": "acusación",
-          "carta_texto": "Esto es cosa de niños ricos. Quizás algún capricho frívolo le fue negado.",
-          "es_verdad": true
-        },
-        {
-          "sospechoso_id": 7,
-          "sospechoso": "El Heredero",
-          "clase": "pobre",
-          "edad": "mediana",
-          "carta_id": 46,
-          "carta_categoria": "duda",
-          "carta_texto": "Estoy seguro que alguien de clase media tendría mejores cosas que hacer. El resto quizás no.",
-          "es_verdad": true
-        },
-        {
-          "sospechoso_id": 9,
-          "sospechoso": "El Vagabundo",
-          "clase": "pobre",
-          "edad": "joven",
-          "carta_id": 10,
-          "carta_categoria": "acusación",
-          "carta_texto": "El asesino ya tenía la edad de quien no teme nada y el dinero de quien nunca tuvo que temerlo.",
-          "es_verdad": false
-        }
-      ]
-    }
-    ]
-  });
-}
 
 // ── HISTORIAL DE PROGRESO ─────────────────────────────────────────────────────
 const HISTORIAL_KEY = 'codigo_omerta_historial';
