@@ -5,7 +5,7 @@
     {
       "ficha_id": 1,
       "distrito_id": 3,
-      "distrito_nombre": "Caso final — Código Omertá",
+      "distrito_nombre": "Caso final — Romper Omertá",
       "es_conclusion": true,
       "n_sospechosos": 5,
       "sospechosos_ids": [
@@ -86,7 +86,7 @@
     {
       "ficha_id": 2,
       "distrito_id": 3,
-      "distrito_nombre": "Caso final — Código Omertá",
+      "distrito_nombre": "Caso final — Romper Omertá",
       "es_conclusion": true,
       "n_sospechosos": 7,
       "sospechosos_ids": [
@@ -193,7 +193,7 @@
     {
       "ficha_id": 3,
       "distrito_id": 3,
-      "distrito_nombre": "Caso final — Código Omertá",
+      "distrito_nombre": "Caso final — Romper Omertá",
       "es_conclusion": true,
       "n_sospechosos": 7,
       "sospechosos_ids": [
@@ -300,7 +300,7 @@
     {
       "ficha_id": 4,
       "distrito_id": 3,
-      "distrito_nombre": "Caso final — Código Omertá",
+      "distrito_nombre": "Caso final — Romper Omertá",
       "es_conclusion": true,
       "n_sospechosos": 7,
       "sospechosos_ids": [
@@ -407,7 +407,7 @@
     {
       "ficha_id": 5,
       "distrito_id": 3,
-      "distrito_nombre": "Caso final — Código Omertá",
+      "distrito_nombre": "Caso final — Romper Omertá",
       "es_conclusion": true,
       "n_sospechosos": 7,
       "sospechosos_ids": [
@@ -514,7 +514,7 @@
     {
       "ficha_id": 6,
       "distrito_id": 3,
-      "distrito_nombre": "Caso final — Código Omertá",
+      "distrito_nombre": "Caso final — Romper Omertá",
       "es_conclusion": true,
       "n_sospechosos": 7,
       "sospechosos_ids": [
@@ -621,7 +621,7 @@
     {
       "ficha_id": 7,
       "distrito_id": 3,
-      "distrito_nombre": "Caso final — Código Omertá",
+      "distrito_nombre": "Caso final — Romper Omertá",
       "es_conclusion": true,
       "n_sospechosos": 5,
       "sospechosos_ids": [
@@ -702,7 +702,7 @@
     {
       "ficha_id": 8,
       "distrito_id": 3,
-      "distrito_nombre": "Caso final — Código Omertá",
+      "distrito_nombre": "Caso final — Romper Omertá",
       "es_conclusion": true,
       "n_sospechosos": 6,
       "sospechosos_ids": [
@@ -796,7 +796,7 @@
     {
       "ficha_id": 9,
       "distrito_id": 3,
-      "distrito_nombre": "Caso final — Código Omertá",
+      "distrito_nombre": "Caso final — Romper Omertá",
       "es_conclusion": true,
       "n_sospechosos": 7,
       "sospechosos_ids": [
@@ -903,7 +903,7 @@
     {
       "ficha_id": 10,
       "distrito_id": 3,
-      "distrito_nombre": "Caso final — Código Omertá",
+      "distrito_nombre": "Caso final — Romper Omertá",
       "es_conclusion": true,
       "n_sospechosos": 8,
       "sospechosos_ids": [
