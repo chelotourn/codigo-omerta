@@ -23,6 +23,14 @@ def evaluar_carta(carta_id: int, culpable_id: int, declarante_id: int, sus: dict
         cartas.ASIGNACION_EVAL.update(asignacion)
     cartas._VISITADOS_EVAL.clear()
     cartas._MAYORIA_CACHE.clear()
+    # Recalcular silenciadas para esta evaluación aislada y dejarlas disponibles
+    # en _SILENCIADAS_EVAL, de forma que las cartas meta/indirecta no las vean.
+    if asignacion is not None:
+        silenciadas = calcular_cartas_silenciadas(asignacion, culpable_id, sus)
+        cartas._SILENCIADAS_EVAL.clear()
+        cartas._SILENCIADAS_EVAL.update(silenciadas)
+    else:
+        cartas._SILENCIADAS_EVAL.clear()
     fn = CARTAS[carta_id]
     return fn(culpable_id, declarante_id, sus)
 
@@ -51,6 +59,8 @@ def tiene_solucion_unica(asignacion: dict, sus: dict, modo: str, cantidad: int) 
         cartas._VISITADOS_EVAL.clear()
         cartas._MAYORIA_CACHE.clear()
         silenciadas = calcular_cartas_silenciadas(asignacion, candidato, sus)
+        cartas._SILENCIADAS_EVAL.clear()
+        cartas._SILENCIADAS_EVAL.update(silenciadas)
         n_evaluable = n - len(silenciadas)
         verdades = sum(
             1 for sosp_id, carta_id in items

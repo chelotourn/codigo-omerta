@@ -30,6 +30,8 @@ def ficha_a_dict(f: Ficha) -> dict:
     cartas._VISITADOS_EVAL.clear()
     cartas._MAYORIA_CACHE.clear()
     silenciadas = calcular_cartas_silenciadas(f.asignacion, f.culpable, sus)
+    cartas._SILENCIADAS_EVAL.clear()
+    cartas._SILENCIADAS_EVAL.update(silenciadas)
     declaraciones = []
     for sid in f.sospechosos:
         carta_id   = f.asignacion[sid]

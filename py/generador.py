@@ -19,4 +19,5 @@ from cli import main
 if __name__ == "__main__":
     main()
     while True:
+        print("\n\n...Fin")
         input()

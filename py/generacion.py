@@ -125,7 +125,8 @@ def _armar_asignacion_cartas(sosp_ids: list, SOSPECHOSOS: dict, ids_cartas: list
             and not (cid == 8  and not (3 in sosp_ids and 7 in sosp_ids))
             and not (cid == 9  and not (2 in sosp_ids and 5 in sosp_ids))
             and not (cid == 12 and 1 not in sosp_ids)
-            and not (cid == 13 and 3 not in sosp_ids)
+            # Carta 13: "ni rico ni viejo" — necesita al menos 1 sospechoso que no sea rico ni viejo
+            and not (cid == 13 and not any(SOSPECHOSOS[x]["clase"] != "rico" and SOSPECHOSOS[x]["edad"] != "viejo" for x in sosp_ids))         
             and not (cid == 14 and 4 not in sosp_ids)
             and not (cid == 15 and 6 not in sosp_ids)
             and not (cid == 16 and not (1 in sosp_ids and 4 in sosp_ids))
@@ -175,8 +176,6 @@ def _armar_asignacion_cartas(sosp_ids: list, SOSPECHOSOS: dict, ids_cartas: list
             and not (cid == 30 and sum(1 for x in sosp_ids if x != sid and SOSPECHOSOS[x]["clase"] == "rico")    < 2)
             and not (cid == 37 and 4 not in sosp_ids)
             and not (cid == 38 and 2 not in sosp_ids)
-            and not (cid == 47 and not any(SOSPECHOSOS[x]["edad"] == "joven" for x in sosp_ids))
-            and not (cid == 48 and not any(SOSPECHOSOS[x]["clase"] == "pobre" for x in sosp_ids))
             and not (cid == 56 and not any(SOSPECHOSOS[x]["edad"] == "mediana" for x in sosp_ids))            
             # Carta 43: "era pobre..." — necesita al menos 1 pobre presente en la partida
             and not (cid == 43 and not any(SOSPECHOSOS[x]["clase"] == "pobre" for x in sosp_ids))
@@ -187,14 +186,15 @@ def _armar_asignacion_cartas(sosp_ids: list, SOSPECHOSOS: dict, ids_cartas: list
             and not (cid == 34 and not any(SOSPECHOSOS[x]["edad"]  == "joven"   for x in sosp_ids))
             and not (cid == 35 and not any(SOSPECHOSOS[x]["edad"]  == "mediana" for x in sosp_ids))
             and not (cid == 36 and not any(SOSPECHOSOS[x]["edad"]  == "viejo"   for x in sosp_ids))
+            and not (cid == 39 and not any(SOSPECHOSOS[x]["clase"] == "media" and SOSPECHOSOS[x]["edad"] == "joven" for x in sosp_ids))
             and not (cid == 40 and not any(SOSPECHOSOS[x]["clase"] == "rico" and SOSPECHOSOS[x]["edad"] == "mediana" for x in sosp_ids))
-            # Carta 39: "ni rico ni viejo" — necesita al menos 1 sospechoso que no sea rico ni viejo
-            and not (cid == 39 and not any(SOSPECHOSOS[x]["clase"] != "rico" and SOSPECHOSOS[x]["edad"] != "viejo" for x in sosp_ids))
-            # Carta 49: "ni pobre ni joven" — necesita al menos 1 sospechoso que no sea pobre ni joven
+            and not (cid == 46 and not any(SOSPECHOSOS[x]["clase"] != "media" and SOSPECHOSOS[x]["edad"] != "viejo" for x in sosp_ids))
+            and not (cid == 47 and not any(SOSPECHOSOS[x]["clase"] != "rico" and SOSPECHOSOS[x]["edad"] != "joven" for x in sosp_ids))
+            and not (cid == 48 and not any(SOSPECHOSOS[x]["clase"] != "rico" and SOSPECHOSOS[x]["edad"] != "mediana" for x in sosp_ids))
             and not (cid == 49 and not any(SOSPECHOSOS[x]["clase"] != "pobre" and SOSPECHOSOS[x]["edad"] != "joven" for x in sosp_ids))
-            # Carta 50: "ni clase media ni mediana edad" — necesita al menos 1 sospechoso que no sea de clase media ni mediana edad
             and not (cid == 50 and not any(SOSPECHOSOS[x]["clase"] != "media" and SOSPECHOSOS[x]["edad"] != "mediana" for x in sosp_ids))
-            # Cartas grupales: requieren pluralidad del grupo que referencian
+
+           # Cartas grupales: requieren pluralidad del grupo que referencian
             and not (cid == 54 and sum(1 for x in sosp_ids if SOSPECHOSOS[x]["clase"] == "rico")  < 2)
             and not (cid == 55 and sum(1 for x in sosp_ids if SOSPECHOSOS[x]["edad"]  == "viejo") < 2)
             and not (cid == 51 and not (1 in sosp_ids and 4 in sosp_ids))
@@ -211,7 +211,6 @@ def _armar_asignacion_cartas(sosp_ids: list, SOSPECHOSOS: dict, ids_cartas: list
             and not (cid == 8  and sid in (3, 7))
             and not (cid == 9  and sid in (2, 5))
             and not (cid == 12 and sid == 1)
-            and not (cid == 13 and sid == 3)
             and not (cid == 14 and sid == 4)
             and not (cid == 15 and sid == 6)
             and not (cid == 16 and sid in (1, 4))

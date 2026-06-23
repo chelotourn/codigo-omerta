@@ -5,7 +5,7 @@ Datos del juego: sospechosos, distritos y constantes de configuración.
 PORC_MAX_REPETICION_CARTA = 0.18  # tope hardcodeado: ninguna carta puede aparecer
                                    # en más del 18% de las fichas de una misma corrida
 
-MOSTRAR_INFORME_CARTAS = True      # si True, imprime al final de cada corrida el listado
+MOSTRAR_INFORME_CARTAS = False      # si True, imprime al final de cada corrida el listado
                                    # de cartas ordenado por cantidad de apariciones
 
 # ── Carta Omertá ────────────────────────────────────────────────────────────

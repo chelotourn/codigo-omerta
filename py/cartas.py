@@ -17,6 +17,16 @@ from typing import Optional
 # devuelve True (asume verdad) para cortar el ciclo.
 _VISITADOS_EVAL: set = set()
 
+# Set de sospechoso_ids cuyas cartas están silenciadas por Omertá en la
+# sesión de evaluación actual. Se rellena en tiene_solucion_unica (y en
+# evaluar_carta en validaciones.py) justo después de calcular silenciadas,
+# de forma que todas las funciones helper meta/indirecta puedan consultarlo
+# sin tener que recalcularlo — y sin el riesgo de recursión que tendría
+# llamar a calcular_cartas_silenciadas desde dentro de una evaluación meta.
+# Se limpia junto con _VISITADOS_EVAL y _MAYORIA_CACHE al inicio de cada
+# candidato / evaluación aislada.
+_SILENCIADAS_EVAL: set = set()
+
 def evaluar_carta_simple(carta_id, culpable_id, declarante_id, sus):
     """Evaluación con protección anti-recursión via set de visitados.
     Para cartas de veracidad (21-30), meta/indirecta (57-72) y la carta
@@ -71,7 +81,7 @@ _CB[11] = lambda c, s, sus: (sus[c]["edad"] == "mediana" and sus[c]["clase"] == 
 
 # ── DEFENSA (12–20) ──────────────────────────────────────────────────────────
 _CB[12] = lambda c, s, sus: c != 1                        # el Notario no fue
-_CB[13] = lambda c, s, sus: c != 3                        # el Carnicero no fue
+_CB[13] = lambda c, s, sus: sus[c]["clase"] != "rico" and sus[c]["edad"] != "viejo"   # ni rico ni viejo
 _CB[14] = lambda c, s, sus: c != 4                        # el Coronel no fue
 _CB[15] = lambda c, s, sus: c != 6                        # el Médico no fue
 _CB[16] = lambda c, s, sus: c not in (1, 4)               # ni Notario ni Coronel
@@ -86,23 +96,24 @@ _CB[20] = lambda c, s, sus: sus[c]["edad"] != "mediana"     # el culpable no es 
 # verdaderas o falsas dado el culpable c. Usan ASIGNACION_EVAL como las meta.
 
 def _todos_con_atributo_mienten(c, s, sus, asig, attr, valor):
-    """Verdad si TODOS los sospechosos con atributo=valor (excluyendo al declarante)
-    tienen cartas que son mentira dado c. Requiere al menos uno presente."""
-    targets = [sid for sid in asig if sid != s and sus[sid][attr] == valor]
+    """Verdad si TODOS los sospechosos con atributo=valor (excluyendo al declarante
+    y las cartas silenciadas por Omertá) tienen cartas que son mentira dado c.
+    Requiere al menos uno evaluable presente."""
+    targets = [sid for sid in asig if sid != s and sid not in _SILENCIADAS_EVAL and sus[sid][attr] == valor]
     if not targets:
         return False
     return all(not evaluar_carta_simple(asig[sid], c, sid, sus) for sid in targets)
 
 def _alguno_con_atributo_miente(c, s, sus, asig, attr, valor):
-    """Verdad si AL MENOS UNO con atributo=valor (excl. declarante) miente."""
-    targets = [sid for sid in asig if sid != s and sus[sid][attr] == valor]
+    """Verdad si AL MENOS UNO con atributo=valor (excl. declarante y silenciadas) miente."""
+    targets = [sid for sid in asig if sid != s and sid not in _SILENCIADAS_EVAL and sus[sid][attr] == valor]
     if not targets:
         return False
     return any(not evaluar_carta_simple(asig[sid], c, sid, sus) for sid in targets)
 
 def _todos_con_atributo_dicen_verdad(c, s, sus, asig, attr, valor):
-    """Verdad si TODOS con atributo=valor (excl. declarante) dicen verdad."""
-    targets = [sid for sid in asig if sid != s and sus[sid][attr] == valor]
+    """Verdad si TODOS con atributo=valor (excl. declarante y silenciadas) dicen verdad."""
+    targets = [sid for sid in asig if sid != s and sid not in _SILENCIADAS_EVAL and sus[sid][attr] == valor]
     if not targets:
         return False
     return all(evaluar_carta_simple(asig[sid], c, sid, sus) for sid in targets)
@@ -116,9 +127,9 @@ def _descripciones_o_dudas_mienten(c, s, sus, asig):
     - Requiere al menos 1 descriptiva Y al menos 1 duda presentes (excl. declarante);
       si falta alguna de las dos categorías, la afirmación es vacía → falso."""
     descriptivas = [sid for sid, cid in asig.items()
-                    if sid != s and CATEGORIAS_CARTAS.get(cid) == "descriptiva"]
+                    if sid != s and sid not in _SILENCIADAS_EVAL and CATEGORIAS_CARTAS.get(cid) == "descriptiva"]
     dudas = [sid for sid, cid in asig.items()
-             if sid != s and CATEGORIAS_CARTAS.get(cid) == "duda"]
+             if sid != s and sid not in _SILENCIADAS_EVAL and CATEGORIAS_CARTAS.get(cid) == "duda"]
     if not descriptivas or not dudas:
         return False   # falta alguna de las dos categorías → afirmación vacía → falso
     objetivo = descriptivas + dudas
@@ -167,7 +178,7 @@ _CB[35] = lambda c, s, sus: sus[s]["edad"] == "mediana" and sus[c]["edad"] == "m
 _CB[36] = lambda c, s, sus: sus[c]["edad"] == "viejo"
 _CB[37] = lambda c, s, sus: 4 in sus and sus[c]["clase"] == sus[4]["clase"]   # misma clase que el Coronel
 _CB[38] = lambda c, s, sus: 2 in sus and sus[c]["edad"] == sus[2]["edad"]       # misma edad que la Aprendiz
-_CB[39] = lambda c, s, sus: sus[c]["clase"] != "rico" and sus[c]["edad"] != "viejo"   # ni rico ni viejo
+_CB[39] = lambda c, s, sus: sus[c]["clase"] == "media" and sus[c]["edad"] == "joven"   # clase media y joven
 _CB[40] = lambda c, s, sus: sus[c]["clase"] == "rico" and sus[c]["edad"] == "mediana" # rico y de mediana edad
 
 # ── DUDA (41–50) ─────────────────────────────────────────────────────────────
@@ -177,9 +188,9 @@ _CB[42] = lambda c, s, sus: True
 _CB[43] = lambda c, s, sus: sus[c]["clase"] == "pobre" and sus[c]["edad"] != "viejo"  # pobre y no viejo
 _CB[44] = lambda c, s, sus: True
 _CB[45] = lambda c, s, sus: False
-_CB[46] = lambda c, s, sus: sus[c]["clase"] != "media"     # no fue alguien de clase media
-_CB[47] = lambda c, s, sus: sus[c]["edad"] != "joven"      # no fue alguien joven
-_CB[48] = lambda c, s, sus: sus[c]["clase"] != "pobre"     # no fue alguien pobre
+_CB[46] = lambda c, s, sus: sus[c]["clase"] != "media" and sus[c]["edad"] != "viejo"    # ni clase media ni viejo
+_CB[47] = lambda c, s, sus: sus[c]["clase"] != "rico" and sus[c]["edad"] != "joven"     # ni rico ni joven
+_CB[48] = lambda c, s, sus: sus[c]["clase"] != "rico" and sus[c]["edad"] != "mediana"   # ni rico ni mediana edad
 _CB[49] = lambda c, s, sus: sus[c]["clase"] != "pobre" and sus[c]["edad"] != "joven"    # ni pobre ni joven
 _CB[50] = lambda c, s, sus: sus[c]["clase"] != "media" and sus[c]["edad"] != "mediana"  # ni clase media ni mediana edad
 
@@ -198,18 +209,20 @@ _CB[56] = lambda c, s, sus: len(sus) >= 5 and sus[c]["edad"] == "mediana"
 # es correcta dado el culpable c.
 
 def _hay_defensor_mintiendo(c, s, sus, asig):
-    """¿Algún sospechoso con carta de defensa está mintiendo?
-    Si no hay defensores en la partida, la afirmación es falsa (no hay nada que sostenerla)."""
-    defensores = [sid for sid, cid in asig.items() if CATEGORIAS_CARTAS.get(cid) == "defensa"]
+    """¿Algún sospechoso con carta de defensa (no silenciada) está mintiendo?
+    Si no hay defensores evaluables, la afirmación es falsa."""
+    defensores = [sid for sid, cid in asig.items()
+                  if sid not in _SILENCIADAS_EVAL and CATEGORIAS_CARTAS.get(cid) == "defensa"]
     if not defensores:
         return False
     return any(not evaluar_carta_simple(asig[sid], c, sid, sus) for sid in defensores)
 
 def _todos_acusadores_verdad(c, s, sus, asig):
-    """¿Todos los que acusan dicen verdad? Si no hay acusadores, falso (la afirmación no aplica)."""
-    acusadores = [sid for sid, cid in asig.items() if CATEGORIAS_CARTAS.get(cid) == "acusación"]
+    """¿Todos los que acusan (no silenciados) dicen verdad? Si no hay acusadores evaluables, falso."""
+    acusadores = [sid for sid, cid in asig.items()
+                  if sid not in _SILENCIADAS_EVAL and CATEGORIAS_CARTAS.get(cid) == "acusación"]
     if not acusadores:
-        return False   # no hay acusaciones: la carta no tiene base, es falsa
+        return False
     return all(evaluar_carta_simple(asig[sid], c, sid, sus) for sid in acusadores)
 
 def _culpable_se_defiende(c, s, sus, asig):
@@ -243,9 +256,9 @@ def _mayoria_miente(c, s, sus, asig):
             except Exception:
                 return True
         return evaluar_carta_simple(cid, c, sid, sus)
-    otros = [(sid, cid) for sid, cid in asig.items() if sid != s]
+    otros = [(sid, cid) for sid, cid in asig.items() if sid != s and sid not in _SILENCIADAS_EVAL]
     if not otros:
-        resultado = False  # sin nadie más a quien "escuchar", la afirmación es vacía
+        resultado = False  # sin nadie más evaluable, la afirmación es vacía
     else:
         mentiras = sum(1 for sid, cid in otros if not _valor(sid, cid))
         resultado = mentiras > len(otros) / 2
@@ -253,9 +266,10 @@ def _mayoria_miente(c, s, sus, asig):
     return resultado
 
 def _alguien_con_fisica_acierta(c, s, sus, asig):
-    """¿Alguna carta descriptiva dice verdad?"""
+    """¿Alguna carta descriptiva (no silenciada) dice verdad?"""
     for sid, cid in asig.items():
-        if CATEGORIAS_CARTAS.get(cid) == "descriptiva" and evaluar_carta_simple(cid, c, sid, sus):
+        if sid not in _SILENCIADAS_EVAL and CATEGORIAS_CARTAS.get(cid) == "descriptiva" \
+                and evaluar_carta_simple(cid, c, sid, sus):
             return True
     return False
 
@@ -266,11 +280,13 @@ def _declarante_es_unico_mentiroso(c, s, sus, asig):
     return False
 
 def _hay_contradiccion_acusacion_defensa(c, s, sus, asig):
-    """¿Hay al menos una acusación verdadera Y una defensa verdadera que se contradicen?"""
+    """¿Hay al menos una acusación verdadera Y una defensa verdadera (ambas no silenciadas)?"""
     acus_true = any(evaluar_carta_simple(cid, c, sid, sus)
-                    for sid, cid in asig.items() if CATEGORIAS_CARTAS.get(cid) == "acusación")
+                    for sid, cid in asig.items()
+                    if sid not in _SILENCIADAS_EVAL and CATEGORIAS_CARTAS.get(cid) == "acusación")
     def_true  = any(evaluar_carta_simple(cid, c, sid, sus)
-                    for sid, cid in asig.items() if CATEGORIAS_CARTAS.get(cid) == "defensa")
+                    for sid, cid in asig.items()
+                    if sid not in _SILENCIADAS_EVAL and CATEGORIAS_CARTAS.get(cid) == "defensa")
     return acus_true and def_true
 
 def _sin_duda_y_viejos_mienten(c, s, sus, asig):
@@ -278,11 +294,12 @@ def _sin_duda_y_viejos_mienten(c, s, sus, asig):
     presentes (excl. declarante) mienten.
     Si no hay viejos presentes (excl. declarante), la condicion es vacua: se retorna
     False para que la carta no sea trivialmente verdadera."""
-    # Condicion 1: ninguna carta de duda en la asignacion
-    if any(CATEGORIAS_CARTAS.get(cid) == "duda" for cid in asig.values()):
+    # Condicion 1: ninguna carta de duda (no silenciada) en la asignacion
+    if any(CATEGORIAS_CARTAS.get(cid) == "duda"
+           for sid, cid in asig.items() if sid not in _SILENCIADAS_EVAL):
         return False
-    # Condicion 2: todos los viejos (excl. declarante) mienten
-    viejos = [sid for sid in asig if sid != s and sus[sid]["edad"] == "viejo"]
+    # Condicion 2: todos los viejos (excl. declarante y silenciadas) mienten
+    viejos = [sid for sid in asig if sid != s and sid not in _SILENCIADAS_EVAL and sus[sid]["edad"] == "viejo"]
     if not viejos:
         return False  # sin viejos la afirmacion es vacia -> falso (no informativa)
     return all(not evaluar_carta_simple(asig[sid], c, sid, sus) for sid in viejos)
@@ -320,12 +337,6 @@ ID_CARTA_OMERTA = 73
 # siempre; de duda, solo la 43 ("pobre y no viejo").
 CATS_SENSIBLES_ATRIBUTO = {"acusación", "descriptiva", "grupal"}
 CARTAS_DUDA_SENSIBLES = {43}
-
-# Excepción puntual: la 39 está categorizada como "descriptiva" pero es en
-# esencia una defensa por exclusión ("el culpable NO era ni rico ni viejo")
-# — niega un atributo en vez de afirmarlo. Es la única negativa del bloque
-# 31-40; se excluye a mano en vez de generalizar una regla de "negación".
-CARTAS_EXCLUIDAS_OMERTA = {39}
 
 # Indirectas cuyo antecedente A no depende del atributo del culpable, pero
 # cuyo consecuente B sí — Omertá las apaga únicamente cuando A se cumple.
@@ -401,32 +412,35 @@ def _omerta_carta_apunta_a(cid_otra, sid_otra, c, sus, asig, declarante_omerta):
     real evaluado (c) — Omertá protege a su propio declarante, no al
     culpable de la ronda.
 
+    Categorías silenciables (criterio exhaustivo):
+      - acusación: todas
+      - descriptiva: todas (incluida la 39)
+      - duda: solo la 43
+      - grupal: todas
+      - indirecta: solo 66, 69, 71 — únicamente cuando se cumple su premisa A
+      - defensa, veracidad, meta, omertá: nunca se silencian
+
     Alcance:
       1) Identidad explícita: la carta nombra al declarante_omerta por id
-         (acusación/defensa directa, descriptiva 37-38, grupales 51-53).
+         (acusación directa 1-9, descriptiva 37-38, grupales 51-53).
          NO incluye 66/67/68: esos mencionan un sospechoso fijo como sujeto
-         de una premisa condicional, no como acusación/defensa directa.
+         de una premisa condicional, no como acusación directa.
       2) Atributo directo: acusación/descriptiva/grupal siempre; duda solo
          la 43. Se evalúa la lambda original de la carta poniendo a
          declarante_omerta en el rol de "culpable", con sus atributos
          reales — si da True, su perfil encaja en lo que la carta exige.
       3) Indirectas 66/69/71 (únicas): solo si su antecedente A es verdadero.
 
-    Las demás cartas (incluida la 39, excluida a mano) nunca entran.
+    Las demás cartas (incluida toda la categoría defensa) nunca entran.
     """
     NOMBRA_ID = {
         1: (3,), 2: (1,), 3: (6,), 4: (5,), 5: (2,), 6: (4,),
         7: (8, 9), 8: (3, 7), 9: (2, 5),
-        12: (1,), 13: (3,), 14: (4,), 15: (6,),
-        16: (1, 4), 17: (2, 5), 18: (3, 6),
         37: (4,), 38: (2,),
         51: (1, 4), 52: (2, 3), 53: (5, 6),
     }
     if cid_otra in NOMBRA_ID and declarante_omerta in NOMBRA_ID[cid_otra]:
         return True
-
-    if cid_otra in CARTAS_EXCLUIDAS_OMERTA:
-        return False
 
     cat = CATEGORIAS_CARTAS.get(cid_otra)
 
@@ -495,9 +509,9 @@ CARTAS_OMERTA = {
 # solo se pueden asignar si ese sospechoso está presente en la partida.
 
 def _hay_media_mintiendo(c, s, sus, asig):
-    """¿Algún sospechoso de clase media (excl. declarante) miente?"""
+    """¿Algún sospechoso de clase media (excl. declarante y silenciadas) miente?"""
     return any(
-        sus[sid]["clase"] == "media" and sid != s
+        sus[sid]["clase"] == "media" and sid != s and sid not in _SILENCIADAS_EVAL
         and not evaluar_carta_simple(asig[sid], c, sid, sus)
         for sid in asig
     )
@@ -507,19 +521,19 @@ def _culpable_tiene_defensa(c, s, sus, asig):
     return c in asig and CATEGORIAS_CARTAS.get(asig[c]) == "defensa"
 
 def _hay_inocente_mintiendo(c, s, sus, asig):
-    """¿Algún inocente (no culpable) miente?"""
+    """¿Algún inocente (no culpable, no silenciado) miente?"""
     return any(
-        sid != c and not evaluar_carta_simple(asig[sid], c, sid, sus)
+        sid != c and sid not in _SILENCIADAS_EVAL
+        and not evaluar_carta_simple(asig[sid], c, sid, sus)
         for sid in asig
     )
 
 def _mayoria_miente_simple(c, s, sus, asig):
-    """¿Más de la mitad de los DEMÁS sospechosos (sin contar al propio declarante)
-    miente? (versión simple, sin recursión en meta). El declarante queda fuera
-    del conteo para evitar que la carta se evalúe a sí misma (auto-referencia)."""
-    otros = [(sid, cid) for sid, cid in asig.items() if sid != s]
+    """¿Más de la mitad de los DEMÁS sospechosos (sin contar al propio declarante
+    ni las silenciadas) miente? (versión simple, sin recursión en meta)."""
+    otros = [(sid, cid) for sid, cid in asig.items() if sid != s and sid not in _SILENCIADAS_EVAL]
     if not otros:
-        return False  # sin nadie más a quien contar, la afirmación es vacía
+        return False
     mentiras = sum(1 for sid, cid in otros if not evaluar_carta_simple(cid, c, sid, sus))
     return mentiras > len(otros) / 2
 
@@ -557,8 +571,10 @@ CARTAS_INDIRECTAS = {
                 )
             )
         )(
-            [(sid, cid) for sid, cid in asig.items() if CATEGORIAS_CARTAS.get(cid) == "defensa"],
-            [(sid, cid) for sid, cid in asig.items() if CATEGORIAS_CARTAS.get(cid) == "descriptiva"],
+            [(sid, cid) for sid, cid in asig.items()
+             if sid not in _SILENCIADAS_EVAL and CATEGORIAS_CARTAS.get(cid) == "defensa"],
+            [(sid, cid) for sid, cid in asig.items()
+             if sid not in _SILENCIADAS_EVAL and CATEGORIAS_CARTAS.get(cid) == "descriptiva"],
         )
     ),
     # 66: "Si el Vagabundo miente, el culpable es pobre"
@@ -624,10 +640,10 @@ CARTAS_INDIRECTAS = {
     72: _meta(lambda c, s, sus, asig:
         (not any(
             CATEGORIAS_CARTAS.get(cid) == "acusación" and evaluar_carta_simple(cid, c, sid, sus)
-            for sid, cid in asig.items()
+            for sid, cid in asig.items() if sid not in _SILENCIADAS_EVAL
         ))
         and (lambda pobres: len(pobres) > 0 and all(evaluar_carta_simple(asig[sid], c, sid, sus) for sid in pobres))(
-            [sid for sid in asig if sid != s and sus[sid]["clase"] == "pobre"]
+            [sid for sid in asig if sid != s and sid not in _SILENCIADAS_EVAL and sus[sid]["clase"] == "pobre"]
         )
     ),
 }
@@ -713,7 +729,7 @@ TEXTOS_CARTAS = {
     11: "El asesino tenía los bolsillos vacíos y sintiendo el peso de los años se negó a llegar a viejo en la miseria. No lo culpo",
     # DEFENSA
     12: "El Notario no tiene el temple. Conozco a los que pueden hacer algo así. Él no.",
-    13: "El Carnicero es muchas cosas. Un asesino no es una de ellas. Que quede claro.",
+    13: "El culpable no era ni rico ni viejo. Lo que vi fue a alguien que podría confundirse con cualquiera.",
     14: "El Coronel lleva años protegiéndonos. Acusarlo es insultarnos a todos.",
     15: "El Médico juró no hacer daño. Y lo cumple. Eso no se finge.",
     16: "Ni el Notario ni el Coronel. Ambos estaban conmigo cuando ocurrió.",
@@ -726,7 +742,7 @@ TEXTOS_CARTAS = {
     22: "Desconfíe de todos esos ricos. El porte les da una confianza que cuesta distinguir de la inocencia.",
     23: "A su edad los viejos ya no se gastan en mentir. No temen a la verdad.",
     24: "Los pobres no mienten pues hoy han comido bien. Yo les creo.",
-    25: "La experiencia no se oculta. Quien tiene mediana edad ya ha aprendido a mentir y lo hará almenos uan vez.",
+    25: "La experiencia no se oculta. Quien tiene mediana edad ya ha aprendido a mentir y lo hará almenos una vez.",
     26: "Las descripciones que he escuchado esconden algo y quienes han dudado al hablar lo confirman. Aquí alguien está mintiendo.",
     27: "Los de clase media no mienten. Son de fiar.",
     28: "Los jóvenes de hoy no tienen respeto por la verdad. Al menos uno de ellos miente.",
@@ -741,7 +757,7 @@ TEXTOS_CARTAS = {
     36: "Quien lo hizo era viejo. El paso lento, la respiración pausada. Solo la edad da esa calma.",
     37: "El culpable era exactamente de la misma clase que el Coronel. Lo noto en su andar.",
     38: "Quien buscas tenía la misma edad que la Aprendiz. Eso y su misma frialdad.",
-    39: "El culpable no era ni rico ni viejo. Lo que vi fue a alguien que podría confundirse con cualquiera.",
+    39: "El culpable era joven de clase media. Alguien que te cruzarías en cualquier instituto.",
     40: "Era rico y de mediana edad. Esa combinación no abunda en esta sala.",
     # DUDA
     41: "Yo no he sido ni sé quién pudo hacerlo. Pero sé que lo volverá a hacer si no lo encontramos.",
@@ -749,11 +765,12 @@ TEXTOS_CARTAS = {
     43: "No estoy seguro, era pobre, y quizás joven o de mediana edad pero no viejo",
     44: "Es inutil mentir, al final usted descubre la verdad.",
     45: "Me temo que no podrá resolver este caso Detective, el tiempo juega en su contra.",
-    46: "Estoy seguro que alguien de clase media tendría mejores cosas que hacer. El resto quizás no.",
-    47: "No fue alguien joven. La frialdad de esto requiere años que aún no se tienen.",
-    48: "No fue alguien pobre. El reloj que tenía la victima era costoso y allí quedó",
+    46: "Aqui el dinero se huele, y ese tipo no apestaba a clase media. Tampoco arrastraba los pies como un viejo. Es todo lo que sé.",
+    47: "La billetera no le pesaba tanto como para ser rico y cara no le brillaba con la estupidez de un joven.",
+    48: "Mire, no parecía uno de esos ricos; yo diría que o tenía un pie en la tumba o apenas los había sacado de la cuna.",
     49: "No estoy muy seguro; no era joven ni tampoco parecía pobre. Siento no poder aportar más.",
-    50: "Vestía de forma extravagante; yo diría que no era de clase media y era alguien joven o quizás viejo.",
+    50: "Vestía de forma extravagante; yo diría que no era de clase media, alguien joven o quizás viejo.",
+     
     # GRUPAL
     51: "El Coronel y el Notario llegaron juntos esa noche. Solo uno de ellos sabe por qué.",
     52: "La Aprendiz y el Carnicero se conocen de antes. Eso no es casualidad.",
