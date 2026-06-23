@@ -17,7 +17,7 @@ from cartas import (
 )
 from validaciones import (
     tiene_solucion_unica, validar_dificultad, validar_sin_solapamiento,
-    validar_requisitos_categoria, validar_tope_omerta, validar_omerta_activable,
+    validar_requisitos_categoria, validar_tope_omerta,
 )
 from generacion import Ficha, generar_fichas, _armar_asignacion_cartas
 
@@ -323,12 +323,6 @@ def _generar_ficha_conclusion(distrito_3: dict, distrito_origen_por_sospechoso: 
         if not validar_tope_omerta(asignacion, sus):
             continue
 
-        # Requisito de tensión narrativa: al menos una carta debe poder activar
-        # Omertá (apuntar al declarante bajo algún candidato posible). Si la
-        # amenaza sería siempre hueca, la ficha se descarta.
-        if not validar_omerta_activable(asignacion, sus):
-            continue
-
         culpable = culpable_tentativo
 
         if not validar_indirectas_en_ficha(asignacion, culpable, sus):
@@ -488,12 +482,6 @@ def _generar_ficha_conclusion_prueba(distrito_3: dict, distrito_origen_por_sospe
 
         # Chequeo propio de Omertá: tope de apagado + mínimo de cartas vivas.
         if not validar_tope_omerta(asignacion, sus):
-            continue
-
-        # Requisito de tensión narrativa: al menos una carta debe poder activar
-        # Omertá (apuntar al declarante bajo algún candidato posible). Si la
-        # amenaza sería siempre hueca, la ficha se descarta.
-        if not validar_omerta_activable(asignacion, sus):
             continue
 
         culpable = culpable_tentativo

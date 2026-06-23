@@ -9,7 +9,7 @@ from datetime import datetime
 
 from datos import sospechosos_del_distrito, nombre_distrito
 import cartas
-from cartas import CATEGORIAS_CARTAS, TEXTOS_CARTAS, calcular_cartas_silenciadas
+from cartas import CATEGORIAS_CARTAS, TEXTOS_CARTAS
 from validaciones import _evaluar_sin_setup
 from generacion import Ficha
 from exportar_txt import (
@@ -29,23 +29,18 @@ def ficha_a_dict(f: Ficha) -> dict:
     cartas.ASIGNACION_EVAL.update(f.asignacion)
     cartas._VISITADOS_EVAL.clear()
     cartas._MAYORIA_CACHE.clear()
-    silenciadas = calcular_cartas_silenciadas(f.asignacion, f.culpable, sus)
     declaraciones = []
     for sid in f.sospechosos:
-        carta_id   = f.asignacion[sid]
-        silenciada = sid in silenciadas
-        # Las cartas silenciadas no cuentan como verdad ni mentira; es_verdad
-        # queda None para que la UI pueda distinguirlas de un V/M real.
-        verdad = None if silenciada else _evaluar_sin_setup(carta_id, f.culpable, sid, sus)
+        carta_id = f.asignacion[sid]
+        verdad   = _evaluar_sin_setup(carta_id, f.culpable, sid, sus)
         declaracion = {
             "sospechoso_id"  : sid,
             "sospechoso"     : pool[sid]["nombre"],
-            "clase"          : pool[sid]["clase"],
+            "clase"         : pool[sid]["clase"],
             "edad"           : pool[sid]["edad"],
             "carta_id"       : carta_id,
             "carta_categoria": CATEGORIAS_CARTAS[carta_id],
             "carta_texto"    : TEXTOS_CARTAS[carta_id],
-            "silenciada"     : silenciada,
             "es_verdad"      : verdad,
         }
         # distrito_origen: solo presente en la ficha-conclusión. Puramente

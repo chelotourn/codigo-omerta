@@ -1,9 +1,9 @@
 {
-  "generado": "2026-06-22T20:47:06.763906",
+  "generado": "2026-06-22T22:31:45.673973",
   "caso": {
     "n_fichas_caso": 9,
     "descartado": false,
-    "reintentos_caso": 1,
+    "reintentos_caso": 5,
     "tiene_conclusion": true,
     "conclusion_ficha_id": 10,
     "motivo": "Caso cerrado con ficha-conclusión."
@@ -15,39 +15,43 @@
       "distrito_id": 1,
       "distrito_nombre": "Distrito Industrial",
       "es_conclusion": false,
-      "n_sospechosos": 6,
+      "n_sospechosos": 8,
       "sospechosos_ids": [
         1,
         2,
         3,
+        5,
         6,
+        7,
         8,
         9
       ],
       "modo": "verdades",
       "cantidad": 3,
       "dificultad": "omerta",
-      "culpable_id": 8,
-      "culpable_nombre": "El Crupier",
+      "culpable_id": 5,
+      "culpable_nombre": "La Vidente",
       "declaraciones": [
         {
           "sospechoso_id": 1,
           "sospechoso": "El Notario",
           "clase": "rico",
           "edad": "viejo",
-          "carta_id": 29,
-          "carta_categoria": "veracidad",
-          "carta_texto": "Entre tanta gente pobre seguro hay algun mentiroso. Así es esta gente.",
-          "es_verdad": true
+          "carta_id": 58,
+          "carta_categoria": "meta",
+          "carta_texto": "Cada acusación que escuché esta noche sonó a verdad. Eso debería asustarnos.",
+          "silenciada": false,
+          "es_verdad": false
         },
         {
           "sospechoso_id": 2,
           "sospechoso": "La Aprendiz",
           "clase": "media",
           "edad": "joven",
-          "carta_id": 63,
-          "carta_categoria": "meta",
-          "carta_texto": "Alguien acusa y alguien defiende, y ambos dicen la verdad. Eso es una contradicción. O es una trampa.",
+          "carta_id": 10,
+          "carta_categoria": "acusación",
+          "carta_texto": "El asesino ya tenía la edad de quien no teme nada y el dinero de quien nunca tuvo que temerlo.",
+          "silenciada": false,
           "es_verdad": false
         },
         {
@@ -55,19 +59,43 @@
           "sospechoso": "El Carnicero",
           "clase": "pobre",
           "edad": "mediana",
-          "carta_id": 72,
+          "carta_id": 70,
           "carta_categoria": "indirecta",
-          "carta_texto": "Si nadie acusa directamente al culpable, es porque este los está presionando. Pero los pobres no tienen nada que perder y dirán la verdad.",
+          "carta_texto": "Si el culpable esgrime una defensa esta noche, algún inocente también miente para cubrirlo. La complicidad tiene sus reglas.",
+          "silenciada": false,
           "es_verdad": false
+        },
+        {
+          "sospechoso_id": 5,
+          "sospechoso": "La Vidente",
+          "clase": "pobre",
+          "edad": "viejo",
+          "carta_id": 50,
+          "carta_categoria": "duda",
+          "carta_texto": "Vestía de forma extravagante; yo diría que no era de clase media y era alguien joven o quizás viejo.",
+          "silenciada": false,
+          "es_verdad": true
         },
         {
           "sospechoso_id": 6,
           "sospechoso": "El Médico",
           "clase": "media",
           "edad": "joven",
-          "carta_id": 13,
-          "carta_categoria": "defensa",
-          "carta_texto": "El Carnicero es muchas cosas. Un asesino no es una de ellas. Que quede claro.",
+          "carta_id": 72,
+          "carta_categoria": "indirecta",
+          "carta_texto": "Si nadie acusa directamente al culpable, es porque este los está presionando. Pero los pobres no tienen nada que perder y dirán la verdad.",
+          "silenciada": false,
+          "es_verdad": false
+        },
+        {
+          "sospechoso_id": 7,
+          "sospechoso": "El Heredero",
+          "clase": "rico",
+          "edad": "joven",
+          "carta_id": 25,
+          "carta_categoria": "veracidad",
+          "carta_texto": "La experiencia no se oculta. Quien tiene mediana edad ya ha aprendido a mentir y lo hará almenos uan vez.",
+          "silenciada": false,
           "es_verdad": true
         },
         {
@@ -75,20 +103,22 @@
           "sospechoso": "El Crupier",
           "clase": "media",
           "edad": "viejo",
-          "carta_id": 71,
-          "carta_categoria": "indirecta",
-          "carta_texto": "Si la mayoria de los demás sospechosos miente, el culpable tiene años encima. La vejez enseña a esconderse.",
-          "es_verdad": true
+          "carta_id": 45,
+          "carta_categoria": "duda",
+          "carta_texto": "Me temo que no podrá resolver este caso Detective, el tiempo juega en su contra.",
+          "silenciada": false,
+          "es_verdad": false
         },
         {
           "sospechoso_id": 9,
           "sospechoso": "El Vagabundo",
           "clase": "pobre",
           "edad": "mediana",
-          "carta_id": 10,
-          "carta_categoria": "acusación",
-          "carta_texto": "El asesino ya tenía la edad de quien no teme nada y el dinero de quien nunca tuvo que temerlo.",
-          "es_verdad": false
+          "carta_id": 19,
+          "carta_categoria": "defensa",
+          "carta_texto": "El culpable no era rico. Vi sus ropas. Menuda falta de gusto.",
+          "silenciada": false,
+          "es_verdad": true
         }
       ]
     },
@@ -97,29 +127,31 @@
       "distrito_id": 2,
       "distrito_nombre": "Distrito Comercial",
       "es_conclusion": false,
-      "n_sospechosos": 6,
+      "n_sospechosos": 7,
       "sospechosos_ids": [
         1,
         2,
+        3,
+        4,
         5,
-        6,
         7,
         8
       ],
       "modo": "verdades",
-      "cantidad": 3,
+      "cantidad": 4,
       "dificultad": "omerta",
-      "culpable_id": 1,
-      "culpable_nombre": "El Notario",
+      "culpable_id": 2,
+      "culpable_nombre": "La Aprendiz",
       "declaraciones": [
         {
           "sospechoso_id": 1,
           "sospechoso": "El Notario",
           "clase": "pobre",
           "edad": "joven",
-          "carta_id": 59,
-          "carta_categoria": "meta",
-          "carta_texto": "El culpable no se está defendiendo. Eso es incluso más peligroso. Ande con cuidado.",
+          "carta_id": 36,
+          "carta_categoria": "descriptiva",
+          "carta_texto": "Quien lo hizo era viejo. El paso lento, la respiración pausada. Solo la edad da esa calma.",
+          "silenciada": false,
           "es_verdad": true
         },
         {
@@ -127,9 +159,32 @@
           "sospechoso": "La Aprendiz",
           "clase": "rico",
           "edad": "viejo",
-          "carta_id": 55,
-          "carta_categoria": "grupal",
-          "carta_texto": "Los viejos se protegen. Es lo único que les queda. Uno de ellos debe ser el asesino.",
+          "carta_id": 64,
+          "carta_categoria": "indirecta",
+          "carta_texto": "No he escuchado una sola duda en esta sala, es como si los más reflexivos callaran, señal de que todos ellos mienten.",
+          "silenciada": false,
+          "es_verdad": true
+        },
+        {
+          "sospechoso_id": 3,
+          "sospechoso": "El Carnicero",
+          "clase": "media",
+          "edad": "joven",
+          "carta_id": 4,
+          "carta_categoria": "acusación",
+          "carta_texto": "La Vidente sabía lo que iba a pasar. Pero no creo en sus visiones, creo que lo planificó.",
+          "silenciada": false,
+          "es_verdad": false
+        },
+        {
+          "sospechoso_id": 4,
+          "sospechoso": "El Coronel",
+          "clase": "media",
+          "edad": "viejo",
+          "carta_id": 58,
+          "carta_categoria": "meta",
+          "carta_texto": "Cada acusación que escuché esta noche sonó a verdad. Eso debería asustarnos.",
+          "silenciada": false,
           "es_verdad": false
         },
         {
@@ -137,19 +192,10 @@
           "sospechoso": "La Vidente",
           "clase": "rico",
           "edad": "mediana",
-          "carta_id": 23,
-          "carta_categoria": "veracidad",
-          "carta_texto": "A su edad los viejos ya no se gastan en mentir. No temen a la verdad.",
-          "es_verdad": false
-        },
-        {
-          "sospechoso_id": 6,
-          "sospechoso": "El Médico",
-          "clase": "rico",
-          "edad": "viejo",
-          "carta_id": 72,
-          "carta_categoria": "indirecta",
-          "carta_texto": "Si nadie acusa directamente al culpable, es porque este los está presionando. Pero los pobres no tienen nada que perder y dirán la verdad.",
+          "carta_id": 52,
+          "carta_categoria": "grupal",
+          "carta_texto": "La Aprendiz y el Carnicero se conocen de antes. Eso no es casualidad.",
+          "silenciada": false,
           "es_verdad": true
         },
         {
@@ -157,9 +203,10 @@
           "sospechoso": "El Heredero",
           "clase": "pobre",
           "edad": "mediana",
-          "carta_id": 20,
+          "carta_id": 13,
           "carta_categoria": "defensa",
-          "carta_texto": "Quien lo hizo no era de mediana edad. Esta claro pues no tuvo la fuerza para mover el cuerpo.",
+          "carta_texto": "El Carnicero es muchas cosas. Un asesino no es una de ellas. Que quede claro.",
+          "silenciada": false,
           "es_verdad": true
         },
         {
@@ -167,9 +214,10 @@
           "sospechoso": "El Crupier",
           "clase": "media",
           "edad": "mediana",
-          "carta_id": 9,
-          "carta_categoria": "acusación",
-          "carta_texto": "Fue la Aprendiz o la Vidente. El instinto lo dice. Las pruebas, también.",
+          "carta_id": 57,
+          "carta_categoria": "meta",
+          "carta_texto": "Quien se defiende en esta sala está mintiendo. La inocencia no necesita tanto ruido.",
+          "silenciada": false,
           "es_verdad": false
         }
       ]
@@ -179,31 +227,31 @@
       "distrito_id": 1,
       "distrito_nombre": "Distrito Industrial",
       "es_conclusion": false,
-      "n_sospechosos": 8,
+      "n_sospechosos": 7,
       "sospechosos_ids": [
         1,
         2,
         3,
-        4,
         5,
-        7,
+        6,
         8,
         9
       ],
       "modo": "verdades",
-      "cantidad": 6,
+      "cantidad": 3,
       "dificultad": "omerta",
-      "culpable_id": 4,
-      "culpable_nombre": "El Coronel",
+      "culpable_id": 5,
+      "culpable_nombre": "La Vidente",
       "declaraciones": [
         {
           "sospechoso_id": 1,
           "sospechoso": "El Notario",
           "clase": "rico",
           "edad": "viejo",
-          "carta_id": 71,
-          "carta_categoria": "indirecta",
-          "carta_texto": "Si la mayoria de los demás sospechosos miente, el culpable tiene años encima. La vejez enseña a esconderse.",
+          "carta_id": 63,
+          "carta_categoria": "meta",
+          "carta_texto": "Alguien acusa y alguien defiende, y ambos dicen la verdad. Eso es una contradicción. O es una trampa.",
+          "silenciada": false,
           "es_verdad": false
         },
         {
@@ -211,9 +259,10 @@
           "sospechoso": "La Aprendiz",
           "clase": "media",
           "edad": "joven",
-          "carta_id": 56,
-          "carta_categoria": "grupal",
-          "carta_texto": "Somos un grupo grande, algunos demasiado jóvenes otros demasiado viejos, y luego está el asesino.",
+          "carta_id": 15,
+          "carta_categoria": "defensa",
+          "carta_texto": "El Médico juró no hacer daño. Y lo cumple. Eso no se finge.",
+          "silenciada": false,
           "es_verdad": true
         },
         {
@@ -221,19 +270,10 @@
           "sospechoso": "El Carnicero",
           "clase": "pobre",
           "edad": "mediana",
-          "carta_id": 41,
-          "carta_categoria": "duda",
-          "carta_texto": "Yo no he sido ni sé quién pudo hacerlo. Pero sé que lo volverá a hacer si no lo encontramos.",
-          "es_verdad": true
-        },
-        {
-          "sospechoso_id": 4,
-          "sospechoso": "El Coronel",
-          "clase": "rico",
-          "edad": "mediana",
-          "carta_id": 57,
-          "carta_categoria": "meta",
-          "carta_texto": "Quien se defiende en esta sala está mintiendo. La inocencia no necesita tanto ruido.",
+          "carta_id": 34,
+          "carta_categoria": "descriptiva",
+          "carta_texto": "El culpable era joven. El crujido de sus pasos era ligero. La juventud tiene ese peso.",
+          "silenciada": false,
           "es_verdad": false
         },
         {
@@ -241,29 +281,32 @@
           "sospechoso": "La Vidente",
           "clase": "pobre",
           "edad": "viejo",
-          "carta_id": 59,
-          "carta_categoria": "meta",
-          "carta_texto": "El culpable no se está defendiendo. Eso es incluso más peligroso. Ande con cuidado.",
-          "es_verdad": true
+          "carta_id": 5,
+          "carta_categoria": "acusación",
+          "carta_texto": "La Aprendiz aprendió demasiado rápido. Y alguien pagó el precio.",
+          "silenciada": false,
+          "es_verdad": false
         },
         {
-          "sospechoso_id": 7,
-          "sospechoso": "El Heredero",
-          "clase": "rico",
+          "sospechoso_id": 6,
+          "sospechoso": "El Médico",
+          "clase": "media",
           "edad": "joven",
-          "carta_id": 51,
-          "carta_categoria": "grupal",
-          "carta_texto": "El Coronel y el Notario llegaron juntos esa noche. Solo uno de ellos sabe por qué.",
-          "es_verdad": true
+          "carta_id": 72,
+          "carta_categoria": "indirecta",
+          "carta_texto": "Si nadie acusa directamente al culpable, es porque este los está presionando. Pero los pobres no tienen nada que perder y dirán la verdad.",
+          "silenciada": false,
+          "es_verdad": false
         },
         {
           "sospechoso_id": 8,
           "sospechoso": "El Crupier",
           "clase": "media",
           "edad": "viejo",
-          "carta_id": 17,
-          "carta_categoria": "defensa",
-          "carta_texto": "Ni la Aprendiz ni la Vidente. Las dos tienen coartada. Yo mismo la verifiqué.",
+          "carta_id": 36,
+          "carta_categoria": "descriptiva",
+          "carta_texto": "Quien lo hizo era viejo. El paso lento, la respiración pausada. Solo la edad da esa calma.",
+          "silenciada": false,
           "es_verdad": true
         },
         {
@@ -271,9 +314,10 @@
           "sospechoso": "El Vagabundo",
           "clase": "pobre",
           "edad": "mediana",
-          "carta_id": 31,
-          "carta_categoria": "descriptiva",
-          "carta_texto": "El culpable era rico. Estoy seguro. El coche que abandonó la escena era de alta gama.",
+          "carta_id": 53,
+          "carta_categoria": "grupal",
+          "carta_texto": "La Vidente y el Médico compartían secretos. Alguno de esos secretos mató.",
+          "silenciada": false,
           "es_verdad": true
         }
       ]
@@ -283,51 +327,40 @@
       "distrito_id": 2,
       "distrito_nombre": "Distrito Comercial",
       "es_conclusion": false,
-      "n_sospechosos": 8,
+      "n_sospechosos": 5,
       "sospechosos_ids": [
-        2,
+        1,
         3,
-        4,
         5,
-        6,
         7,
-        8,
-        9
+        8
       ],
       "modo": "verdades",
       "cantidad": 3,
       "dificultad": "omerta",
-      "culpable_id": 2,
-      "culpable_nombre": "La Aprendiz",
+      "culpable_id": 7,
+      "culpable_nombre": "El Heredero",
       "declaraciones": [
         {
-          "sospechoso_id": 2,
-          "sospechoso": "La Aprendiz",
-          "clase": "rico",
-          "edad": "viejo",
-          "carta_id": 45,
-          "carta_categoria": "duda",
-          "carta_texto": "Me temo que no podrá resolver este caso Detective, el tiempo juega en su contra.",
-          "es_verdad": false
+          "sospechoso_id": 1,
+          "sospechoso": "El Notario",
+          "clase": "pobre",
+          "edad": "joven",
+          "carta_id": 56,
+          "carta_categoria": "grupal",
+          "carta_texto": "Somos un grupo grande, algunos demasiado jóvenes otros demasiado viejos, y luego está el asesino.",
+          "silenciada": false,
+          "es_verdad": true
         },
         {
           "sospechoso_id": 3,
           "sospechoso": "El Carnicero",
           "clase": "media",
           "edad": "joven",
-          "carta_id": 46,
-          "carta_categoria": "duda",
-          "carta_texto": "Estoy seguro que alguien de clase media tendría mejores cosas que hacer. El resto quizás no.",
-          "es_verdad": true
-        },
-        {
-          "sospechoso_id": 4,
-          "sospechoso": "El Coronel",
-          "clase": "media",
-          "edad": "viejo",
-          "carta_id": 67,
+          "carta_id": 68,
           "carta_categoria": "indirecta",
-          "carta_texto": "Si el Heredero no miente, podemos descartar a los de clase media. Está claro  que obraron de buena fe.",
+          "carta_texto": "Si el Crupier miente, quien lo hizo no era viejo. Son los únicos a los que él nunca defendería.",
+          "silenciada": false,
           "es_verdad": false
         },
         {
@@ -335,29 +368,21 @@
           "sospechoso": "La Vidente",
           "clase": "rico",
           "edad": "mediana",
-          "carta_id": 39,
+          "carta_id": 33,
           "carta_categoria": "descriptiva",
-          "carta_texto": "El culpable no era ni rico ni viejo. Lo que vi fue a alguien que podría confundirse con cualquiera.",
-          "es_verdad": false
-        },
-        {
-          "sospechoso_id": 6,
-          "sospechoso": "El Médico",
-          "clase": "rico",
-          "edad": "viejo",
-          "carta_id": 63,
-          "carta_categoria": "meta",
-          "carta_texto": "Alguien acusa y alguien defiende, y ambos dicen la verdad. Eso es una contradicción. O es una trampa.",
-          "es_verdad": false
+          "carta_texto": "El asesino era pobre. Su aliento olía a mandarina. Nunca lo olvidaré.",
+          "silenciada": false,
+          "es_verdad": true
         },
         {
           "sospechoso_id": 7,
           "sospechoso": "El Heredero",
           "clase": "pobre",
           "edad": "mediana",
-          "carta_id": 17,
-          "carta_categoria": "defensa",
-          "carta_texto": "Ni la Aprendiz ni la Vidente. Las dos tienen coartada. Yo mismo la verifiqué.",
+          "carta_id": 27,
+          "carta_categoria": "veracidad",
+          "carta_texto": "Los de clase media no mienten. Son de fiar.",
+          "silenciada": false,
           "es_verdad": false
         },
         {
@@ -365,19 +390,10 @@
           "sospechoso": "El Crupier",
           "clase": "media",
           "edad": "mediana",
-          "carta_id": 5,
-          "carta_categoria": "acusación",
-          "carta_texto": "La Aprendiz aprendió demasiado rápido. Y alguien pagó el precio.",
-          "es_verdad": true
-        },
-        {
-          "sospechoso_id": 9,
-          "sospechoso": "El Vagabundo",
-          "clase": "pobre",
-          "edad": "joven",
-          "carta_id": 55,
-          "carta_categoria": "grupal",
-          "carta_texto": "Los viejos se protegen. Es lo único que les queda. Uno de ellos debe ser el asesino.",
+          "carta_id": 61,
+          "carta_categoria": "meta",
+          "carta_texto": "Al menos una descripción dicha en esta sala suena convincente. Aférrese a esa y le llevará al culpable.",
+          "silenciada": false,
           "es_verdad": true
         }
       ]
@@ -386,6 +402,106 @@
       "ficha_id": 5,
       "distrito_id": 1,
       "distrito_nombre": "Distrito Industrial",
+      "es_conclusion": false,
+      "n_sospechosos": 7,
+      "sospechosos_ids": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        9
+      ],
+      "modo": "verdades",
+      "cantidad": 5,
+      "dificultad": "omerta",
+      "culpable_id": 6,
+      "culpable_nombre": "El Médico",
+      "declaraciones": [
+        {
+          "sospechoso_id": 2,
+          "sospechoso": "La Aprendiz",
+          "clase": "media",
+          "edad": "joven",
+          "carta_id": 44,
+          "carta_categoria": "duda",
+          "carta_texto": "Es inutil mentir, al final usted descubre la verdad.",
+          "silenciada": false,
+          "es_verdad": true
+        },
+        {
+          "sospechoso_id": 3,
+          "sospechoso": "El Carnicero",
+          "clase": "pobre",
+          "edad": "mediana",
+          "carta_id": 20,
+          "carta_categoria": "defensa",
+          "carta_texto": "Quien lo hizo no era de mediana edad. Esta claro pues no tuvo la fuerza para mover el cuerpo.",
+          "silenciada": false,
+          "es_verdad": true
+        },
+        {
+          "sospechoso_id": 4,
+          "sospechoso": "El Coronel",
+          "clase": "rico",
+          "edad": "mediana",
+          "carta_id": 17,
+          "carta_categoria": "defensa",
+          "carta_texto": "Ni la Aprendiz ni la Vidente. Las dos tienen coartada. Yo mismo la verifiqué.",
+          "silenciada": false,
+          "es_verdad": true
+        },
+        {
+          "sospechoso_id": 5,
+          "sospechoso": "La Vidente",
+          "clase": "pobre",
+          "edad": "viejo",
+          "carta_id": 14,
+          "carta_categoria": "defensa",
+          "carta_texto": "El Coronel lleva años protegiéndonos. Acusarlo es insultarnos a todos.",
+          "silenciada": false,
+          "es_verdad": true
+        },
+        {
+          "sospechoso_id": 6,
+          "sospechoso": "El Médico",
+          "clase": "media",
+          "edad": "joven",
+          "carta_id": 66,
+          "carta_categoria": "indirecta",
+          "carta_texto": "Si el Vagabundo miente, entonces el asesino vino de abajo. La pobreza no es excusa, pero sí es pista.",
+          "silenciada": false,
+          "es_verdad": false
+        },
+        {
+          "sospechoso_id": 7,
+          "sospechoso": "El Heredero",
+          "clase": "rico",
+          "edad": "joven",
+          "carta_id": 60,
+          "carta_categoria": "meta",
+          "carta_texto": "La mayoría de las declaraciones que escuché ahí hoy son puras mentiras. Calcule a quién conviene mentir.",
+          "silenciada": false,
+          "es_verdad": false
+        },
+        {
+          "sospechoso_id": 9,
+          "sospechoso": "El Vagabundo",
+          "clase": "pobre",
+          "edad": "mediana",
+          "carta_id": 32,
+          "carta_categoria": "descriptiva",
+          "carta_texto": "El asesino no era rico ni pobre. Clase media. Alguien que pasa desapercibido. Eso ya dice algo.",
+          "silenciada": false,
+          "es_verdad": true
+        }
+      ]
+    },
+    {
+      "ficha_id": 6,
+      "distrito_id": 2,
+      "distrito_nombre": "Distrito Comercial",
       "es_conclusion": false,
       "n_sospechosos": 8,
       "sospechosos_ids": [
@@ -401,181 +517,96 @@
       "modo": "verdades",
       "cantidad": 5,
       "dificultad": "omerta",
-      "culpable_id": 5,
-      "culpable_nombre": "La Vidente",
+      "culpable_id": 2,
+      "culpable_nombre": "La Aprendiz",
       "declaraciones": [
         {
           "sospechoso_id": 1,
           "sospechoso": "El Notario",
-          "clase": "rico",
-          "edad": "viejo",
-          "carta_id": 64,
-          "carta_categoria": "indirecta",
-          "carta_texto": "No he escuchado una sola duda en esta sala, es como si los más reflexivos callaran, señal de que todos ellos mienten.",
-          "es_verdad": false
+          "clase": "pobre",
+          "edad": "joven",
+          "carta_id": 59,
+          "carta_categoria": "meta",
+          "carta_texto": "El culpable no se está defendiendo. Eso es incluso más peligroso. Ande con cuidado.",
+          "silenciada": false,
+          "es_verdad": true
         },
         {
           "sospechoso_id": 2,
           "sospechoso": "La Aprendiz",
-          "clase": "media",
-          "edad": "joven",
-          "carta_id": 46,
-          "carta_categoria": "duda",
-          "carta_texto": "Estoy seguro que alguien de clase media tendría mejores cosas que hacer. El resto quizás no.",
-          "es_verdad": true
+          "clase": "rico",
+          "edad": "viejo",
+          "carta_id": 65,
+          "carta_categoria": "indirecta",
+          "carta_texto": "Escucho a quienes defienden y quienes describen al culpable, pero si los unos dicen la verdad, los otros mienten.",
+          "silenciada": false,
+          "es_verdad": false
         },
         {
           "sospechoso_id": 4,
           "sospechoso": "El Coronel",
-          "clase": "rico",
-          "edad": "mediana",
-          "carta_id": 24,
-          "carta_categoria": "veracidad",
-          "carta_texto": "Los pobres no mienten pues hoy han comido bien. Yo les creo.",
-          "es_verdad": true
+          "clase": "media",
+          "edad": "viejo",
+          "carta_id": 40,
+          "carta_categoria": "descriptiva",
+          "carta_texto": "Era rico y de mediana edad. Esa combinación no abunda en esta sala.",
+          "silenciada": false,
+          "es_verdad": false
         },
         {
           "sospechoso_id": 5,
           "sospechoso": "La Vidente",
-          "clase": "pobre",
-          "edad": "viejo",
-          "carta_id": 61,
-          "carta_categoria": "meta",
-          "carta_texto": "Al menos una descripción dicha en esta sala suena convincente. Aférrese a esa y le llevará al culpable.",
-          "es_verdad": true
+          "clase": "rico",
+          "edad": "mediana",
+          "carta_id": 37,
+          "carta_categoria": "descriptiva",
+          "carta_texto": "El culpable era exactamente de la misma clase que el Coronel. Lo noto en su andar.",
+          "silenciada": false,
+          "es_verdad": false
         },
         {
           "sospechoso_id": 6,
           "sospechoso": "El Médico",
-          "clase": "media",
-          "edad": "joven",
-          "carta_id": 33,
-          "carta_categoria": "descriptiva",
-          "carta_texto": "El asesino era pobre. Su aliento olía a mandarina. Nunca lo olvidaré.",
+          "clase": "rico",
+          "edad": "viejo",
+          "carta_id": 67,
+          "carta_categoria": "indirecta",
+          "carta_texto": "Si el Heredero no miente, podemos descartar a los de clase media. Está claro  que obraron de buena fe.",
+          "silenciada": false,
           "es_verdad": true
         },
         {
           "sospechoso_id": 7,
           "sospechoso": "El Heredero",
-          "clase": "rico",
-          "edad": "joven",
-          "carta_id": 6,
-          "carta_categoria": "acusación",
-          "carta_texto": "El Coronel fue. Lo delataron sus hábitos, no sus palabras.",
-          "es_verdad": false
+          "clase": "pobre",
+          "edad": "mediana",
+          "carta_id": 38,
+          "carta_categoria": "descriptiva",
+          "carta_texto": "Quien buscas tenía la misma edad que la Aprendiz. Eso y su misma frialdad.",
+          "silenciada": false,
+          "es_verdad": true
         },
         {
           "sospechoso_id": 8,
           "sospechoso": "El Crupier",
           "clase": "media",
-          "edad": "viejo",
-          "carta_id": 56,
-          "carta_categoria": "grupal",
-          "carta_texto": "Somos un grupo grande, algunos demasiado jóvenes otros demasiado viejos, y luego está el asesino.",
-          "es_verdad": false
+          "edad": "mediana",
+          "carta_id": 50,
+          "carta_categoria": "duda",
+          "carta_texto": "Vestía de forma extravagante; yo diría que no era de clase media y era alguien joven o quizás viejo.",
+          "silenciada": false,
+          "es_verdad": true
         },
         {
           "sospechoso_id": 9,
           "sospechoso": "El Vagabundo",
           "clase": "pobre",
-          "edad": "mediana",
-          "carta_id": 50,
-          "carta_categoria": "duda",
-          "carta_texto": "Vestía de forma extravagante; yo diría que no era de clase media y era alguien joven o quizás viejo.",
-          "es_verdad": true
-        }
-      ]
-    },
-    {
-      "ficha_id": 6,
-      "distrito_id": 2,
-      "distrito_nombre": "Distrito Comercial",
-      "es_conclusion": false,
-      "n_sospechosos": 7,
-      "sospechosos_ids": [
-        1,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8
-      ],
-      "modo": "verdades",
-      "cantidad": 3,
-      "dificultad": "omerta",
-      "culpable_id": 4,
-      "culpable_nombre": "El Coronel",
-      "declaraciones": [
-        {
-          "sospechoso_id": 1,
-          "sospechoso": "El Notario",
-          "clase": "pobre",
           "edad": "joven",
-          "carta_id": 58,
-          "carta_categoria": "meta",
-          "carta_texto": "Cada acusación que escuché esta noche sonó a verdad. Eso debería asustarnos.",
-          "es_verdad": true
-        },
-        {
-          "sospechoso_id": 3,
-          "sospechoso": "El Carnicero",
-          "clase": "media",
-          "edad": "joven",
-          "carta_id": 27,
-          "carta_categoria": "veracidad",
-          "carta_texto": "Los de clase media no mienten. Son de fiar.",
-          "es_verdad": false
-        },
-        {
-          "sospechoso_id": 4,
-          "sospechoso": "El Coronel",
-          "clase": "media",
-          "edad": "viejo",
-          "carta_id": 19,
+          "carta_id": 15,
           "carta_categoria": "defensa",
-          "carta_texto": "El culpable no era rico. Vi sus ropas. Menuda falta de gusto.",
+          "carta_texto": "El Médico juró no hacer daño. Y lo cumple. Eso no se finge.",
+          "silenciada": false,
           "es_verdad": true
-        },
-        {
-          "sospechoso_id": 5,
-          "sospechoso": "La Vidente",
-          "clase": "rico",
-          "edad": "mediana",
-          "carta_id": 39,
-          "carta_categoria": "descriptiva",
-          "carta_texto": "El culpable no era ni rico ni viejo. Lo que vi fue a alguien que podría confundirse con cualquiera.",
-          "es_verdad": false
-        },
-        {
-          "sospechoso_id": 6,
-          "sospechoso": "El Médico",
-          "clase": "rico",
-          "edad": "viejo",
-          "carta_id": 31,
-          "carta_categoria": "descriptiva",
-          "carta_texto": "El culpable era rico. Estoy seguro. El coche que abandonó la escena era de alta gama.",
-          "es_verdad": false
-        },
-        {
-          "sospechoso_id": 7,
-          "sospechoso": "El Heredero",
-          "clase": "pobre",
-          "edad": "mediana",
-          "carta_id": 6,
-          "carta_categoria": "acusación",
-          "carta_texto": "El Coronel fue. Lo delataron sus hábitos, no sus palabras.",
-          "es_verdad": true
-        },
-        {
-          "sospechoso_id": 8,
-          "sospechoso": "El Crupier",
-          "clase": "media",
-          "edad": "mediana",
-          "carta_id": 67,
-          "carta_categoria": "indirecta",
-          "carta_texto": "Si el Heredero no miente, podemos descartar a los de clase media. Está claro  que obraron de buena fe.",
-          "es_verdad": false
         }
       ]
     },
@@ -588,64 +619,69 @@
       "sospechosos_ids": [
         1,
         2,
-        5,
+        3,
         6,
-        9
+        8
       ],
       "modo": "verdades",
       "cantidad": 3,
       "dificultad": "omerta",
-      "culpable_id": 9,
-      "culpable_nombre": "El Vagabundo",
+      "culpable_id": 6,
+      "culpable_nombre": "El Médico",
       "declaraciones": [
         {
           "sospechoso_id": 1,
           "sospechoso": "El Notario",
           "clase": "rico",
           "edad": "viejo",
-          "carta_id": 66,
-          "carta_categoria": "indirecta",
-          "carta_texto": "Si el Vagabundo miente, entonces el asesino vino de abajo. La pobreza no es excusa, pero sí es pista.",
-          "es_verdad": true
+          "carta_id": 59,
+          "carta_categoria": "meta",
+          "carta_texto": "El culpable no se está defendiendo. Eso es incluso más peligroso. Ande con cuidado.",
+          "silenciada": false,
+          "es_verdad": false
         },
         {
           "sospechoso_id": 2,
           "sospechoso": "La Aprendiz",
           "clase": "media",
           "edad": "joven",
-          "carta_id": 11,
-          "carta_categoria": "acusación",
-          "carta_texto": "El asesino tenía los bolsillos vacíos y sintiendo el peso de los años se negó a llegar a viejo en la miseria. No lo culpo",
+          "carta_id": 70,
+          "carta_categoria": "indirecta",
+          "carta_texto": "Si el culpable esgrime una defensa esta noche, algún inocente también miente para cubrirlo. La complicidad tiene sus reglas.",
+          "silenciada": false,
           "es_verdad": true
         },
         {
-          "sospechoso_id": 5,
-          "sospechoso": "La Vidente",
+          "sospechoso_id": 3,
+          "sospechoso": "El Carnicero",
           "clase": "pobre",
-          "edad": "viejo",
+          "edad": "mediana",
           "carta_id": 3,
           "carta_categoria": "acusación",
           "carta_texto": "Solo el Médico sabe cómo borrar lo que no quiere que se encuentre.",
-          "es_verdad": false
+          "silenciada": false,
+          "es_verdad": true
         },
         {
           "sospechoso_id": 6,
           "sospechoso": "El Médico",
           "clase": "media",
           "edad": "joven",
-          "carta_id": 19,
+          "carta_id": 12,
           "carta_categoria": "defensa",
-          "carta_texto": "El culpable no era rico. Vi sus ropas. Menuda falta de gusto.",
+          "carta_texto": "El Notario no tiene el temple. Conozco a los que pueden hacer algo así. Él no.",
+          "silenciada": false,
           "es_verdad": true
         },
         {
-          "sospechoso_id": 9,
-          "sospechoso": "El Vagabundo",
-          "clase": "pobre",
-          "edad": "mediana",
-          "carta_id": 57,
-          "carta_categoria": "meta",
-          "carta_texto": "Quien se defiende en esta sala está mintiendo. La inocencia no necesita tanto ruido.",
+          "sospechoso_id": 8,
+          "sospechoso": "El Crupier",
+          "clase": "media",
+          "edad": "viejo",
+          "carta_id": 10,
+          "carta_categoria": "acusación",
+          "carta_texto": "El asesino ya tenía la edad de quien no teme nada y el dinero de quien nunca tuvo que temerlo.",
+          "silenciada": false,
           "es_verdad": false
         }
       ]
@@ -655,50 +691,29 @@
       "distrito_id": 2,
       "distrito_nombre": "Distrito Comercial",
       "es_conclusion": false,
-      "n_sospechosos": 7,
+      "n_sospechosos": 5,
       "sospechosos_ids": [
-        1,
         2,
-        3,
         4,
-        7,
-        8,
-        9
+        5,
+        6,
+        8
       ],
       "modo": "verdades",
-      "cantidad": 4,
+      "cantidad": 3,
       "dificultad": "omerta",
-      "culpable_id": 7,
-      "culpable_nombre": "El Heredero",
+      "culpable_id": 4,
+      "culpable_nombre": "El Coronel",
       "declaraciones": [
-        {
-          "sospechoso_id": 1,
-          "sospechoso": "El Notario",
-          "clase": "pobre",
-          "edad": "joven",
-          "carta_id": 10,
-          "carta_categoria": "acusación",
-          "carta_texto": "El asesino ya tenía la edad de quien no teme nada y el dinero de quien nunca tuvo que temerlo.",
-          "es_verdad": false
-        },
         {
           "sospechoso_id": 2,
           "sospechoso": "La Aprendiz",
           "clase": "rico",
           "edad": "viejo",
-          "carta_id": 64,
-          "carta_categoria": "indirecta",
-          "carta_texto": "No he escuchado una sola duda en esta sala, es como si los más reflexivos callaran, señal de que todos ellos mienten.",
-          "es_verdad": false
-        },
-        {
-          "sospechoso_id": 3,
-          "sospechoso": "El Carnicero",
-          "clase": "media",
-          "edad": "joven",
-          "carta_id": 61,
-          "carta_categoria": "meta",
-          "carta_texto": "Al menos una descripción dicha en esta sala suena convincente. Aférrese a esa y le llevará al culpable.",
+          "carta_id": 6,
+          "carta_categoria": "acusación",
+          "carta_texto": "El Coronel fue. Lo delataron sus hábitos, no sus palabras.",
+          "silenciada": false,
           "es_verdad": true
         },
         {
@@ -706,39 +721,43 @@
           "sospechoso": "El Coronel",
           "clase": "media",
           "edad": "viejo",
-          "carta_id": 33,
-          "carta_categoria": "descriptiva",
-          "carta_texto": "El asesino era pobre. Su aliento olía a mandarina. Nunca lo olvidaré.",
+          "carta_id": 20,
+          "carta_categoria": "defensa",
+          "carta_texto": "Quien lo hizo no era de mediana edad. Esta claro pues no tuvo la fuerza para mover el cuerpo.",
+          "silenciada": false,
           "es_verdad": true
         },
         {
-          "sospechoso_id": 7,
-          "sospechoso": "El Heredero",
-          "clase": "pobre",
+          "sospechoso_id": 5,
+          "sospechoso": "La Vidente",
+          "clase": "rico",
           "edad": "mediana",
-          "carta_id": 66,
-          "carta_categoria": "indirecta",
-          "carta_texto": "Si el Vagabundo miente, entonces el asesino vino de abajo. La pobreza no es excusa, pero sí es pista.",
+          "carta_id": 63,
+          "carta_categoria": "meta",
+          "carta_texto": "Alguien acusa y alguien defiende, y ambos dicen la verdad. Eso es una contradicción. O es una trampa.",
+          "silenciada": false,
           "es_verdad": true
+        },
+        {
+          "sospechoso_id": 6,
+          "sospechoso": "El Médico",
+          "clase": "rico",
+          "edad": "viejo",
+          "carta_id": 69,
+          "carta_categoria": "indirecta",
+          "carta_texto": "Cuando alguien de la clase media miente, suele ser por sentimentalismo. Ese viejo impulso de proteger a los más jóvenes.",
+          "silenciada": false,
+          "es_verdad": false
         },
         {
           "sospechoso_id": 8,
           "sospechoso": "El Crupier",
           "clase": "media",
           "edad": "mediana",
-          "carta_id": 11,
-          "carta_categoria": "acusación",
-          "carta_texto": "El asesino tenía los bolsillos vacíos y sintiendo el peso de los años se negó a llegar a viejo en la miseria. No lo culpo",
-          "es_verdad": true
-        },
-        {
-          "sospechoso_id": 9,
-          "sospechoso": "El Vagabundo",
-          "clase": "pobre",
-          "edad": "joven",
-          "carta_id": 23,
-          "carta_categoria": "veracidad",
-          "carta_texto": "A su edad los viejos ya no se gastan en mentir. No temen a la verdad.",
+          "carta_id": 40,
+          "carta_categoria": "descriptiva",
+          "carta_texto": "Era rico y de mediana edad. Esa combinación no abunda en esta sala.",
+          "silenciada": false,
           "es_verdad": false
         }
       ]
@@ -750,29 +769,41 @@
       "es_conclusion": false,
       "n_sospechosos": 8,
       "sospechosos_ids": [
+        1,
         2,
         3,
         4,
         5,
         6,
         7,
-        8,
-        9
+        8
       ],
       "modo": "verdades",
-      "cantidad": 3,
+      "cantidad": 4,
       "dificultad": "omerta",
-      "culpable_id": 4,
-      "culpable_nombre": "El Coronel",
+      "culpable_id": 2,
+      "culpable_nombre": "La Aprendiz",
       "declaraciones": [
+        {
+          "sospechoso_id": 1,
+          "sospechoso": "El Notario",
+          "clase": "rico",
+          "edad": "viejo",
+          "carta_id": 32,
+          "carta_categoria": "descriptiva",
+          "carta_texto": "El asesino no era rico ni pobre. Clase media. Alguien que pasa desapercibido. Eso ya dice algo.",
+          "silenciada": false,
+          "es_verdad": true
+        },
         {
           "sospechoso_id": 2,
           "sospechoso": "La Aprendiz",
           "clase": "media",
           "edad": "joven",
-          "carta_id": 4,
-          "carta_categoria": "acusación",
-          "carta_texto": "La Vidente sabía lo que iba a pasar. Pero no creo en sus visiones, creo que lo planificó.",
+          "carta_id": 67,
+          "carta_categoria": "indirecta",
+          "carta_texto": "Si el Heredero no miente, podemos descartar a los de clase media. Está claro  que obraron de buena fe.",
+          "silenciada": false,
           "es_verdad": false
         },
         {
@@ -780,9 +811,10 @@
           "sospechoso": "El Carnicero",
           "clase": "pobre",
           "edad": "mediana",
-          "carta_id": 58,
-          "carta_categoria": "meta",
-          "carta_texto": "Cada acusación que escuché esta noche sonó a verdad. Eso debería asustarnos.",
+          "carta_id": 56,
+          "carta_categoria": "grupal",
+          "carta_texto": "Somos un grupo grande, algunos demasiado jóvenes otros demasiado viejos, y luego está el asesino.",
+          "silenciada": false,
           "es_verdad": false
         },
         {
@@ -790,60 +822,55 @@
           "sospechoso": "El Coronel",
           "clase": "rico",
           "edad": "mediana",
-          "carta_id": 7,
+          "carta_id": 5,
           "carta_categoria": "acusación",
-          "carta_texto": "Solo el El Vagabundo o el Crupier estaban en la escena del crimen. Uno de ellos lo hizo.",
-          "es_verdad": false
+          "carta_texto": "La Aprendiz aprendió demasiado rápido. Y alguien pagó el precio.",
+          "silenciada": false,
+          "es_verdad": true
         },
         {
           "sospechoso_id": 5,
           "sospechoso": "La Vidente",
           "clase": "pobre",
           "edad": "viejo",
-          "carta_id": 29,
-          "carta_categoria": "veracidad",
-          "carta_texto": "Entre tanta gente pobre seguro hay algun mentiroso. Así es esta gente.",
-          "es_verdad": true
+          "carta_id": 54,
+          "carta_categoria": "grupal",
+          "carta_texto": "Los ricos en esta sala se cubren entre sí. Uno de ellos miente, uno de ellos lo hizo y no podra esconderlo.",
+          "silenciada": false,
+          "es_verdad": false
         },
         {
           "sospechoso_id": 6,
           "sospechoso": "El Médico",
           "clase": "media",
           "edad": "joven",
-          "carta_id": 14,
-          "carta_categoria": "defensa",
-          "carta_texto": "El Coronel lleva años protegiéndonos. Acusarlo es insultarnos a todos.",
-          "es_verdad": false
+          "carta_id": 69,
+          "carta_categoria": "indirecta",
+          "carta_texto": "Cuando alguien de la clase media miente, suele ser por sentimentalismo. Ese viejo impulso de proteger a los más jóvenes.",
+          "silenciada": false,
+          "es_verdad": true
         },
         {
           "sospechoso_id": 7,
           "sospechoso": "El Heredero",
           "clase": "rico",
           "edad": "joven",
-          "carta_id": 68,
-          "carta_categoria": "indirecta",
-          "carta_texto": "Si el Crupier miente, quien lo hizo no era viejo. Son los únicos a los que él nunca defendería.",
-          "es_verdad": false
+          "carta_id": 61,
+          "carta_categoria": "meta",
+          "carta_texto": "Al menos una descripción dicha en esta sala suena convincente. Aférrese a esa y le llevará al culpable.",
+          "silenciada": false,
+          "es_verdad": true
         },
         {
           "sospechoso_id": 8,
           "sospechoso": "El Crupier",
           "clase": "media",
           "edad": "viejo",
-          "carta_id": 48,
-          "carta_categoria": "duda",
-          "carta_texto": "No fue alguien pobre. El reloj que tenía la victima era costoso y allí quedó",
-          "es_verdad": true
-        },
-        {
-          "sospechoso_id": 9,
-          "sospechoso": "El Vagabundo",
-          "clase": "pobre",
-          "edad": "mediana",
-          "carta_id": 44,
-          "carta_categoria": "duda",
-          "carta_texto": "Es inutil mentir, al final usted descubre la verdad.",
-          "es_verdad": true
+          "carta_id": 27,
+          "carta_categoria": "veracidad",
+          "carta_texto": "Los de clase media no mienten. Son de fiar.",
+          "silenciada": false,
+          "es_verdad": false
         }
       ]
     },
@@ -852,54 +879,43 @@
       "distrito_id": 3,
       "distrito_nombre": "Operación Código Omertá",
       "es_conclusion": true,
-      "n_sospechosos": 7,
+      "n_sospechosos": 5,
       "sospechosos_ids": [
-        1,
         2,
         4,
         5,
-        7,
-        8,
-        9
+        6,
+        7
       ],
       "modo": "verdades",
-      "cantidad": 5,
+      "cantidad": 3,
       "dificultad": "omerta",
-      "culpable_id": 9,
-      "culpable_nombre": "El Vagabundo",
+      "culpable_id": 6,
+      "culpable_nombre": "El Médico",
       "declaraciones": [
-        {
-          "sospechoso_id": 1,
-          "sospechoso": "El Notario",
-          "clase": "pobre",
-          "edad": "joven",
-          "carta_id": 11,
-          "carta_categoria": "acusación",
-          "carta_texto": "El asesino tenía los bolsillos vacíos y sintiendo el peso de los años se negó a llegar a viejo en la miseria. No lo culpo",
-          "es_verdad": true,
-          "distrito_origen": 2
-        },
         {
           "sospechoso_id": 2,
           "sospechoso": "La Aprendiz",
           "clase": "rico",
           "edad": "viejo",
-          "carta_id": 73,
-          "carta_categoria": "omerta",
-          "carta_texto": "Solo tengo una palabra para usted, detective: Omertá. Quien me acuse, directa o indirectamente, será silenciado.",
-          "es_verdad": true,
+          "carta_id": 69,
+          "carta_categoria": "indirecta",
+          "carta_texto": "Cuando alguien de la clase media miente, suele ser por sentimentalismo. Ese viejo impulso de proteger a los más jóvenes.",
+          "silenciada": false,
+          "es_verdad": false,
           "distrito_origen": 2
         },
         {
           "sospechoso_id": 4,
           "sospechoso": "El Coronel",
-          "clase": "rico",
-          "edad": "mediana",
-          "carta_id": 69,
-          "carta_categoria": "indirecta",
-          "carta_texto": "Cuando alguien de la clase media miente, suele ser por sentimentalismo. Ese viejo impulso de proteger a los más jóvenes.",
-          "es_verdad": false,
-          "distrito_origen": 1
+          "clase": "media",
+          "edad": "viejo",
+          "carta_id": 34,
+          "carta_categoria": "descriptiva",
+          "carta_texto": "El culpable era joven. El crujido de sus pasos era ligero. La juventud tiene ese peso.",
+          "silenciada": true,
+          "es_verdad": null,
+          "distrito_origen": 2
         },
         {
           "sospechoso_id": 5,
@@ -909,6 +925,19 @@
           "carta_id": 14,
           "carta_categoria": "defensa",
           "carta_texto": "El Coronel lleva años protegiéndonos. Acusarlo es insultarnos a todos.",
+          "silenciada": false,
+          "es_verdad": true,
+          "distrito_origen": 1
+        },
+        {
+          "sospechoso_id": 6,
+          "sospechoso": "El Médico",
+          "clase": "media",
+          "edad": "joven",
+          "carta_id": 73,
+          "carta_categoria": "omerta",
+          "carta_texto": "Solo tengo una palabra para usted, detective: Omertá. Quien me acuse, directa o indirectamente, será silenciado.",
+          "silenciada": false,
           "es_verdad": true,
           "distrito_origen": 1
         },
@@ -917,33 +946,12 @@
           "sospechoso": "El Heredero",
           "clase": "pobre",
           "edad": "mediana",
-          "carta_id": 63,
+          "carta_id": 61,
           "carta_categoria": "meta",
-          "carta_texto": "Alguien acusa y alguien defiende, y ambos dicen la verdad. Eso es una contradicción. O es una trampa.",
+          "carta_texto": "Al menos una descripción dicha en esta sala suena convincente. Aférrese a esa y le llevará al culpable.",
+          "silenciada": false,
           "es_verdad": true,
           "distrito_origen": 2
-        },
-        {
-          "sospechoso_id": 8,
-          "sospechoso": "El Crupier",
-          "clase": "media",
-          "edad": "viejo",
-          "carta_id": 70,
-          "carta_categoria": "indirecta",
-          "carta_texto": "Si el culpable esgrime una defensa esta noche, algún inocente también miente para cubrirlo. La complicidad tiene sus reglas.",
-          "es_verdad": true,
-          "distrito_origen": 1
-        },
-        {
-          "sospechoso_id": 9,
-          "sospechoso": "El Vagabundo",
-          "clase": "pobre",
-          "edad": "mediana",
-          "carta_id": 17,
-          "carta_categoria": "defensa",
-          "carta_texto": "Ni la Aprendiz ni la Vidente. Las dos tienen coartada. Yo mismo la verifiqué.",
-          "es_verdad": true,
-          "distrito_origen": 1
         }
       ]
     }

@@ -184,32 +184,3 @@ def validar_tope_omerta(asignacion: dict, sus: dict) -> bool:
     if n_vivas < MINIMO_CARTAS_VIVAS_TRAS_OMERTA:
         return False
     return True
-
-
-def validar_omerta_activable(asignacion: dict, sus: dict) -> bool:
-    """
-    Garantiza que la amenaza de Omertá sea real: debe existir al menos una
-    carta en la ficha que la activaría (es decir, que apunta al declarante
-    de Omertá) para AL MENOS UN candidato posible.
-
-    El chequeo evalúa calcular_cartas_silenciadas para cada sospechoso como
-    candidato culpable; si en alguno el set de silenciadas no está vacío,
-    la validación pasa. Si para todos los candidatos el apagón sería cero
-    (nadie desafía a Omertá bajo ningún culpable posible), la ficha se
-    descarta — la amenaza sería narrativamente hueca y Omertá quedaría
-    siempre como mentira, sin aportar tensión deductiva.
-
-    Si no hay carta Omertá en la ficha, devuelve True directamente.
-    """
-    declarante_omerta = next(
-        (sid for sid, cid in asignacion.items() if cid == ID_CARTA_OMERTA), None
-    )
-    if declarante_omerta is None:
-        return True  # sin Omertá en la ficha, la regla no aplica
-
-    for candidato in sus:
-        silenciadas = calcular_cartas_silenciadas(asignacion, candidato, sus)
-        if silenciadas:
-            return True  # al menos un candidato activaría Omertá
-
-    return False  # ningún candidato activa Omertá: amenaza hueca, descartar

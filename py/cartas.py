@@ -723,7 +723,7 @@ TEXTOS_CARTAS = {
     20: "Quien lo hizo no era de mediana edad. Esta claro pues no tuvo la fuerza para mover el cuerpo.",
     # VERACIDAD
     21: "Todos esos viejos en la sala saben más de lo que dicen. Eligieron con cuidado que contar y sobre todo que ocultar.",
-    22: "Desconfíen de todos los demas ricos. El porte da una confianza que cuesta distinguir de la inocencia.",
+    22: "Desconfíe de todos esos ricos. El porte les da una confianza que cuesta distinguir de la inocencia.",
     23: "A su edad los viejos ya no se gastan en mentir. No temen a la verdad.",
     24: "Los pobres no mienten pues hoy han comido bien. Yo les creo.",
     25: "La experiencia no se oculta. Quien tiene mediana edad ya ha aprendido a mentir y lo hará almenos uan vez.",

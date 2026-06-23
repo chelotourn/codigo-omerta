@@ -478,6 +478,19 @@
   }
   .decl-vm-resultado.v { color:#6ab46a; display:block; }
   .decl-vm-resultado.m { color:#b43c3c; display:block; }
+  .decl-vm-resultado.s {
+    color:var(--texto-suave); display:block; font-size:1.2rem; opacity:.55;
+    letter-spacing:.05em;
+  }
+  /* declaración silenciada por Omertá */
+  .declaracion.silenciada-revelada {
+    border-left-color:rgba(155,32,32,.45);
+    opacity:.62;
+  }
+  .declaracion.silenciada-revelada .decl-texto {
+    text-decoration: line-through;
+    text-decoration-color: rgba(155,32,32,.4);
+  }
 
   /* ── ZONA ACCIÓN ── */
   .zona-accion {
@@ -1579,9 +1592,14 @@ function htmlDeclaracion(d, e) {
 
   if (e.resuelta) {
     // revelación final
-    cls += d.es_verdad ? ' verdad-revelada' : ' mentira-revelada';
-    const vm = d.es_verdad ? 'v' : 'm';
-    marcadorHTML = `<div class="decl-vm-resultado ${vm}">${vm.toUpperCase()}</div>`;
+    if (d.silenciada) {
+      cls += ' silenciada-revelada';
+      marcadorHTML = `<div class="decl-vm-resultado s" title="Silenciada por Omertá">·</div>`;
+    } else {
+      cls += d.es_verdad ? ' verdad-revelada' : ' mentira-revelada';
+      const vm = d.es_verdad ? 'v' : 'm';
+      marcadorHTML = `<div class="decl-vm-resultado ${vm}">${vm.toUpperCase()}</div>`;
+    }
   } else {
     // botones interactivos V / M
     const marcaActual = e.marcasVM[d.carta_id] || null;
@@ -1631,7 +1649,10 @@ function htmlDeclaracion(d, e) {
 // ── HTML RESULTADO ───────────────────────────────────────────────────────────
 function htmlResultado(f, e) {
   const vm = f.declaraciones
-    .map(d => `<strong>${d.sospechoso.split(' ').pop()}</strong>: ${d.es_verdad?'V':'M'}`)
+    .map(d => {
+      const etiqueta = d.silenciada ? '<span style="opacity:.45" title="Silenciada por Omertá">·</span>' : (d.es_verdad ? 'V' : 'M');
+      return `<strong>${d.sospechoso.split(' ').pop()}</strong>: ${etiqueta}`;
+    })
     .join(' &nbsp;·&nbsp; ');
   if (e.correcto) {
     return esFichaFinal(f)

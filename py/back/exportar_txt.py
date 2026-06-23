@@ -7,7 +7,7 @@ reglamento narrativo del juego.
 from datetime import datetime
 
 from datos import sospechosos_del_distrito, nombre_distrito
-from cartas import TEXTOS_CARTAS, CATEGORIAS_CARTAS, calcular_cartas_silenciadas
+from cartas import TEXTOS_CARTAS, CATEGORIAS_CARTAS
 from validaciones import evaluar_carta
 from generacion import Ficha
 
@@ -91,19 +91,14 @@ def ficha_a_txt(f: Ficha) -> str:
     bloques.append(linea(f"CULPABLE: {f.culpable}  [{culp_nombre}]"))
     bloques.append(linea("          [NÚMERO OCULTO EN TINTA ROJA]"))
     bloques.append(separador())
-    bloques.append(linea("DECLARACIONES  (V = verdad  M = mentira  · = silenciada)"))
+    bloques.append(linea("DECLARACIONES  (V = verdad  M = mentira)"))
     bloques.append(separador())
-
-    silenciadas = calcular_cartas_silenciadas(f.asignacion, f.culpable, sus)
 
     for sid in f.sospechosos:
         carta_id = f.asignacion[sid]
         texto    = TEXTOS_CARTAS[carta_id]
-        if sid in silenciadas:
-            estado = "·"
-        else:
-            verdad = evaluar_carta(carta_id, f.culpable, sid, sus, f.asignacion)
-            estado = "V" if verdad else "M"
+        verdad   = evaluar_carta(carta_id, f.culpable, sid, sus, f.asignacion)
+        estado   = "V" if verdad else "M"
         nombre   = pool[sid]["nombre"]
         cat      = CATEGORIAS_CARTAS[carta_id]
         cabecera = f"[{estado}] #{carta_id:02d} ({cat})  —  {nombre}"
@@ -178,15 +173,11 @@ def resumen_soluciones(fichas: list) -> str:
         pool = sospechosos_del_distrito(f.distrito)
         sus = {i: pool[i] for i in f.sospechosos}
         culp_nombre = pool[f.culpable]["nombre"]
-        silenciadas = calcular_cartas_silenciadas(f.asignacion, f.culpable, sus)
         estados = []
         for sid in f.sospechosos:
-            if sid in silenciadas:
-                estados.append("·")
-            else:
-                carta_id = f.asignacion[sid]
-                verdad = evaluar_carta(carta_id, f.culpable, sid, sus, f.asignacion)
-                estados.append("V" if verdad else "M")
+            carta_id = f.asignacion[sid]
+            verdad = evaluar_carta(carta_id, f.culpable, sid, sus, f.asignacion)
+            estados.append("V" if verdad else "M")
         vm_str = " ".join(estados)
         lineas.append(f"  #{f.id:02d}  [D{f.distrito}]  Culpable: {culp_nombre:<16}  [{vm_str}]")
     lineas.append(sep)
