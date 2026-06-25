@@ -1,0 +1,29 @@
+name: Generar JSON Semanal
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Lunes 00:00 UTC
+  workflow_dispatch:
+
+jobs:
+  generar:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Ejecutar generador
+        working-directory: ./py
+        run: python generador.py < /dev/null || true
+      
+      - name: Commit y push
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add json/
+          git commit -m "chore: JSON automático $(date +'%Y-%m-%d')" || true
+          git push
