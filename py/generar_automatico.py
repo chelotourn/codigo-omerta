@@ -1,48 +1,89 @@
 """
 Script no-interactivo para generar JSON automáticamente a la carpeta /json
 Ejecutado por GitHub Actions semanalmente.
+
+Opción 4 (Mixta): genera 3 JSON para sitio web
+- 5+1 urbano
+- 7+1 metro
+- 9+1 omertà
 """
 
 import os
 import sys
 from datetime import datetime
-from generacion import generar_fichas, mezclar_y_renumerar
-from exportar_json import exportar_json
+from generacion import mezclar_y_renumerar
+from caso import generar_caso
+from exportar_json import exportar_caso
 
 # Carpeta de salida
 CARPETA_JSON = os.path.join(os.path.dirname(__file__), "..", "json")
 os.makedirs(CARPETA_JSON, exist_ok=True)
 
-# Parámetros por defecto
+# Parámetros fijos
 modo = "verdades"
-dificultad = "omerta"  # Cambiar si quieres otro nivel
-n_fichas = 10
-n_sosp_fijo = 0  # Aleatorio
-cantidad_fija = None
-seed = None
 distrito_modo = 0  # Cíclico
 
-print(f"Generando fichas ({dificultad}) → {CARPETA_JSON}")
+print(f"\n{'='*50}")
+print(f"  Generando Mixta → {CARPETA_JSON}")
+print(f"{'='*50}\n")
 
-fichas = generar_fichas(
-    n_fichas=n_fichas,
-    modo=modo,
-    cantidad_fija=cantidad_fija,
-    seed=seed,
-    n_sosp_fijo=n_sosp_fijo,
-    dificultad=dificultad,
-    distrito_modo=distrito_modo,
-)
+nombres = {
+    "urbano": "fichas_urbano.json",
+    "metropoli": "fichas_metro.json",
+    "omerta": "fichas_omerta.json"
+}
+n_fichas_por_dif = {
+    "urbano": 5,
+    "metropoli": 7,
+    "omerta": 9
+}
 
-if not fichas:
-    print("❌ Error: no se generaron fichas")
-    sys.exit(1)
+total = 0
+for dif in ("urbano", "metropoli", "omerta"):
+    n_fichas_dif = n_fichas_por_dif[dif]
+    
+    print(f"  Generando {dif.upper()}: {n_fichas_dif} fichas + conclusión...")
+    
+    resultado_caso = generar_caso(
+        n_fichas=n_fichas_dif,
+        modo=modo,
+        cantidad_fija=None,
+        dificultad=dif,
+        n_sosp_fijo=0,
+        seed=None,
+    )
+    
+    fichas = resultado_caso["fichas"]
+    if not fichas:
+        print(f"    ✗ No se encontraron fichas para {dif.upper()}. Saltando.")
+        continue
+    
+    mezclar_y_renumerar(fichas, distrito_modo=0)
+    
+    ruta = os.path.join(CARPETA_JSON, nombres[dif])
+    ruta_base, _ext = os.path.splitext(ruta)
+    
+    exportar_caso(resultado_caso, ruta_base, jugable=False)
+    
+    # Limpiar TXT temporal, quedarse solo con JSON
+    ruta_txt_temp = f"{ruta_base}.txt"
+    if os.path.exists(ruta_txt_temp):
+        os.remove(ruta_txt_temp)
+    
+    ruta_json_temp = f"{ruta_base}.json"
+    if ruta_json_temp != ruta:
+        os.replace(ruta_json_temp, ruta)
+    
+    n_exportadas = len(fichas) + (1 if resultado_caso["ficha_conclusion"] is not None else 0)
+    
+    if resultado_caso["ficha_conclusion"] is None:
+        print(f"    ⚠ {dif.upper()}: sin ficha-conclusión ({resultado_caso.get('motivo', 'no convergió')}).")
+    else:
+        print(f"    ✓ {dif.upper()}: {n_exportadas} fichas (incluyendo conclusión)")
+    
+    total += n_exportadas
 
-mezclar_y_renumerar(fichas, distrito_modo=distrito_modo)
-
-# Generar con timestamp
-ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-ruta_json = os.path.join(CARPETA_JSON, f"fichas_{ts}.json")
-exportar_json(fichas, ruta_json)
-
-print(f"✅ {len(fichas)} fichas generadas en {ruta_json}")
+print(f"\n{'='*50}")
+print(f"  ✅ Listo. {total} fichas totales generadas")
+print(f"  Archivos en: {CARPETA_JSON}")
+print(f"{'='*50}\n")
