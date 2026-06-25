@@ -79,10 +79,11 @@ Puedes acceder a la versión desplegada en vivo aquí:
 ---
 
 ### ¿Cómo jugar un caso?
-1. Genera tus archivos utilizando el script local en Python.
-2. Abre uno de los 3 casos semanales en la web o el entorno local.
-3. Utiliza el módulo **"Carga de Expediente"** para arrastrar o seleccionar el archivo `.json` exportado.
-4. La interfaz renderizará las tarjetas de los sospechosos activos, sus atributos visuales y sus declaraciones en formato de lista de chequeo interactiva (`V` para Verdad, `M` para Mentira), tambien podrás crear conexiones entre las declaraciones y los sospechosos usando chinchetas e hilos de múltiples colores hasta convertirte en el loco de las conspiraciones.
+1. Genera tus archivos utilizando el script local en Python (opcional).
+2. Abre uno de los 3 casos semanales en la web o utiliza el módulo **"Carga de Expediente"** para arrastrar o seleccionar el archivo .json generado.
+3. La interfaz renderizará las tarjetas de los sospechosos activos, sus atributos visuales y sus declaraciones en formato de lista de verificación interactiva (`V` para Verdad, `M` para Mentira)
+4. Identifica al culpable en cada caso y avanza hasta el escenario final, donde te aguardan todos los culpables de los casos anteriores. ¡Descubre a la mente maestra!
+5. Podrás crear conexiones entre las declaraciones y los sospechosos usando chinchetas e hilos de múltiples colores, hasta convertirte en el auténtico "loco de las conspiraciones".
 
     ![Crazy wall](https://chelotourn.github.io/codigo-omerta/assets/meme.png)
     ><small>*\*Foto: Always Sunny in Philadelphia*</small>
