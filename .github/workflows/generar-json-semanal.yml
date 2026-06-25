@@ -87,3 +87,4 @@ print(f"\n{'='*50}")
 print(f"  ✅ Listo. {total} fichas totales generadas")
 print(f"  Archivos en: {CARPETA_JSON}")
 print(f"{'='*50}\n")
+
