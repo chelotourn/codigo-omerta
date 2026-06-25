@@ -80,11 +80,12 @@ Puedes acceder a la versión desplegada en vivo aquí:
 
 ### ¿Cómo jugar un caso?
 1. Genera tus archivos utilizando el script local en Python.
-2. Abre la demo en la web o el entorno local.
+2. Abre uno de los 3 casos semanales en la web o el entorno local.
 3. Utiliza el módulo **"Carga de Expediente"** para arrastrar o seleccionar el archivo `.json` exportado.
-4. La interfaz renderizará automáticamente las tarjetas de los sospechosos activos, sus atributos visuales y sus declaraciones en formato de lista de chequeo interactiva (`V` para Verdad, `M` para Mentira), lo que permite realizar el proceso de descarte de forma cómoda.
+4. La interfaz renderizará las tarjetas de los sospechosos activos, sus atributos visuales y sus declaraciones en formato de lista de chequeo interactiva (`V` para Verdad, `M` para Mentira), tambien podrás crear conexiones entre las declaraciones y los sospechosos usando chinchetas e hilos de múltiples colores hasta convertirte en el loco de las conspiraciones.
 
-NOTA: Se han añadido 3 ficheros de casos en la interfaz de inicio, uno para cada nivel de dificultad. En su interior dispondrás de 10 casos jugables para evaluar el desafío
+    ![Crazy wall](https://chelotourn.github.io/codigo-omerta/assets/meme.png)
+    ><small>*\*Foto: Always Sunny in Philadelphia*</small>
 
 ---
 
