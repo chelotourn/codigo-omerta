@@ -90,4 +90,9 @@ NOTA: Se han añadido 3 ficheros de casos en la interfaz de inicio, uno para cad
 
 ## 📝 Licencia
 
-Este proyecto se distribuye bajo la licencia **MIT**. Siéntete libre de utilizar el motor generador, modificar la base de datos de las cartas o adaptar la lógica meta a tus propios desarrollos de juegos de mesa o digitales.
+Este proyecto se distribuye bajo la licencia MIT (ver archivo LICENSE). 
+Eres libre de utilizar el motor generador, modificar la base de datos de 
+las cartas o adaptar la lógica meta a tus propios desarrollos de juegos 
+de mesa o digitales. 
+
+Por favor, mantén los créditos originales según se detalla en ATTRIBUTION.md.
