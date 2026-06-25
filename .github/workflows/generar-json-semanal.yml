@@ -11,6 +11,8 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       
       - uses: actions/setup-python@v5
         with:
@@ -26,4 +28,4 @@ jobs:
           git config user.email "actions@github.com"
           git add json/
           git commit -m "chore: JSON automático $(date +'%Y-%m-%d %H:%M')" || true
-          git push
+          git push origin main
