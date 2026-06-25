@@ -139,6 +139,11 @@ function acusar(idx) {
     guardarResultadoHistorial(f.dificultad, f.ficha_id, e.correcto, e.seleccion, GENERADO_ACTUAL);
   }
 
+  // Umami: registrar tarea completada cuando el jugador acierta al sospechoso
+  if (e.correcto && typeof umami !== 'undefined') {
+    umami.track('Tarea Completada');
+  }
+
   mostrarFicha(idx);
   renderNav();
 
