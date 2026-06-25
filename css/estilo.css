@@ -264,7 +264,7 @@
   .btn-reset-nav:hover { color:var(--rojo-sangre); border-color:var(--rojo-sangre); }
 
   /* ── CONTENIDO ── */
-  .contenido-ficha { max-width:1025px; margin:0 auto; padding:2rem 1.5rem 4rem; position:relative; }
+  .contenido-ficha { max-width:1025px; margin:0 auto; padding:2rem 1.5rem 1rem; position:relative; }
 
   .ficha-header {
     display:flex; align-items:flex-start; justify-content:space-between;
@@ -695,10 +695,10 @@
   /* ── REGLAS EN PORTADA ── */
   .reglas-portada {
     max-width: 680px;
-    margin: 15px auto;
+    margin: 0px auto;
     border: 1px solid rgba(184,147,58,.2);
     background: var(--carbon);
-    padding: 2rem 2.5rem;
+    padding: 2rem 2.5rem 3rem;
   }
   .reglas-titulo {
     font-family:'Special Elite',monospace; font-size:.8rem; letter-spacing:.35em;
