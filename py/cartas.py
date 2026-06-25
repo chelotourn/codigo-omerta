@@ -745,9 +745,9 @@ def validar_indirectas_en_ficha(asignacion: dict, culpable_id: int, sus: dict) -
             return False
     return True
 
-# Cartas que siempre devuelven True independientemente del culpable.
-# No aportan información deductiva al jugador — se limita su uso por ficha.
-CARTAS_SIEMPRE_VERDAD = {41, 42, 43, 44, 45}
+# Cartas que siempre que son independientes al culpable, aportan una pista inicial.
+# Se Limita su uso a una por ficha para evitar Trivializaciones.
+CARTAS_TRIVIALES = {42, 44, 45, 60, 71}
 
 TEXTOS_CARTAS = {
     # ACUSACIÓN
@@ -758,7 +758,7 @@ TEXTOS_CARTAS = {
     5:  "La Aprendiz aprendió demasiado rápido. Y alguien pagó el precio.",
     6:  "El Coronel fue. Lo delataron sus hábitos, no sus palabras.",
     7:  "Solo el El Vagabundo o el Crupier estaban en la escena del crimen. Uno de ellos lo hizo.",
-    8:  "El Carnicero o el Heredero. Cualquiera de los dos tiene las manos entrenadas para esto.",
+    8:  "El Carnicero o el Heredero. Cualquiera de los dos pudo hacerlo. Me extraña que no lo haya notado usted mismo.",
     9:  "Fue la Aprendiz o la Vidente. El instinto lo dice. Las pruebas, también.",
     10: "El asesino ya tenía la edad de quien no teme nada y el dinero de quien nunca tuvo que temerlo.",
     11: "El asesino tenía los bolsillos vacíos y sintiendo el peso de los años se negó a llegar a viejo en la miseria. No lo culpo",
@@ -801,7 +801,7 @@ TEXTOS_CARTAS = {
     44: "Es inutil mentir, al final usted descubre la verdad.",
     45: "Me temo que no podrá resolver este caso Detective, el tiempo juega en su contra.",
     46: "Aqui el dinero se huele, y ese tipo no apestaba a clase media. Tampoco arrastraba los pies como un viejo. Es todo lo que sé.",
-    47: "La billetera no le pesaba tanto como para ser rico y cara no le brillaba con la estupidez de un joven.",
+    47: "La billetera no le pesaba tanto como para ser rico y su cara no brillaba con la estupidez de un joven.",
     48: "Mire, no parecía uno de esos ricos; yo diría que o tenía un pie en la tumba o apenas los había sacado de la cuna.",
     49: "No estoy muy seguro; no era joven ni tampoco parecía pobre. Siento no poder aportar más.",
     50: "Vestía de forma extravagante; yo diría que no era de clase media, alguien joven o quizás viejo.",
@@ -819,7 +819,7 @@ TEXTOS_CARTAS = {
     59: "El culpable no se está defendiendo. Eso es incluso más peligroso. Ande con cuidado.",
     60: "De las declaraciones que escuché ahí hoy al menos la mitad o más son puras mentiras. Calcule a quién le conviene mentir.",
     61: "Al menos una descripción dicha en esta sala suena convincente. Aférrese a esa y le llevará al culpable.",
-    62: "Quien recurre a la mentira en esta sala delata su propia culpa; la inocencia es, por naturaleza, silenciosa.",
+    62: "Quien recurre a la mentira en esta sala delata su propia culpa; la inocencia es, por naturaleza, honesta.",
     63: "Alguien acusa y alguien defiende, y ambos dicen la verdad. Eso es una contradicción. O es una trampa.",
     64: "No he escuchado una sola duda en esta sala, es como si los más reflexivos callaran, señal de que todos ellos mienten.",
     # INDIRECTAS

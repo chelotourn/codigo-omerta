@@ -12,7 +12,7 @@ from typing import Optional
 import datos
 from datos import DISTRITOS, SOSPECHOSOS_1, sospechosos_del_distrito
 from cartas import (
-    CARTAS, ID_CARTA_OMERTA, CARTAS_SIEMPRE_VERDAD,
+    CARTAS, ID_CARTA_OMERTA, CARTAS_TRIVIALES,
     validar_indirectas_en_ficha,
 )
 from validaciones import (
@@ -307,7 +307,7 @@ def _generar_ficha_conclusion(distrito_3: dict, distrito_origen_por_sospechoso: 
         if culpable_tentativo is None:
             continue
 
-        n_vacias = sum(1 for cid in asignacion.values() if cid in CARTAS_SIEMPRE_VERDAD)
+        n_vacias = sum(1 for cid in asignacion.values() if cid in CARTAS_TRIVIALES)
         if n_vacias > 1:
             continue
 
@@ -473,7 +473,7 @@ def _generar_ficha_conclusion_prueba(distrito_3: dict, distrito_origen_por_sospe
         if culpable_tentativo is None:
             continue
 
-        n_vacias = sum(1 for cid in asignacion.values() if cid in CARTAS_SIEMPRE_VERDAD)
+        n_vacias = sum(1 for cid in asignacion.values() if cid in CARTAS_TRIVIALES)
         if n_vacias > 1:
             continue
 

@@ -16,7 +16,7 @@ from datos import (
     MOSTRAR_INFORME_CARTAS,
 )
 from cartas import (
-    CARTAS, CATEGORIAS_CARTAS, TEXTOS_CARTAS, CARTAS_SIEMPRE_VERDAD,
+    CARTAS, CATEGORIAS_CARTAS, TEXTOS_CARTAS, CARTAS_TRIVIALES,
     ID_CARTA_OMERTA,
 )
 from validaciones import (
@@ -336,7 +336,7 @@ def generar_fichas(n_fichas: int, modo: str, cantidad_fija: Optional[int],
 
         # Limitar cartas "siempre verdad" (no aportan info deductiva al jugador)
         # Máximo 1 por ficha para mantener la calidad deductiva
-        n_vacias = sum(1 for cid in asignacion.values() if cid in CARTAS_SIEMPRE_VERDAD)
+        n_vacias = sum(1 for cid in asignacion.values() if cid in CARTAS_TRIVIALES)
         if n_vacias > 1:
             continue
 
