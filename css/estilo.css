@@ -430,6 +430,7 @@
   }
   .decl-nombre:hover { color:var(--oro-viejo); }
   .decl-nombre.inocente-decl { opacity:.35; color:var(--texto-suave); }
+  .decl-nombre.culpable-decl { color:#9b2121; text-shadow:0 0 8px rgba(224,48,48,.45); }
   .decl-cat {
     font-family:'Special Elite',monospace; font-size:.7rem; letter-spacing:.15em;
     text-transform:uppercase; color:var(--texto-suave); margin-bottom:.45rem;

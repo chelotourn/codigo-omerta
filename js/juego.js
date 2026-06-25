@@ -242,15 +242,38 @@ function mostrarFicha(idx) {
         marcarAmbosAmarillo(idx, parseInt(btn.dataset.carta));
       });
     });
-    // Clic en nombre del personaje en declaraciones = toggle inocente
+    // Clic en nombre del personaje en declaraciones = ciclo 3 estados: normal → inocente → culpable → normal
     document.querySelectorAll('.decl-nombre[data-sosp-id]').forEach(el => {
       el.addEventListener('click', ev => {
         ev.stopPropagation();
         const sid = parseInt(el.dataset.sospId);
-        toggleInocente(idx, sid);
-        // Actualizar translucidez de todos los decl-nombre de este sospechoso
+        const e = estado[idx];
+        const esInocente = e.inocentes.has(sid);
+        const esCulpable = e.culpables && e.culpables.has(sid);
+
+        if (!esInocente && !esCulpable) {
+          // normal → inocente
+          e.inocentes.add(sid);
+          if (e.seleccion === sid) e.seleccion = null;
+          actualizarCartas(idx);
+          actualizarBotonAcusar(idx);
+        } else if (esInocente) {
+          // inocente → culpable
+          e.inocentes.delete(sid);
+          if (!e.culpables) e.culpables = new Set();
+          e.culpables.add(sid);
+          actualizarCartas(idx);
+          actualizarBotonAcusar(idx);
+        } else {
+          // culpable → normal
+          e.culpables.delete(sid);
+        }
+
+        // Sincronizar clases en todos los decl-nombre de este sospechoso
         document.querySelectorAll(`.decl-nombre[data-sosp-id="${sid}"]`).forEach(n => {
-          n.classList.toggle('inocente-decl', estado[idx].inocentes.has(sid));
+          n.classList.remove('inocente-decl', 'culpable-decl');
+          if (estado[idx].inocentes.has(sid)) n.classList.add('inocente-decl');
+          else if (estado[idx].culpables && estado[idx].culpables.has(sid)) n.classList.add('culpable-decl');
         });
       });
     });
