@@ -34,7 +34,7 @@ Cada distrito altera la ficha identitaria de los personajes presentes en la sala
 
 ---
 
-## 🗂️ Categorías de Cartas (1 a 72)
+## 🗂️ Categorías de Cartas (1 a 73)
 
 El motor procesa de forma síncrona reglas semánticas complejas distribuidas en las siguientes categorías:
 
