@@ -1,0 +1,744 @@
+  :root {
+    --negro:       #0a0806;
+    --carbon:      #111009;
+    --tinta:       #1a1610;
+    --sepia:       #2a2218;
+    --oro-viejo:   #b8933a;
+	--oro-sospechoso:   #b8933a;
+    --oro-suave:   #7C6327;
+    --crema:       #e8dcc4;
+    --crema-suave: #f0e8d4;
+    --rojo-sangre: #7a1a1a;
+    --rojo-vivo:   #9b2020;
+    --verde-pista: #2a4a2a;
+    --verde-claro: #4a8a4a;
+    --amarillo-suave: #d4b44a;
+    --texto-principal: #d4c9a8;
+    --texto-suave:     #8a7d65;
+	
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html { font-size: 18px; }
+
+  body {
+    background-color: var(--negro);
+    color: var(--texto-principal);
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 1rem;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 0%,  rgba(184,147,58,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(122,26,26,0.06)  0%, transparent 60%);
+  }
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:9999; opacity:0.3;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  }
+
+  /* ── HEADER ── */
+  .cabecera {
+    text-align:center; padding:2rem 2rem 1.2rem;
+    border-bottom:1px solid rgba(184,147,58,0.2);
+  }
+  .cabecera::after {
+    content:''; display:block; width:180px; height:1px; margin:.7rem auto 0;
+    background:linear-gradient(90deg,transparent,var(--oro-viejo),transparent);
+  }
+  .titulo-juego {
+    font-family:'Playfair Display',serif; font-size:clamp(2.5rem,6vw,4.2rem);
+    font-weight:900; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--crema-suave); text-shadow:0 0 40px rgba(184,147,58,.3); line-height:1;
+  }
+  .titulo-juego span { color:var(--oro-viejo); }
+  .subtitulo {
+    font-family:'Special Elite',monospace; font-size:.9rem; letter-spacing:.3em;
+    color:var(--texto-suave); text-transform:uppercase; margin-top:.4rem;
+  }
+
+  .cabecera-fila {
+    display:flex; align-items:center; justify-content:center; gap:1.2rem;
+    flex-wrap:wrap;
+  }
+
+  .noir-control {
+    display:flex; align-items:center; gap:.45rem;
+    padding:.4rem .55rem .35rem;
+    border:1px solid rgba(184,147,58,.2);
+    background:rgba(0,0,0,.14);
+    min-width:fit-content;
+  }
+  .noir-label {
+    font-family:'Special Elite',monospace; font-size:.62rem; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--texto-suave);
+  }
+  .noir-btn {
+    width:1.7rem; height:1.7rem; border:1px solid rgba(184,147,58,.3);
+    background:rgba(184,147,58,.06); color:var(--oro-viejo);
+    font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:900;
+    cursor:pointer; transition:all .18s; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    -webkit-appearance:none; appearance:none; flex-shrink:0;
+  }
+  .noir-btn:hover { background:rgba(184,147,58,.18); border-color:var(--oro-viejo); }
+  .noir-btn:active { transform:scale(.92); }
+  .noir-num {
+    min-width:1.3rem; text-align:center;
+    font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:900;
+    color:var(--crema-suave);
+  }
+
+  body.noir-2,
+  body.noir-3,
+  body.noir-4 {
+    --oro-viejo:   #ffffff;
+    --crema:       #ffffff;
+    --crema-suave: #ffffff;
+    --texto-principal: #ffffff;
+    --texto-suave:  #ffffff;
+	--oro-suave:   #5C5C5C;
+	--oro-sospechoso:   #9b2020;
+  }
+  body.noir-2 .titulo-juego,
+  body.noir-3 .titulo-juego,
+  body.noir-4 .titulo-juego { color:#ffffff; text-shadow:none; }
+  body.noir-2 .titulo-juego span,
+  body.noir-3 .titulo-juego span,
+  body.noir-4 .titulo-juego span { color:#9b2020; }
+  body.noir-2 .subtitulo,
+  body.noir-2 .tag,
+  body.noir-2 .decl-atrib,
+  
+  body.noir-2 .decl-id,
+  body.noir-2 .card-atribs,
+  body.noir-2 .btn-ficha,
+  body.noir-2 .btn-volver,
+  body.noir-2 .btn-sec,
+  body.noir-2 .btn-demo,
+  body.noir-2 .noir-label,
+  body.noir-2 .noir-num,
+  body.noir-2 .acusaciones-label,
+  body.noir-3 .subtitulo,
+  body.noir-3 .tag,
+  body.noir-3 .decl-atrib,
+  body.noir-3 .decl-cat,
+  
+  body.noir-3 .card-atribs,
+  body.noir-3 .btn-ficha,
+  body.noir-3 .btn-volver,
+  body.noir-3 .btn-sec,
+  body.noir-3 .btn-demo,
+  body.noir-3 .noir-label,
+  body.noir-3 .noir-num,
+  body.noir-3 .acusaciones-label,
+  body.noir-4 .subtitulo,
+  body.noir-4 .tag,
+  body.noir-4 .decl-atrib,
+  body.noir-4 .decl-cat,
+  
+  body.noir-4 .card-atribs
+  body.noir-4 .btn-ficha,
+  body.noir-4 .btn-volver,
+  body.noir-4 .btn-sec,
+  body.noir-4 .btn-demo,
+  body.noir-4 .noir-label,
+  body.noir-4 .noir-num,
+  body.noir-4 .acusaciones-label {
+    color:#a1a1a1;
+  }
+  body.noir-2 .decl-cat,
+  body.noir-3 .decl-id,
+  body.noir-4 .decl-id {
+	color:#FFFFFF;
+  }
+  
+  body.noir-2 .tag,
+  body.noir-2 .noir-control,
+  body.noir-2 .noir-btn,
+  body.noir-2 .btn-ficha,
+  body.noir-2 .btn-volver,
+  body.noir-2 .btn-sec,
+  body.noir-2 .btn-demo,
+  body.noir-3 .tag,
+  body.noir-3 .noir-control,
+  body.noir-3 .noir-btn,
+  body.noir-3 .btn-ficha,
+  body.noir-3 .btn-volver,
+  body.noir-3 .btn-sec,
+  body.noir-3 .btn-demo,
+  body.noir-4 .tag,
+  body.noir-4 .noir-control,
+  body.noir-4 .noir-btn,
+  body.noir-4 .btn-ficha,
+  body.noir-4 .btn-volver,
+  body.noir-4 .btn-sec,
+  body.noir-4 .btn-demo {
+    border-color:rgba(255,255,255,.35);
+  }
+  /* noir: fracaso con opacidad baja, éxito preserva rojo */
+  body.noir-2 .btn-ficha.hist-fracaso,
+  body.noir-3 .btn-ficha.hist-fracaso,
+  body.noir-4 .btn-ficha.hist-fracaso {
+    opacity:.3; border-color:rgba(255,255,255,.2); color:#a1a1a1;
+  }
+  body.noir-2 .btn-ficha.hist-exito,
+  body.noir-3 .btn-ficha.hist-exito,
+  body.noir-4 .btn-ficha.hist-exito {
+    border-color:var(--rojo-sangre); color:var(--rojo-sangre);
+  }
+  body.noir-2 .btn-ficha.hist-exito.activo,
+  body.noir-3 .btn-ficha.hist-exito.activo,
+  body.noir-4 .btn-ficha.hist-exito.activo {
+    background:var(--rojo-sangre); color:#fff; border-color:var(--rojo-sangre);
+  }
+  body.noir-2 .ficha-numero,
+  body.noir-3 .ficha-numero,
+  body.noir-4 .ficha-numero {
+	color: rgba(255,255,255,.3);
+  }
+
+  /* ── CARGA ── */
+  #pantalla-carga {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:60vh; gap:2rem;
+  }
+  .zona-carga {
+    border:1px dashed rgba(184,147,58,.3); padding:3rem 4rem; text-align:center;
+    cursor:pointer; transition:all .3s; position:relative;
+  }
+  .zona-carga:hover { border-color:var(--oro-viejo); background:rgba(184,147,58,.03); }
+  .zona-carga input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .zona-carga-icono { font-size:2.8rem; color:var(--oro-viejo); margin-bottom:.8rem; opacity:.7; }
+  .zona-carga p   { color:var(--texto-suave); font-size:1.1rem; }
+  .zona-carga strong { color:var(--crema); font-family:'Special Elite',monospace; font-size:1rem; letter-spacing:.1em; }
+  .btn-demo {
+    font-family:'Special Elite',monospace; font-size:.85rem; letter-spacing:.2em; width:100%; 
+    text-transform:uppercase; color:var(--texto-suave); background:none;
+    border:1px solid rgba(184,147,58,.2); padding:.7rem 1.8rem; cursor:pointer; transition:all .3s;
+  }
+  .btn-demo:hover { color:var(--oro-viejo); border-color:var(--oro-viejo); }
+
+  /* ── JUEGO ── */
+  #pantalla-juego { display:none; }
+
+  /* ── NAV FICHAS ── */
+  .nav-fichas {
+    display:flex; align-items:center; justify-content:center; gap:.5rem;
+    padding:1rem 2rem; border-bottom:1px solid rgba(184,147,58,.1); flex-wrap:wrap;
+  }
+  .btn-volver {
+    font-family:'Special Elite',monospace; font-size:.75rem; letter-spacing:.15em;
+    padding:.4rem .9rem; background:none; border:1px solid rgba(184,147,58,.15);
+    color:var(--texto-suave); cursor:pointer; transition:all .2s; text-transform:uppercase;
+    -webkit-appearance:none; appearance:none;
+  }
+  .btn-volver:hover { color:var(--rojo-sangre); border-color:var(--rojo-sangre); }
+  .btn-ficha {
+    font-family:'Special Elite',monospace; font-size:.8rem; letter-spacing:.15em;
+    padding:.4rem .9rem; background:none; border:1px solid rgba(184,147,58,.2);
+    color:var(--texto-suave); cursor:pointer; transition:all .2s;
+    -webkit-appearance:none; appearance:none;
+  }
+  .btn-ficha:hover { color:var(--crema); border-color:var(--oro-viejo); }
+  .btn-ficha.activo  { background:var(--oro-viejo); color:var(--negro); border-color:var(--oro-viejo); }
+  /* historial: éxito=rojo, fracaso=gris */
+  .btn-ficha.hist-exito  { border-color:var(--rojo-sangre); color:var(--rojo-sangre); }
+  .btn-ficha.hist-exito.activo  { background:var(--rojo-sangre); color:var(--crema); border-color:var(--rojo-sangre); }
+  .btn-ficha.hist-fracaso { border-color:rgba(130,130,130,.4); color:rgba(130,130,130,.6); }
+  .btn-ficha.hist-fracaso.activo { background:rgba(100,100,100,.3); color:var(--crema); border-color:rgba(130,130,130,.5); }
+  /* caso final: distinguido en rojo sangre, bloqueado hasta resolver los casos previos */
+  .btn-ficha.caso-final { border-color:var(--rojo-sangre); }
+  .btn-ficha.bloqueado {
+    cursor:not-allowed; opacity:.45; color:rgba(130,130,130,.5);
+    border-style:dashed; border-color:rgba(130,130,130,.35);
+  }
+  .btn-ficha.bloqueado:hover { color:rgba(130,130,130,.5); border-color:rgba(130,130,130,.35); }
+  .btn-reset-nav {
+    font-family:'Special Elite',monospace; font-size:.65rem; letter-spacing:.15em;
+    text-transform:uppercase; color:var(--texto-suave); background:none;
+    border:1px solid rgba(184,147,58,.15); padding:.35rem .7rem; cursor:pointer;
+    transition:all .2s; margin-left:.3rem;
+    -webkit-appearance:none; appearance:none;
+  }
+  .btn-reset-nav:hover { color:var(--rojo-sangre); border-color:var(--rojo-sangre); }
+
+  /* ── CONTENIDO ── */
+  .contenido-ficha { max-width:1025px; margin:0 auto; padding:2rem 1.5rem 4rem; position:relative; }
+
+  .ficha-header {
+    display:flex; align-items:flex-start; justify-content:space-between;
+    margin-bottom:1.8rem; padding-bottom:1rem;
+    border-bottom:1px solid rgba(184,147,58,.15); gap:1rem; flex-wrap:wrap;
+  }
+  .ficha-numero {
+    font-family:'Playfair Display',serif; font-size:3rem; font-weight:900;
+    color:rgba(184,147,58,.4); line-height:1;
+  }
+  .ficha-meta { flex:1; }
+  .ficha-titulo {
+    font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700;
+    font-style:italic; color:var(--crema-suave); margin-bottom:.35rem;
+  }
+  .ficha-distrito {
+    font-family:'Special Elite',monospace; font-size:.78rem; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--oro-viejo); margin-bottom:.6rem;
+  }
+  .ficha-tags { display:flex; gap:.5rem; flex-wrap:wrap; }
+  .tag {
+    font-family:'Special Elite',monospace; font-size:.75rem; letter-spacing:.2em;
+    text-transform:uppercase; padding: 0.35rem .65rem 0.25rem .65rem; border:1px solid;
+  }
+  .tag-dificultad { border-color:var(--oro-viejo); color:var(--oro-viejo); }
+  .tag-info       { border-color:rgba(184,147,58,.3); color:var(--texto-suave); }
+
+  .seccion-titulo {
+    font-family:'Special Elite',monospace; font-size:.8rem; letter-spacing:.35em;
+    text-transform:uppercase; color:var(--texto-suave); margin-bottom:.9rem;
+    display:flex; align-items:center; gap:1rem;
+  }
+  .seccion-titulo::after { content:''; flex:1; height:1px; background:rgba(184,147,58,.15); }
+
+  /* ── GRID SOSPECHOSOS ── */
+  .grid-sospechosos {
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+    gap:1rem; margin-bottom:2.5rem;
+  }
+
+  .carta-sospechoso {
+    border:1px solid rgba(184,147,58,.15); background:var(--carbon);
+    cursor:pointer; transition:all .22s; position:relative; overflow:hidden;
+    user-select:none;
+  }
+  .carta-sospechoso::before {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(135deg,rgba(184,147,58,.03) 0%,transparent 60%);
+    pointer-events:none;
+  }
+  .carta-sospechoso:hover:not(.bloqueada) {
+    border-color:var(--oro-suave); transform:translateY(-2px);
+    box-shadow:0 6px 20px rgba(0,0,0,.6);
+  }
+  /* estados jugador */
+  .carta-sospechoso.sospechado {
+    border-color:var(--oro-sospechoso);
+  }
+  .carta-sospechoso.inocente-marcado {
+    opacity:.38; border-color:rgba(184,147,58,.06);
+  }
+  .carta-sospechoso.inocente-marcado::after {
+    content:'INOCENTE'; position:absolute; inset:0; display:flex; align-items:center;
+    justify-content:center; font-family:'Special Elite',monospace; font-size:.6rem;
+    letter-spacing:.2em; color:rgba(255,255,255,.25); pointer-events:none;
+  }
+  /* estados revelados */
+  .carta-sospechoso.culpable-revelado {
+    border-color:var(--rojo-vivo);
+    box-shadow:0 0 0 2px rgba(155,32,32,.5),0 8px 24px rgba(122,26,26,.4);
+  }
+  .carta-sospechoso.inocente-revelado { opacity:.42; border-color:rgba(184,147,58,.06); }
+  .carta-sospechoso.bloqueada { cursor:default; }
+
+  /* avatar */
+  .avatar-wrap {
+    width:100%; aspect-ratio:585/743; background:var(--sepia); overflow:hidden;
+    display:flex; align-items:center; justify-content:center; position:relative;
+  }
+  .avatar-wrap img {
+    width:100%; height:100%; object-fit:cover; object-position:top center;
+    display:block;
+  }
+  .avatar-emoji {
+    font-size:2.4rem; color:rgba(184,147,58,.25);
+    font-family:'Playfair Display',serif; font-style:italic;
+  }
+  /* overlay tachado inocente */
+  .inocente-marcado .avatar-wrap::after {
+    content:'✕'; position:absolute; inset:0; display:flex; align-items:center;
+    justify-content:center; font-size:3.5rem; color:rgba(180,60,60,.35);
+    font-family:sans-serif; pointer-events:none;
+  }
+
+  .badge-culpable {
+    position:absolute; top:.35rem; right:.35rem;
+    background:var(--rojo-sangre); color:var(--crema);
+    font-family:'Special Elite',monospace; font-size:.5rem; letter-spacing:.1em;
+    padding:.12rem .35rem; text-transform:uppercase; display:none; z-index:2;
+  }
+  .culpable-revelado .badge-culpable { display:block; }
+
+  .card-info { padding:.65rem .75rem; }
+  .card-nombre {
+    font-family:'Playfair Display',serif; font-size:1rem; font-weight:700;
+    color:var(--crema-suave); line-height:1.2; margin-bottom:.2rem;
+  }
+  .card-atribs {
+    font-family:'Special Elite',monospace; font-size:.68rem; letter-spacing:.1em;
+    color:var(--texto-suave); text-transform:uppercase;
+  }
+
+  /* ── TOGGLE INOCENTE ── */
+  .btn-toggle-inocente {
+    width:100%; padding:.35rem .4rem; background:rgba(184,147,58,.04);
+    border:none; border-top:1px solid rgba(184,147,58,.1);
+    color:var(--texto-suave); font-family:'Special Elite',monospace;
+    font-size:.7rem; letter-spacing:.12em; text-transform:uppercase;
+    cursor:pointer; transition:all .2s;
+  }
+  .btn-toggle-inocente:hover { background:rgba(184,147,58,.09); color:var(--crema); }
+  .inocente-marcado .btn-toggle-inocente {
+    background:rgba(180,60,60,.07); color:rgba(180,100,100,.6);
+    border-top-color:rgba(180,60,60,.15);
+  }
+
+  /* ── DECLARACIONES ── */
+  .lista-declaraciones { display:flex; flex-direction:column; gap:1px; margin-bottom:2.5rem; }
+
+  .declaracion {
+    background:var(--carbon); border-left:2px solid rgba(184,147,58,.1);
+    padding:.95rem 1.1rem .95rem .5rem; display:grid;
+    grid-template-columns:auto 1fr auto;
+    gap:.9rem; align-items:start; transition:border-color .25s;
+  }
+  .declaracion:hover { border-left-color:rgba(184,147,58,.28); }
+  .declaracion.verdad-revelada  { border-left-color:rgba(100,180,100,.65); }
+  .declaracion.mentira-revelada { border-left-color:rgba(180,60,60,.65); }
+
+  .decl-id {
+    font-family:'Special Elite',monospace; font-size:.75rem;
+    color:var(--texto-suave); letter-spacing:.1em; padding-top:.12rem; white-space:nowrap;
+  }
+  .decl-cuerpo { }
+
+  .decl-topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:.45rem; gap:1rem;
+  }
+  .decl-persona{
+    display:flex; align-items:center; gap:.55rem; flex-wrap:wrap;
+  }
+  .decl-atrib{
+    font-family:'Special Elite',monospace; font-size:.62rem; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--oro-viejo);
+  }
+  .decl-chinches-bar{ display:flex; gap:1.35rem; align-items:center; }
+  .decl-nombre {
+    font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700;
+    color:var(--crema); margin-bottom:.12rem;
+    cursor:pointer; transition:opacity .2s, color .2s;
+    user-select:none;
+  }
+  .decl-nombre:hover { color:var(--oro-viejo); }
+  .decl-nombre.inocente-decl { opacity:.35; color:var(--texto-suave); }
+  .decl-cat {
+    font-family:'Special Elite',monospace; font-size:.7rem; letter-spacing:.15em;
+    text-transform:uppercase; color:var(--texto-suave); margin-bottom:.45rem;
+  }
+  .decl-texto { font-size:1.1rem; line-height:1.65; color:var(--texto-principal); font-style:italic; }
+
+  /* ── MARCADOR V/M del jugador ── */
+  .decl-marcador {
+    display:flex; flex-direction:column; gap:.3rem; align-items:center; padding-top:.05rem;
+  }
+  .btn-vm {
+    width:2.4rem; height:2.4rem; border:1px solid; background:none;
+    font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:900;
+    cursor:pointer; transition:all .18s; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent; user-select:none;
+  }
+  .btn-vm.v-btn { border-color:rgba(100,180,100,.3); color:rgba(100,180,100,.4); }
+  .btn-vm.v-btn.activo { background:rgba(100,180,100,.15); border-color:#6ab46a; color:#6ab46a; }
+  .btn-vm.v-btn.amarillo { background:rgba(212,180,74,.15); border-color:#d4b44a; color:#d4b44a; }
+  .btn-vm.m-btn { border-color:rgba(180,60,60,.3); color:rgba(180,60,60,.4); }
+  .btn-vm.m-btn.activo { background:rgba(180,60,60,.15); border-color:#b43c3c; color:#b43c3c; }
+  .btn-vm.m-btn.amarillo { background:rgba(212,180,74,.15); border-color:#d4b44a; color:#d4b44a; }
+  /* :hover solo en dispositivos con puntero real (mouse). En táctiles, :hover
+     queda "pegado" tras el toque (no hay mouseout) y simulaba el look de .activo
+     incluso cuando el botón ya estaba apagado → por eso nunca se veía gris. */
+  @media (hover:hover) and (pointer:fine) {
+    .btn-vm.v-btn:hover { background:rgba(100,180,100,.15); border-color:#6ab46a; color:#6ab46a; }
+    .btn-vm.m-btn:hover { background:rgba(180,60,60,.15); border-color:#b43c3c; color:#b43c3c; }
+  }
+
+  /* VM de revelación (reemplaza los botones) */
+  .decl-vm-resultado {
+    font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:900;
+    min-width:2rem; text-align:center; display:none; padding-top:.05rem;
+  }
+  .decl-vm-resultado.v { color:#6ab46a; display:block; }
+  .decl-vm-resultado.m { color:#b43c3c; display:block; }
+  .decl-vm-resultado.s {
+    color:var(--texto-suave); display:block; font-size:1.2rem; opacity:.55;
+    letter-spacing:.05em;
+  }
+  /* declaración silenciada por Omertá */
+  .declaracion.silenciada-revelada {
+    border-left-color:rgba(155,32,32,.45);
+    opacity:.62;
+  }
+  .declaracion.silenciada-revelada .decl-texto {
+    text-decoration: line-through;
+    text-decoration-color: rgba(155,32,32,.4);
+  }
+
+  /* ── ZONA ACCIÓN ── */
+  .zona-accion {
+    background:var(--carbon); border:1px solid rgba(184,147,58,.15);
+    padding:1.3rem 1.6rem; margin-bottom:1.4rem;
+  }
+  .accion-pregunta {
+    font-family:'Playfair Display',serif; font-size:1.25rem; font-style:italic;
+    color:var(--crema-suave); margin-bottom:.8rem;
+  }
+  .accion-seleccion {
+    font-family:'Special Elite',monospace; font-size:.9rem; letter-spacing:.1em;
+    color:var(--oro-viejo); margin-bottom:1rem; min-height:1.1em;
+  }
+  .btn-acusar {
+    font-family:'Special Elite',monospace; font-size:.85rem; letter-spacing:.25em;
+    text-transform:uppercase; padding:.85rem 2.2rem; background:var(--rojo-sangre);
+    color:var(--crema-suave); border:none; cursor:pointer; transition:all .25s;
+    display:none;
+  }
+  .btn-acusar:hover { background:var(--rojo-vivo); box-shadow:0 0 18px rgba(155,32,32,.4); }
+  .btn-acusar.visible { display:inline-block; }
+
+  /* ── RESULTADO ── */
+  .resultado {
+    display:none; padding:1.4rem 1.6rem; border:1px solid; margin-bottom:1.4rem;
+  }
+  .resultado.correcto  { border-color:rgba(100,180,100,.4); background:rgba(100,180,100,.05); }
+  .resultado.incorrecto{ border-color:rgba(180,60,60,.4);   background:rgba(180,60,60,.05); }
+  .resultado-icono  { font-size:1.6rem; margin-bottom:.4rem; }
+  .resultado-titulo {
+    font-family:'Playfair Display',serif; font-size:1.7rem; font-weight:900; margin-bottom:.25rem;
+  }
+  .resultado.correcto  .resultado-titulo { color:#6ab46a; }
+  .resultado.incorrecto .resultado-titulo { color:#b43c3c; }
+  .resultado.correcto .resultado-titulo.titulo-omerta-roto { color:#9b2020; }
+  .resultado-detalle { font-size:1.05rem; color:var(--texto-suave); font-style:italic; line-height:1.6; }
+
+  .acciones-post-resultado { display:flex; gap:.8rem; flex-wrap:wrap; align-items:center; }
+
+  .btn-sec {
+    font-family:'Special Elite',monospace; font-size:.8rem; letter-spacing:.2em;
+    text-transform:uppercase; padding:.6rem 1.6rem; background:none;
+    border:1px solid rgba(184,147,58,.25); color:var(--texto-suave);
+    cursor:pointer; transition:all .25s; margin-top:.5rem;
+  }
+  .btn-sec:hover { color:var(--oro-viejo); border-color:var(--oro-viejo); }
+
+  /* ── ACUSACIONES COUNTER ── */
+  .acusaciones-wrap {
+    border-top: 1px solid rgba(184,147,58,.12);
+    padding: .5rem .6rem .35rem;
+    background: rgba(0,0,0,.18);
+  }
+  .acusaciones-label {
+    font-family:'Special Elite',monospace; font-size:.6rem; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--texto-suave); text-align:center;
+    margin-bottom:.3rem;
+  }
+  .acusaciones-ctrl {
+    display:flex; align-items:center; justify-content:center; gap:.4rem;
+  }
+  .btn-acus {
+    width:1.7rem; height:1.7rem; border:1px solid rgba(184,147,58,.3);
+    background:rgba(184,147,58,.06); color:var(--oro-viejo);
+    font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:900;
+    cursor:pointer; transition:all .18s; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    -webkit-appearance:none; appearance:none; flex-shrink:0;
+  }
+  .btn-acus:hover { background:rgba(184,147,58,.18); border-color:var(--oro-viejo); }
+  .btn-acus:active { transform:scale(.92); }
+  .acusaciones-num {
+    font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:900;
+    color:var(--crema-suave); min-width:1.4rem; text-align:center;
+  }
+  /* puntitos indicadores */
+  .acusaciones-dots {
+    display:flex; justify-content:center; gap:.22rem; margin-top:.28rem; flex-wrap:wrap;
+    min-height:.55rem;
+  }
+  .acus-dot {
+    width:.42rem; height:.42rem; border-radius:50%;
+    background:var(--rojo-sangre);
+    box-shadow:0 0 4px rgba(155,32,32,.6);
+    animation: dotPop .18s ease;
+  }
+  @keyframes dotPop {
+    from { transform:scale(0); opacity:0; }
+    to   { transform:scale(1); opacity:1; }
+  }
+
+  /* ── HILOS Y CHINCHES ── */
+  #hilo-svg {
+    position:absolute; inset:0; pointer-events:none; z-index:1;
+    overflow:visible;
+  }
+  .hilo-line {
+    stroke:#c0392b; stroke-width:1.5; fill:none;
+    filter:drop-shadow(0 0 2px rgba(192,57,43,.5));
+    opacity:.82;
+  }
+  .hilo-line.preview {
+    stroke-dasharray:5,4; opacity:.5; stroke-width:1.2;
+  }
+  /* barra de chinches encima de cada carta sospechoso */
+  .chinche-bar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 .45rem; height:1.35rem;
+    background:linear-gradient(180deg, rgba(30,22,14,.95) 0%, rgba(20,15,8,.9) 100%);
+    border-bottom:1px solid rgba(184,147,58,.18);
+    position:relative;
+  }
+  .chinche-bar-label {
+    font-family:'Special Elite',monospace; font-size:.55rem; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--texto-suave); pointer-events:none;
+    position:absolute; left:50%; transform:translateX(-50%); white-space:nowrap;
+  }
+  .chinche-row {
+    display:flex; gap:.35rem; align-items:center;
+  }
+  /* chinche en declaraciones */
+  .decl-chinche-wrap {
+    display:flex; flex-direction:column; align-items:center; gap:.55rem;
+    padding-top:.1rem; padding-right:.1rem;
+  }
+  /* la chinche en sí */
+  .chinche {
+    width:.95rem; height:.95rem; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #666, #333);
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 1px 3px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.08);
+    cursor:grab; flex-shrink:0; position:relative; z-index:20;
+    transition:transform .12s, box-shadow .12s, background .15s;
+    pointer-events:all;
+  }
+  .chinche:hover {
+    background:radial-gradient(circle at 35% 30%, #999, #555);
+    transform:scale(1.22);
+    box-shadow:0 2px 6px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.15);
+  }
+  .chinche.activa {
+    background:radial-gradient(circle at 35% 30%, #ff9999, #c0392b);
+    box-shadow:0 0 0 2px rgba(192,57,43,.6), 0 0 10px rgba(192,57,43,.6);
+    transform:scale(1.15); cursor:grabbing;
+    animation: chinchePulse .8s ease-in-out infinite alternate;
+  }
+  .chinche.tiene-hilo {
+    background:radial-gradient(circle at 35% 30%, #e88, #9b2020);
+    box-shadow:0 0 0 1px rgba(192,57,43,.4), 0 1px 3px rgba(0,0,0,.6);
+  }
+  .chinche.tiene-hilo:hover {
+    background:radial-gradient(circle at 35% 30%, #f99, #b43030);
+    box-shadow:0 0 0 2px rgba(192,57,43,.5), 0 2px 6px rgba(0,0,0,.8);
+  }
+  .chinche.hover-destino {
+    background:radial-gradient(circle at 35% 30%, #ffe599, #c09020);
+    box-shadow:0 0 0 3px rgba(192,180,43,.7), 0 0 12px rgba(192,160,43,.5);
+    transform:scale(1.3);
+  }
+  .chinche.marcada-verde {
+    background:radial-gradient(circle at 35% 30%, #88ee88, #2a7a2a);
+    box-shadow:0 0 0 2px rgba(74,138,74,.7), 0 0 10px rgba(74,138,74,.5);
+  }
+  .chinche.marcada-verde:hover {
+    background:radial-gradient(circle at 35% 30%, #aaffaa, #3a9a3a);
+    box-shadow:0 0 0 2px rgba(74,138,74,.9), 0 0 14px rgba(74,138,74,.6);
+    transform:scale(1.22);
+  }
+  .chinche.marcada-amarilla {
+    background:radial-gradient(circle at 35% 30%, #ffe97a, #b8922a);
+    box-shadow:0 0 0 2px rgba(212,180,74,.7), 0 0 10px rgba(212,180,74,.5);
+  }
+  .chinche.marcada-amarilla:hover {
+    background:radial-gradient(circle at 35% 30%, #fff0a0, #d4a030);
+    box-shadow:0 0 0 2px rgba(212,180,74,.9), 0 0 14px rgba(212,180,74,.6);
+    transform:scale(1.22);
+  }
+  .chinche.marcada-azul {
+    background:radial-gradient(circle at 35% 30%, #7ab8ff, #2a5fa8);
+    box-shadow:0 0 0 2px rgba(74,120,212,.7), 0 0 10px rgba(74,120,212,.5);
+  }
+  .chinche.marcada-azul:hover {
+    background:radial-gradient(circle at 35% 30%, #a0d0ff, #3a72c0);
+    box-shadow:0 0 0 2px rgba(74,120,212,.9), 0 0 14px rgba(74,120,212,.6);
+    transform:scale(1.22);
+  }
+  .hilo-line.amarilla {
+    stroke:#d4b44a; filter:drop-shadow(0 0 2px rgba(212,180,74,.5));
+  }
+  .hilo-line.verde {
+    stroke:#4a8a4a; filter:drop-shadow(0 0 2px rgba(74,138,74,.5));
+  }
+  .hilo-line.azul {
+    stroke:#4a78d4; filter:drop-shadow(0 0 2px rgba(74,120,212,.5));
+  }
+  .hilo-line.preview.verde {
+    stroke:#4a8a4a;
+  }
+  @keyframes chinchePulse {
+    from { box-shadow:0 0 0 2px rgba(192,57,43,.5), 0 0 8px rgba(192,57,43,.4); }
+    to   { box-shadow:0 0 0 3px rgba(192,57,43,.3), 0 0 14px rgba(192,57,43,.6); }
+  }
+  /* cursor cuando hay modo activo */
+  body.modo-hilo * { cursor:crosshair !important; }
+  body.modo-hilo .chinche { cursor:crosshair !important; }
+
+  .ornamento { text-align:center; color:var(--oro-viejo); opacity:.65; font-size:1rem; letter-spacing:.2em; padding:1rem; }
+  .pie { text-align:center; padding:1.8rem 2rem; border-top:1px solid rgba(184,147,58,.1);
+    font-family:'Special Elite',monospace; font-size:.75rem; letter-spacing:.2em;
+    color:var(--texto-suave); text-transform:uppercase; }
+  /* ── REGLAS EN PORTADA ── */
+  .reglas-portada {
+    max-width: 680px;
+    margin: 15px auto;
+    border: 1px solid rgba(184,147,58,.2);
+    background: var(--carbon);
+    padding: 2rem 2.5rem;
+  }
+  .reglas-titulo {
+    font-family:'Special Elite',monospace; font-size:.8rem; letter-spacing:.35em;
+    text-transform:uppercase; color:var(--oro-viejo); text-align:center;
+    margin-bottom:1.5rem; padding-bottom:1rem;
+    border-bottom:1px solid rgba(184,147,58,.15);
+  }
+  .regla {
+    display:grid; grid-template-columns:2rem 1fr; gap:.6rem;
+    margin-bottom:1.1rem; align-items:start;
+  }
+  .regla:last-child { margin-bottom:0; }
+  .regla-num {
+    font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:900;
+    color:var(--oro-viejo); opacity:.5; line-height:1.4; text-align:right;
+  }
+  .regla-txt {
+    font-family:'Crimson Text',serif; font-size:1.05rem; line-height:1.55;
+    color:var(--texto-principal);
+  }
+  .regla-txt strong { color:var(--crema-suave); font-weight:600; }
+  .regla-txt em { color:var(--oro-viejo); font-style:normal; }
+
+  /* ── RESPONSIVE MÓVIL ── */
+  @media (max-width: 700px) {
+    .grid-sospechosos {
+      grid-template-columns: repeat(2, 1fr);
+      gap: .6rem;
+    }
+    .contenido-ficha { padding: 1.5rem 1rem 3rem; }
+    .card-info { padding: .5rem .55rem; }
+    .card-nombre { font-size: .9rem; }
+    .card-atribs { font-size: .6rem; }
+    .chinche-bar-label { font-size: .5rem; }
+    .btn-toggle-inocente { font-size: .62rem; padding: .3rem .3rem; }
+	.span_pie, #pie-info {display:none;}
+	.declaracion {padding: .5rem 0rem .95rem .5rem; gap: .5rem;
+	.decl-chinches-bar {gap: 0.85rem;}
+	.decl-persona{ gap: 0.1rem;}
+	.decl-cat{margin-top: 0.2rem;}
+	.chinche { width: 1.20rem; height: 1.20rem;}
+  }
+
