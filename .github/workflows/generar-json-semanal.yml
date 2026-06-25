@@ -16,14 +16,14 @@ jobs:
         with:
           python-version: '3.11'
       
-      - name: Ejecutar generador
+      - name: Ejecutar generador automático
         working-directory: ./py
-        run: python generador.py < /dev/null || true
+        run: python generar_automatico.py
       
       - name: Commit y push
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add json/
-          git commit -m "chore: JSON automático $(date +'%Y-%m-%d')" || true
+          git commit -m "chore: JSON automático $(date +'%Y-%m-%d %H:%M')" || true
           git push
