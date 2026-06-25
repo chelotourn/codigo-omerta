@@ -5,16 +5,19 @@ on:
     - cron: '0 0 * * 1'  # Lunes 00:00 UTC
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   generar:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout
+        uses: actions/checkout@v4
       
-      - uses: actions/setup-python@v5
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       
@@ -22,10 +25,9 @@ jobs:
         working-directory: ./py
         run: python generar_automatico.py
       
-      - name: Commit y push
+      - name: Commit y Push
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add json/
-          git commit -m "chore: JSON automático $(date +'%Y-%m-%d %H:%M')" || true
-          git push origin main
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A json/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: JSON automático $(date +'%Y-%m-%d %H:%M')" && git push)
