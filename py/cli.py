@@ -19,7 +19,7 @@ from cartas import calcular_cartas_silenciadas
 from generacion import generar_fichas, mezclar_y_renumerar
 from caso import (
     generar_caso, generar_distrito_3_aleatorio, _generar_ficha_conclusion_prueba,
-    ID_DISTRITO_SINTESIS, RANGO_SOSPECHOSOS_POR_DIFICULTAD,
+    ID_DISTRITO_SINTESIS,
 )
 from exportar_txt import REGLAMENTO, W, ficha_a_txt, exportar_txt, exportar_txt_jugable
 from exportar_json import ficha_a_dict, exportar_json, exportar_caso
@@ -135,7 +135,7 @@ def main():
         for f in fichas:
             pool_ficha = sospechosos_del_distrito(f.distrito)  # slot interno único (1000+n)
             DISTRITOS[ID_DISTRITO_SINTESIS] = {
-                "nombre": "Caso final — Código Omertá",
+                "nombre": "Caso Final — Romper Omertá",
                 "sospechosos": pool_ficha,
             }
             f.distrito = ID_DISTRITO_SINTESIS
@@ -144,7 +144,7 @@ def main():
 
         cabecera_txt = "\n".join([
             "═" * (W + 2),
-            "  CASOS FINALES DE PRUEBA — CÓDIGO OMERTÁ",
+            "  CASOS FINALES — ROMPER OMERTÁ",
             f"  Generado: {datetime.now().strftime('%Y-%m-%d %H:%M')}   "
             f"Casos: {len(fichas)}/{n_fichas_prueba}",
             f"  Tope cartas apagadas: {TOPE_CARTAS_APAGADAS_OMERTA}   "
@@ -320,45 +320,11 @@ def main():
     ruta_txt  = os.path.join(carpeta, f"fichas_{ts_archivo}.txt")
     ruta_json = os.path.join(carpeta, f"fichas_{ts_archivo}.json")
 
-    # ── ¿Corresponde intentar también el cierre del Caso? ──
-    # Siempre que se cumpla el requisito: n_fichas >= mínimo de sospechosos
-    # de la dificultad, Y el distrito sea cíclico (0) — el Paso B necesita
-    # culpables de AMBOS distritos para poder comparar y desempatar; con
-    # distrito fijo (1 o 2) no hay nada que resolver, así que el cierre de
-    # Caso no aplica en ese modo. No se pregunta nada nuevo: se decide solo.
-    minimo_dif_actual, _max_dif_actual = RANGO_SOSPECHOSOS_POR_DIFICULTAD[dificultad]
-    intentar_caso = (n_fichas >= minimo_dif_actual) and (distrito_modo == 0)
-
-    if intentar_caso:
-        # ── Generación + intento de cierre del Caso ──
-        resultado_caso = generar_caso(
-            n_fichas=n_fichas,
-            modo=modo,
-            cantidad_fija=cantidad_fija,
-            dificultad=dificultad,
-            n_sosp_fijo=n_sosp_fijo,
-            seed=seed,
-        )
-        fichas = resultado_caso["fichas"]
-        if not fichas:
-            print("\n  No se encontraron fichas válidas. Probá con otros parámetros.")
-            return
-
-        mezclar_y_renumerar(fichas, distrito_modo=0)
-
-        ruta_base = os.path.join(carpeta, f"fichas_{ts_archivo}")
-        exportar_caso(resultado_caso, ruta_base, jugable=jugable)
-
-        print()
-        print("╔══════════════════════════════════════════════╗")
-        if resultado_caso["ficha_conclusion"] is not None:
-            print(f"║  Listo. {len(fichas)} fichas + ficha-conclusión.{' ' * max(0, 14 - len(str(len(fichas))))}     ║")
-        else:
-            print(f"║  Listo. {len(fichas)} fichas generadas (sin conclusión).{' ' * max(0, 6 - len(str(len(fichas))))}║")
-        print("╚══════════════════════════════════════════════╝")
-        return
-
-    # ── Generación normal, sin intento de cierre de Caso ──
+    # ── Generación normal, sin cierre de Caso ──
+    # Las opciones 1/2/3 (Urbano/Metrópoli/Omertà) generan únicamente fichas
+    # sueltas, nunca ficha-conclusión. El cierre de Caso completo solo ocurre
+    # en el modo Mixta (opción 4, para metro/omertà) y en Caso Final (opción 5,
+    # que arma su propio Distrito 3 sintético y no pasa por aquí).
     fichas = generar_fichas(
         n_fichas=n_fichas,
         modo=modo,

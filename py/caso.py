@@ -208,7 +208,7 @@ def generar_caso(n_fichas: int, modo: str, cantidad_fija: Optional[int],
             for nombre_id, datos in distrito_3.items()
         }
         DISTRITOS[ID_DISTRITO_SINTESIS] = {
-            "nombre": "Operación Código Omertá",
+            "nombre": "Caso final — Romper Omertá",
             "sospechosos": distrito_3,
         }
 

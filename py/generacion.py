@@ -325,9 +325,9 @@ def generar_fichas(n_fichas: int, modo: str, cantidad_fija: Optional[int],
         if cantidad >= n_sosp or cantidad < min_verdades:
             continue
 
-        # Carta 62 es narrativa (siempre miente): solo válida con >=2 mentiras en la partida
+        # Carta 42 es narrativa (siempre miente): solo válida con >=2 mentiras en la partida
         mentiras_en_partida = n_sosp - cantidad if modo == "verdades" else cantidad
-        if 62 in asignacion.values() and mentiras_en_partida < 2:
+        if 42 in asignacion.values() and mentiras_en_partida < 2:
             continue
 
         culpable_tentativo = tiene_solucion_unica(asignacion, sus, modo, cantidad)

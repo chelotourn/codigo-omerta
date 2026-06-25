@@ -148,6 +148,7 @@ REQUISITOS_CATEGORIA_CARTA = {
     61: ["descriptiva"],
     63: ["acusación", "defensa"],
     65: ["defensa", "descriptiva"],
+    70: ["duda", "acusación"],
     72: ["acusación"],
 }
 

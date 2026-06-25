@@ -184,7 +184,7 @@ _CB[40] = lambda c, s, sus: sus[c]["clase"] == "rico" and sus[c]["edad"] == "med
 # ── DUDA (41–50) ─────────────────────────────────────────────────────────────
 # Cartas que parecen neutras pero siempre devuelven True o dependen de condiciones débiles
 _CB[41] = lambda c, s, sus: s != c  # ambigua — falsa si la usa el culpable
-_CB[42] = lambda c, s, sus: True
+_CB[42] = lambda c, s, sus: False
 _CB[43] = lambda c, s, sus: sus[c]["clase"] == "pobre" and sus[c]["edad"] != "viejo"  # pobre y no viejo
 _CB[44] = lambda c, s, sus: True
 _CB[45] = lambda c, s, sus: False
@@ -229,41 +229,76 @@ def _culpable_se_defiende(c, s, sus, asig):
     """¿El culpable tiene carta de defensa?"""
     return asig.get(c) is not None and CATEGORIAS_CARTAS.get(asig[c]) == "defensa"
 
-# Cache por sesión de evaluación para _mayoria_miente — se limpia en tiene_solucion_unica.
-# Evita la explosión combinatoria: _mayoria_miente evalúa todas las cartas de la ficha,
-# que a su vez llaman a _mayoria_miente, multiplicando el trabajo innecesariamente.
+def _culpable_miente(c, s, sus, asig):
+    """¿El culpable, al evaluar su propia carta contra sí mismo, miente?
+    Si el culpable no tiene carta asignada en esta ficha, o su carta está
+    silenciada por Omertá, la afirmación es vacua: se devuelve False
+    (no informativa) en vez de asumir verdad por defecto.
+
+    Caso especial — autorreferencia: si el propio declarante de ESTA carta
+    (s) es el culpable evaluado (c), preguntar "¿su carta miente?" remite a
+    esta misma carta 62, lo que crea un ciclo directo. Se corta devolviendo
+    False (vacuo) ANTES de llamar a evaluar_carta_simple, en vez de dejar
+    que el mecanismo genérico de _VISITADOS_EVAL decida — ese mecanismo
+    resuelve el ciclo con una doble negación que invierte el resultado
+    (ver _omerta_valor_carta / _mitad_miente para el mismo patrón de corte
+    explícito en autorreferencia)."""
+    if c == s:
+        return False
+    carta_culpable = asig.get(c)
+    if carta_culpable is None or c in _SILENCIADAS_EVAL:
+        return False
+    return not evaluar_carta_simple(carta_culpable, c, c, sus)
+
+# Cache por sesión de evaluación para _mitad_miente — se limpia en tiene_solucion_unica.
+# Evita la explosión combinatoria: _mitad_miente evalúa todas las cartas de la ficha,
+# que a su vez llaman a _mitad_miente, multiplicando el trabajo innecesariamente.
 # Clave (culpable, declarante): el resultado ahora depende de quién declara, porque
 # el declarante se excluye de su propio conteo (ver _valor más abajo).
 _MAYORIA_CACHE: dict = {}
 
-def _mayoria_miente(c, s, sus, asig):
-    """¿Más de la mitad de las DEMÁS declaraciones (sin contar al propio declarante)
+def _mitad_miente(c, s, sus, asig):
+    """¿La mitad o más de las DEMÁS declaraciones (sin contar al propio declarante)
     son mentira? El declarante habla de lo que "escuchó" de los otros, no de lo que
     dijo él mismo, así que su propia carta (esta misma, #60) queda fuera del conteo.
     Para cartas meta/veracidad de otros, las evalúa directo con la lambda
     (ASIGNACION_EVAL ya está inyectado) en vez de devolver True por defecto.
-    Memoizado por (culpable, declarante) dentro de cada sesión de evaluación."""
+    Memoizado por (culpable, declarante) dentro de cada sesión de evaluación.
+    Protección anti-ciclo: la llamada directa a fn(c, sid, sus) (necesaria para
+    no perder ASIGNACION_EVAL al evaluar otras metas/veracidad) bypasea el
+    chequeo normal de evaluar_carta_simple, así que replicamos aquí el mismo
+    mecanismo de _VISITADOS_EVAL que usa _omerta_valor_carta: registrar la
+    clave (cid, c, sid) ANTES de llamar a fn y descartarla al salir. Si esa
+    clave ya está en curso más arriba en la pila (ciclo entre metas), se
+    corta devolviendo True (conservador) en vez de recursar indefinidamente."""
     clave = (c, s)
     if clave in _MAYORIA_CACHE:
         return _MAYORIA_CACHE[clave]
     def _valor(sid, cid):
         if cid in range(21, 31) or cid in range(57, 73):
+            key = (cid, c, sid)
+            if key in _VISITADOS_EVAL:
+                return True   # ciclo detectado: cortar con True (conservador)
             fn = CARTAS.get(cid)
             if fn is None:
                 return True
+            _VISITADOS_EVAL.add(key)
             try:
                 return fn(c, sid, sus)
             except Exception:
                 return True
+            finally:
+                _VISITADOS_EVAL.discard(key)
         return evaluar_carta_simple(cid, c, sid, sus)
     otros = [(sid, cid) for sid, cid in asig.items() if sid != s and sid not in _SILENCIADAS_EVAL]
     if not otros:
         resultado = False  # sin nadie más evaluable, la afirmación es vacía
     else:
         mentiras = sum(1 for sid, cid in otros if not _valor(sid, cid))
-        resultado = mentiras > len(otros) / 2
+        resultado = mentiras >= len(otros) / 2
     _MAYORIA_CACHE[clave] = resultado
     return resultado
+
 
 def _alguien_con_fisica_acierta(c, s, sus, asig):
     """¿Alguna carta descriptiva (no silenciada) dice verdad?"""
@@ -273,11 +308,6 @@ def _alguien_con_fisica_acierta(c, s, sus, asig):
             return True
     return False
 
-def _declarante_es_unico_mentiroso(c, s, sus, asig):
-    """Carta narrativa: siempre es mentira.
-    El declarante afirma ser el único mentiroso — lo cual es una paradoja deliberada.
-    Solo se asigna en fichas con >=2 verdades para no crear inconsistencia lógica."""
-    return False
 
 def _hay_contradiccion_acusacion_defensa(c, s, sus, asig):
     """¿Hay al menos una acusación verdadera Y una defensa verdadera (ambas no silenciadas)?"""
@@ -311,9 +341,9 @@ CARTAS_META = {
     57: _meta(lambda c, s, sus, asig: _hay_defensor_mintiendo(c, s, sus, asig)),
     58: _meta(lambda c, s, sus, asig: _todos_acusadores_verdad(c, s, sus, asig)),
     59: _meta(lambda c, s, sus, asig: not _culpable_se_defiende(c, s, sus, asig)),
-    60: _meta(lambda c, s, sus, asig: _mayoria_miente(c, s, sus, asig)),
+    60: _meta(lambda c, s, sus, asig: _mitad_miente(c, s, sus, asig)),
     61: _meta(lambda c, s, sus, asig: _alguien_con_fisica_acierta(c, s, sus, asig)),
-    62: _meta(lambda c, s, sus, asig: _declarante_es_unico_mentiroso(c, s, sus, asig)),
+    62: _meta(lambda c, s, sus, asig: _culpable_miente(c, s, sus, asig)),
     63: _meta(lambda c, s, sus, asig: _hay_contradiccion_acusacion_defensa(c, s, sus, asig)),
 }
 
@@ -516,17 +546,21 @@ def _hay_media_mintiendo(c, s, sus, asig):
         for sid in asig
     )
 
-def _culpable_tiene_defensa(c, s, sus, asig):
-    """¿El culpable tiene carta de defensa?"""
-    return c in asig and CATEGORIAS_CARTAS.get(asig[c]) == "defensa"
+def _culpable_no_duda(c, s, sus, asig):
+    """¿El culpable NO tiene asignada una carta de categoría 'duda'?
+    Mira únicamente qué carta le tocó al culpable (no su verdad/mentira).
+    Si el culpable no tiene carta en la asignación, también cuenta como
+    'no duda' (no hay carta de duda que contradiga la premisa)."""
+    return CATEGORIAS_CARTAS.get(asig.get(c)) != "duda"
 
-def _hay_inocente_mintiendo(c, s, sus, asig):
-    """¿Algún inocente (no culpable, no silenciado) miente?"""
-    return any(
-        sid != c and sid not in _SILENCIADAS_EVAL
-        and not evaluar_carta_simple(asig[sid], c, sid, sus)
-        for sid in asig
-    )
+def _todos_acusadores_mienten(c, s, sus, asig):
+    """¿Todos los que acusan (no silenciados) mienten? Si no hay acusadores
+    evaluables, la afirmación es vacía → False (no informativa)."""
+    acusadores = [sid for sid, cid in asig.items()
+                  if sid not in _SILENCIADAS_EVAL and CATEGORIAS_CARTAS.get(cid) == "acusación"]
+    if not acusadores:
+        return False
+    return all(not evaluar_carta_simple(asig[sid], c, sid, sus) for sid in acusadores)
 
 def _mayoria_miente_simple(c, s, sus, asig):
     """¿Más de la mitad de los DEMÁS sospechosos (sin contar al propio declarante
@@ -615,13 +649,14 @@ CARTAS_INDIRECTAS = {
         _hay_media_mintiendo(c, s, sus, asig)
         and sus[c]["edad"] == "joven"
     ),
-    # 70: "Si el culpable se defiende, al menos un inocente también miente"
-    # A = culpable_tiene_defensa   B = hay_inocente_mintiendo
-    # Verdad jugable: A AND B  → el culpable tiene carta de defensa Y hay un inocente mintiendo
-    # A falsa (culpable no tiene defensa) → carta falsa (False), B indeterminada
+    # 70: "Si el culpable no duda, entonces el que acusa miente"
+    # A = el culpable no tiene carta de duda   B = todos los que acusan mienten
+    # Verdad jugable: A AND B  → el culpable no tiene carta de duda Y todos los acusadores mienten
+    # A falsa (culpable tiene carta de duda) → carta falsa (False), B indeterminada
+    # Requiere al menos 1 carta de duda y 1 de acusación en la ficha (REQUISITOS_CATEGORIA_CARTA)
     70: _meta(lambda c, s, sus, asig:
-        _culpable_tiene_defensa(c, s, sus, asig)
-        and _hay_inocente_mintiendo(c, s, sus, asig)
+        _culpable_no_duda(c, s, sus, asig)
+        and _todos_acusadores_mienten(c, s, sus, asig)
     ),
     # 71: "Si la mayoría de los demás sospechosos miente, el culpable tiene años encima"
     # A = mayoria_miente_simple (excl. declarante)   B = sus[c]["edad"]=="viejo"
@@ -683,8 +718,8 @@ def _antecedente_indirecta(carta_id: int, culpable_id: int, declarante_id: int,
         return not evaluar_carta_simple(asig[8], c, 8, sus)
     if carta_id == 69:   # A = hay alguien de clase media mintiendo
         return _hay_media_mintiendo(c, s, sus, asig)
-    if carta_id == 70:   # A = el culpable tiene carta de defensa
-        return _culpable_tiene_defensa(c, s, sus, asig)
+    if carta_id == 70:   # A = el culpable no tiene carta de duda
+        return _culpable_no_duda(c, s, sus, asig)
     if carta_id == 71:   # A = mayoría de los demás miente (excl. declarante)
         return _mayoria_miente_simple(c, s, sus, asig)
     if carta_id == 72:   # A = nadie acusa directamente al culpable
@@ -712,7 +747,7 @@ def validar_indirectas_en_ficha(asignacion: dict, culpable_id: int, sus: dict) -
 
 # Cartas que siempre devuelven True independientemente del culpable.
 # No aportan información deductiva al jugador — se limita su uso por ficha.
-CARTAS_SIEMPRE_VERDAD = {41, 42, 43, 44, 45, 62}
+CARTAS_SIEMPRE_VERDAD = {41, 42, 43, 44, 45}
 
 TEXTOS_CARTAS = {
     # ACUSACIÓN
@@ -742,7 +777,7 @@ TEXTOS_CARTAS = {
     22: "Desconfíe de todos esos ricos. El porte les da una confianza que cuesta distinguir de la inocencia.",
     23: "A su edad los viejos ya no se gastan en mentir. No temen a la verdad.",
     24: "Los pobres no mienten pues hoy han comido bien. Yo les creo.",
-    25: "La experiencia no se oculta. Quien tiene mediana edad ya ha aprendido a mentir y lo hará almenos una vez.",
+    25: "La experiencia no se oculta: al menos uno de mediana edad miente esta noche, aunque no sepamos cuál.",
     26: "Las descripciones que he escuchado esconden algo y quienes han dudado al hablar lo confirman. Aquí alguien está mintiendo.",
     27: "Los de clase media no mienten. Son de fiar.",
     28: "Los jóvenes de hoy no tienen respeto por la verdad. Al menos uno de ellos miente.",
@@ -761,7 +796,7 @@ TEXTOS_CARTAS = {
     40: "Era rico y de mediana edad. Esa combinación no abunda en esta sala.",
     # DUDA
     41: "Yo no he sido ni sé quién pudo hacerlo. Pero sé que lo volverá a hacer si no lo encontramos.",
-    42: "Podría haber sido cualquiera. Cualquiera con suficiente razón para odiar.",
+    42: "Hay uno solo que miente en esta sala. Solo uno. Y ese uno soy yo.",
     43: "No estoy seguro, era pobre, y quizás joven o de mediana edad pero no viejo",
     44: "Es inutil mentir, al final usted descubre la verdad.",
     45: "Me temo que no podrá resolver este caso Detective, el tiempo juega en su contra.",
@@ -779,12 +814,12 @@ TEXTOS_CARTAS = {
     55: "Los viejos se protegen. Es lo único que les queda. Uno de ellos debe ser el asesino.",
     56: "Somos un grupo grande, algunos demasiado jóvenes otros demasiado viejos, y luego está el asesino.",
     # META
-    57: "Quien se defiende en esta sala está mintiendo. La inocencia no necesita tanto ruido.",
+    57: "Alguien defiende en esta sala y está mintiendo. La inocencia no necesita tanto ruido.",
     58: "Cada acusación que escuché esta noche sonó a verdad. Eso debería asustarnos.",
     59: "El culpable no se está defendiendo. Eso es incluso más peligroso. Ande con cuidado.",
-    60: "La mayoría de las declaraciones que escuché ahí hoy son puras mentiras. Calcule a quién conviene mentir.",
+    60: "De las declaraciones que escuché ahí hoy al menos la mitad o más son puras mentiras. Calcule a quién le conviene mentir.",
     61: "Al menos una descripción dicha en esta sala suena convincente. Aférrese a esa y le llevará al culpable.",
-    62: "Hay uno solo que miente en esta sala. Solo uno. Y ese uno soy yo.",
+    62: "Quien recurre a la mentira en esta sala delata su propia culpa; la inocencia es, por naturaleza, silenciosa.",
     63: "Alguien acusa y alguien defiende, y ambos dicen la verdad. Eso es una contradicción. O es una trampa.",
     64: "No he escuchado una sola duda en esta sala, es como si los más reflexivos callaran, señal de que todos ellos mienten.",
     # INDIRECTAS
@@ -793,7 +828,7 @@ TEXTOS_CARTAS = {
     67: "Si el Heredero no miente, podemos descartar a los de clase media. Está claro  que obraron de buena fe.",
     68: "Si el Crupier miente, quien lo hizo no era viejo. Son los únicos a los que él nunca defendería.",
     69: "Cuando alguien de la clase media miente, suele ser por sentimentalismo. Ese viejo impulso de proteger a los más jóvenes.",
-    70: "Si el culpable esgrime una defensa esta noche, algún inocente también miente para cubrirlo. La complicidad tiene sus reglas.",
+    70: "Si el culpable no duda esta noche, entonces quien acusa miente. La certeza es un lujo que solo se permite quien no teme ser descubierto.",
     71: "Si la mayoria de los demás sospechosos miente, el culpable tiene años encima. La vejez enseña a esconderse.",
     72: "Si nadie acusa directamente al culpable, es porque este los está presionando. Pero los pobres no tienen nada que perder y dirán la verdad.",
     # OMERTA

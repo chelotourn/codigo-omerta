@@ -91,7 +91,7 @@ def ficha_a_txt(f: Ficha) -> str:
     bloques.append(linea(f"CULPABLE: {f.culpable}  [{culp_nombre}]"))
     bloques.append(linea("          [NÚMERO OCULTO EN TINTA ROJA]"))
     bloques.append(separador())
-    bloques.append(linea("DECLARACIONES  (V = verdad  M = mentira  · = silenciada)"))
+    bloques.append(linea("DECLARACIONES  (V = verdad  M = mentira)"))
     bloques.append(separador())
 
     silenciadas = calcular_cartas_silenciadas(f.asignacion, f.culpable, sus)
