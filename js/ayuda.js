@@ -30,6 +30,13 @@ function asegurarModalAyuda() {
   modal = document.createElement('div');
   modal.id = 'modal-ayuda';
   modal.className = 'modal-ayuda-overlay';
+  // Estilos inline como respaldo: garantizan el overlay aunque el CSS
+  // externo no haya cargado/refrescado o exista algún conflicto de stacking.
+  modal.style.cssText = `
+    position: fixed; inset: 0; z-index: 999999;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(10,8,6,.78); padding: 1.25rem;
+  `;
   modal.innerHTML = `
     <div class="modal-ayuda-caja">
       <button class="modal-ayuda-cerrar" type="button" title="Cerrar" aria-label="Cerrar">×</button>
@@ -55,12 +62,19 @@ function abrirModalAyuda({ eyebrow, titulo, texto }) {
   modal.querySelector('#modal-ayuda-eyebrow').textContent = eyebrow || '';
   modal.querySelector('#modal-ayuda-titulo').textContent = titulo || '';
   modal.querySelector('#modal-ayuda-texto').textContent = texto || '';
-  modal.classList.add('activo');
+  modal.style.display = 'flex';
+  // pequeño respiro para que el navegador registre el estado inicial
+  // antes de animar la entrada (fade + scale) al agregar la clase activo
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => modal.classList.add('activo'));
+  });
 }
 
 function cerrarModalAyuda() {
   const modal = document.getElementById('modal-ayuda');
-  if (modal) modal.classList.remove('activo');
+  if (!modal) return;
+  modal.classList.remove('activo');
+  setTimeout(() => { modal.style.display = 'none'; }, 250);
 }
 
 function mostrarAyudaCategoria(catId) {
