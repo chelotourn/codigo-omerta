@@ -386,7 +386,7 @@ function htmlDeclaracion(d, e) {
     <div class="${cls}">
 		 
       <div>
-		  <div class="decl-id">#${String(d.carta_id).padStart(2,'0')}</div>
+		  <div class="decl-id ayuda-clicable" data-carta-id="${d.carta_id}" title="Ver pista de esta carta">#${String(d.carta_id).padStart(2,'0')}<span class="ayuda-signo">?</span></div>
 	      <div style="margin-left: 5px;" class="chinche" data-chinche-id="d${d.carta_id}-4" title="Conectar hilo"></div>
 	  </div>
 
@@ -399,7 +399,7 @@ function htmlDeclaracion(d, e) {
              <span class="decl-atrib">${d.clase || ''}</span>
 
             </div>
-            <div class="decl-cat">${d.carta_categoria}</div>
+            <div class="decl-cat ayuda-clicable" data-cat-id="${d.carta_categoria}" title="Ver explicación de esta categoría">${d.carta_categoria}<span class="ayuda-signo">?</span></div>
           </div>
           <div class="decl-chinches-bar">
             <div class="chinche" data-chinche-id="d${d.carta_id}-0" title="Conectar hilo"></div>
