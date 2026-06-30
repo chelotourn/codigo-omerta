@@ -94,7 +94,7 @@ function mostrarAyudaCarta(cartaId) {
   const pista = PISTAS_AYUDA[cartaId];
   abrirModalAyuda({
     eyebrow: `Carta #${String(cartaId).padStart(2, '0')}`,
-    titulo: 'Pista de Dalton',
+    titulo: 'Pista de Arthur Dalton',
     texto: pista ? pista.pista : 'Dalton no tiene nada que decir sobre esta carta.'
   });
 }
