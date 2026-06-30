@@ -320,13 +320,15 @@ def _hay_contradiccion_acusacion_defensa(c, s, sus, asig):
     return acus_true and def_true
 
 def _sin_duda_y_viejos_mienten(c, s, sus, asig):
-    """Verdad cuando no hay ninguna carta de duda en la ficha Y todos los viejos
-    presentes (excl. declarante) mienten.
+    """Verdad cuando todas las cartas de duda presentes (no silenciadas) mienten
+    Y todos los viejos presentes (excl. declarante) mienten.
     Si no hay viejos presentes (excl. declarante), la condicion es vacua: se retorna
     False para que la carta no sea trivialmente verdadera."""
-    # Condicion 1: ninguna carta de duda (no silenciada) en la asignacion
-    if any(CATEGORIAS_CARTAS.get(cid) == "duda"
-           for sid, cid in asig.items() if sid not in _SILENCIADAS_EVAL):
+    # Condicion A: todas las cartas de duda (no silenciadas) mienten
+    # (si no hay ninguna carta de duda, esta condicion es vacuamente verdadera -> se permite)
+    if not all(not evaluar_carta_simple(cid, c, sid, sus)
+               for sid, cid in asig.items()
+               if sid not in _SILENCIADAS_EVAL and CATEGORIAS_CARTAS.get(cid) == "duda"):
         return False
     # Condicion 2: todos los viejos (excl. declarante y silenciadas) mienten
     viejos = [sid for sid in asig if sid != s and sid not in _SILENCIADAS_EVAL and sus[sid]["edad"] == "viejo"]
@@ -821,7 +823,7 @@ TEXTOS_CARTAS = {
     61: "Al menos una descripción dicha en esta sala suena convincente. Aférrese a esa y le llevará al culpable.",
     62: "Quien recurre a la mentira en esta sala delata su propia culpa; la inocencia es, por naturaleza, honesta.",
     63: "Alguien acusa y alguien defiende, y ambos dicen la verdad. Eso es una contradicción. O es una trampa.",
-    64: "No he escuchado una sola duda en esta sala, es como si los más reflexivos callaran, señal de que todos ellos mienten.",
+    64: "No he escuchado una sola duda razonable en esta sala, es como si los más reflexivos callaran, señal de que todos ellos mienten.",
     # INDIRECTAS
     65: "Escucho a quienes defienden y quienes describen al culpable, pero si los unos dicen la verdad, los otros mienten.",
     66: "Si el Vagabundo miente, entonces el asesino vino de abajo. La pobreza no es excusa, pero sí es pista.",
