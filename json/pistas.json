@@ -1,0 +1,301 @@
+{
+  "_meta": {
+    "personaje": "Arthur Dalton",
+    "descripcion": "Detective retirado a la clandestinidad. Perdió a su familia en un crimen que nunca se resolvió. Conoce el sistema desde dentro y sabe exactamente cómo mienten las cartas.",
+    "nota": "Cada pista es una observación de Dalton sobre el mecanismo oculto de la carta. No revela la respuesta; la insinúa."
+  },
+  "cartas": [
+    {
+      "id": 1,
+      "pista": "Dalton exhala despacio. 'Esta declaración solo vale algo si el Carnicero es el culpable. Si no lo es, quien la firmó te está despistando.'"
+    },
+    {
+      "id": 2,
+      "pista": "'El Notario. Nombre propio, acusación limpia.' Dalton golpea la mesa. 'O es verdad porque él lo hizo, o es mentira porque no. Sin grises.'"
+    },
+    {
+      "id": 3,
+      "pista": "'El Médico,' murmura Dalton. 'Si resulta que no fue él, esta carta no vale nada. Las acusaciones directas son las más fáciles de desmentir.'"
+    },
+    {
+      "id": 4,
+      "pista": "'La Vidente.' Dalton sonríe sin alegría. 'Verdad o mentira, depende únicamente de si ella lo hizo. Así de sencillo. Así de brutal.'"
+    },
+    {
+      "id": 5,
+      "pista": "'La Aprendiz.' Dalton no levanta la vista. 'Si el culpable es ella, esta carta es oro. Si no, es ruido. Las acusaciones con nombre no tienen término medio.'"
+    },
+    {
+      "id": 6,
+      "pista": "'El Coronel.' Dalton dobla la carta despacio. 'Una acusación directa. Verdad si él lo hizo, mentira si no. No hay nada más que leer aquí.'"
+    },
+    {
+      "id": 7,
+      "pista": "'Dos nombres, una carta.' Dalton mira por la ventana. 'Es verdad si el culpable es el Vagabundo o el Crupier. No sirve para afinar; sirve para reducir.'"
+    },
+    {
+      "id": 8,
+      "pista": "'Carnicero o Heredero.' Dalton tamborilea los dedos. 'Ambos en la misma bolsa. Si el culpable es alguno de los dos, la carta habla. Si no, miente.'"
+    },
+    {
+      "id": 9,
+      "pista": "'Aprendiz o Vidente.' Dalton cierra los ojos. 'Dos sospechosas, una verdad. Útil para descartar al resto si sabes que la carta no miente.'"
+    },
+    {
+      "id": 10,
+      "pista": "'Sin nombre propio.' Dalton frota las sienes. 'Esta carta es verdad si el culpable es viejo Y rico a la vez. Ambas condiciones, sin excepción.'"
+    },
+    {
+      "id": 11,
+      "pista": "'Mediana edad y pobre.' Dalton tuerce la boca. 'Las dos cosas juntas. Si el culpable cumple ambas, la carta dice verdad. Si falla una sola, miente.'"
+    },
+    {
+      "id": 12,
+      "pista": "'El Notario queda fuera.' Dalton cruza los brazos. 'Esta carta es verdad siempre que el culpable no sea él. Una defensa con nombre propio es fácil de verificar.'"
+    },
+    {
+      "id": 13,
+      "pista": "'Ni rico ni viejo.' Dalton subraya con el dedo. 'Las dos condiciones juntas. Si el culpable es rico O viejo, esta carta miente. No admite medias tintas.'"
+    },
+    {
+      "id": 14,
+      "pista": "'El Coronel inocente.' Dalton asiente. 'Verdad si el culpable no es él. Una defensa directa. Si el Coronel lo hizo, esta carta miente sin remedio.'"
+    },
+    {
+      "id": 15,
+      "pista": "'El Médico, defendido.' Dalton anota algo. 'Si el culpable no es el Médico, es verdad. Sin más. Las defensas con nombre son las más fáciles de cruzar.'"
+    },
+    {
+      "id": 16,
+      "pista": "'Ni Notario ni Coronel.' Dalton señala dos puntos del mapa. 'Si el culpable es cualquiera de los dos, la carta miente. Si no, es verdad. Dos nombres, una defensa.'"
+    },
+    {
+      "id": 17,
+      "pista": "'Ni Aprendiz ni Vidente.' Dalton levanta dos dedos. 'Cualquiera de las dos como culpable invalida esta carta. Úsala para descartar si confías en quien la declara.'"
+    },
+    {
+      "id": 18,
+      "pista": "'Ni Carnicero ni Médico.' Dalton entrecierra los ojos. 'Si alguno de los dos resulta culpable, esta carta miente. Punto. Una defensa doble que se desmorona con uno.'"
+    },
+    {
+      "id": 19,
+      "pista": "'El culpable no era rico.' Dalton observa la sala. 'Una sola condición. Fácil de verificar cuando ya tienes un perfil del culpable.'"
+    },
+    {
+      "id": 20,
+      "pista": "'No era de mediana edad.' Dalton arquea una ceja. 'La carta es verdad si el culpable es joven o viejo. Miente si tiene esa edad intermedia que tan bien sabe esconderse.'"
+    },
+    {
+      "id": 21,
+      "pista": "'Los viejos de la sala.' Dalton baja la voz. 'Esta carta es verdad si todos los viejos presentes —sin excepción— tienen cartas que mienten. Si alguno dice verdad, esta cae.'"
+    },
+    {
+      "id": 22,
+      "pista": "'Los ricos.' Dalton hace una pausa larga. 'Verdad solo si todos los ricos de la mesa están mintiendo. Uno solo que diga verdad lo invalida todo.'"
+    },
+    {
+      "id": 23,
+      "pista": "'Los viejos son honestos.' Dalton mastica las palabras. 'Verdad si todos los viejos presentes dicen verdad. Que uno mienta y la carta entera se hunde.'"
+    },
+    {
+      "id": 24,
+      "pista": "'Los pobres no blefan.' Dalton cruza los brazos. 'Solo es verdad si todos los pobres de la sala tienen cartas verdaderas. Una sola mentira entre ellos lo desmonta.'"
+    },
+    {
+      "id": 25,
+      "pista": "'Mediana edad.' Dalton tamborilea. 'No todos. Basta con que uno solo de mediana edad esté mintiendo para que esta carta sea verdad. Una es suficiente.'"
+    },
+    {
+      "id": 26,
+      "pista": "'Descripciones y dudas.' Dalton frota la barbilla. 'Esta carta necesita que haya al menos una descriptiva Y al menos una duda en la mesa. Si alguna de esas dos categorías falta, la carta cae sola. Y si están las dos, basta con que una sola mienta.'"
+    },
+    {
+      "id": 27,
+      "pista": "'Clase media, sin secretos.' Dalton mira al techo. 'Solo es verdad si todos los de clase media dicen verdad. Que uno mienta y la afirmación se desmorona.'"
+    },
+    {
+      "id": 28,
+      "pista": "'Los jóvenes.' Dalton aprieta los labios. 'No hace falta que todos mientan. Basta uno. Si hay al menos un joven con carta falsa, esta carta es verdad.'"
+    },
+    {
+      "id": 29,
+      "pista": "'Los pobres.' Dalton alza una ceja. 'Basta con uno que mienta. Si hay cualquier pobre en la sala con carta falsa, esta carta dice verdad. La unanimidad no es necesaria.'"
+    },
+    {
+      "id": 30,
+      "pista": "'Ricos que dicen la verdad.' Dalton sonríe con frialdad. 'Solo es verdad si todos los ricos presentes tienen cartas verdaderas. Uno solo que mienta y la carta pierde su valor.'"
+    },
+    {
+      "id": 31,
+      "pista": "'El culpable era rico.' Dalton es lacónico. 'Una sola condición. El perfil económico del culpable. Fácil de cruzar con lo que ya sepas.'"
+    },
+    {
+      "id": 32,
+      "pista": "'Clase media.' Dalton asiente. 'Si el culpable es de clase media, verdad. Si no, mentira. Sin más capas.'"
+    },
+    {
+      "id": 33,
+      "pista": "'Pobre.' Dalton levanta un dedo. 'Una sola condición económica. Verdad o mentira según la clase del culpable.'"
+    },
+    {
+      "id": 34,
+      "pista": "'Joven.' Dalton examina la carta. 'La edad del culpable. Solo eso. Si es joven, verdad. Si no, mentira.'"
+    },
+    {
+      "id": 35,
+      "pista": "'Mi misma edad.' Dalton señala el texto. 'Ojo: no solo habla del culpable. Habla también de quien declara. Si ambos son de mediana edad, la carta es verdad. Si falla uno de los dos, miente.'"
+    },
+    {
+      "id": 36,
+      "pista": "'Viejo.' Dalton frota las sienes. 'El culpable tenía años. Si encaja, verdad. Si no, mentira. Las descriptivas de edad son las más limpias de verificar.'"
+    },
+    {
+      "id": 37,
+      "pista": "'La clase del Coronel.' Dalton arquea las cejas. 'Esta carta depende de dos personas: el Coronel y el culpable. Si comparten clase social, es verdad. Si no, miente.'"
+    },
+    {
+      "id": 38,
+      "pista": "'La edad de la Aprendiz.' Dalton hace una pausa. 'Dos sospechosos, un vínculo. Si el culpable tiene la misma edad que la Aprendiz, verdad.'"
+    },
+    {
+      "id": 39,
+      "pista": "'Joven y clase media.' Dalton levanta dos dedos. 'Ambas condiciones a la vez. Si el culpable falla en una sola, la carta miente. No vale ser joven y rico.'"
+    },
+    {
+      "id": 40,
+      "pista": "'Rico y de mediana edad.' Dalton entrecierra los ojos. 'Dos condiciones simultáneas. El culpable debe cumplir ambas o la carta cae.'"
+    },
+    {
+      "id": 41,
+      "pista": "'Yo no he sido.' Dalton resopla. 'Esta es verdad para cualquier inocente que la declara. Pero si el culpable la firma... miente. La única carta de duda que cambia según quién la sostiene.'"
+    },
+    {
+      "id": 42,
+      "pista": "'Siempre miente.' Dalton no levanta la vista. 'Esta carta jamás es verdad. Quien la declara lo sabe o no lo sabe. En cualquier caso, suma una mentira a la mesa.'"
+    },
+    {
+      "id": 43,
+      "pista": "'Pobre y no viejo.' Dalton subraya dos palabras. 'Dos condiciones. El culpable debe ser pobre Y no ser viejo. Si es pobre pero viejo, miente. Si no es pobre, también.'"
+    },
+    {
+      "id": 44,
+      "pista": "'Siempre verdad.' Dalton deja la carta sobre la mesa. 'No importa quién sea el culpable. Esta carta siempre cuenta como verdad. Útil cuando hay pocas verdades o cuando interactúa con cartas de veracidad.'"
+    },
+    {
+      "id": 45,
+      "pista": "'Siempre miente.' Dalton suspira. 'No hay culpable que la haga verdadera. Suma una mentira fija a la cuenta, es un buen punto de partida.'"
+    },
+    {
+      "id": 46,
+      "pista": "'Ni clase media ni viejo.' Dalton cuenta con los dedos. 'Dos exclusiones. Si el culpable es de clase media O es viejo, la carta miente. Necesita que sea rico o pobre, y que sea joven o de mediana edad.'"
+    },
+    {
+      "id": 47,
+      "pista": "'Ni rico ni joven.' Dalton anota. 'El culpable no puede ser rico y no puede ser joven. Si cumple cualquiera de las dos condiciones prohibidas, la carta miente.'"
+    },
+    {
+      "id": 48,
+      "pista": "'Ni rico ni de mediana edad.' Dalton frota la sien. 'Dos exclusiones combinadas. El culpable tiene que no ser rico y no ser de mediana edad. Pobre o clase media, y joven o viejo.'"
+    },
+    {
+      "id": 49,
+      "pista": "'Ni pobre ni joven.' Dalton hace una pausa. 'El culpable no es pobre y no es joven. Descarta una franja amplia del perfil económico y etario.'"
+    },
+    {
+      "id": 50,
+      "pista": "'Ni clase media ni de mediana edad.' Dalton tuerce el gesto. 'Dos exclusiones. Ambas deben cumplirse. Rico o pobre, y joven o viejo. Cuatro combinaciones posibles.'"
+    },
+    {
+      "id": 51,
+      "pista": "'El Coronel y el Notario.' Dalton señala. 'El culpable debe ser uno de los dos. Si falta alguno o el culpable es otro, la carta miente.'"
+    },
+    {
+      "id": 52,
+      "pista": "'La Aprendiz y el Carnicero.' Dalton hace una pausa. 'El culpable debe ser uno de ellos. Una grupal que acota mucho si se confirma.'"
+    },
+    {
+      "id": 53,
+      "pista": "'La Vidente y el Médico.' Dalton entrecierra los ojos. 'Presencia de ambos en la partida y culpable entre ellos dos. Si falla cualquier condición, la carta no vale nada.'"
+    },
+    {
+      "id": 54,
+      "pista": "'Los ricos se cubren.' Dalton baja la voz. 'Doble condición: el culpable debe ser rico, Y al menos un rico de la sala debe estar mintiendo. Si el culpable no es rico o todos los ricos dicen verdad, la carta cae.'"
+    },
+    {
+      "id": 55,
+      "pista": "'Los viejos se protegen.' Dalton aprieta los labios. 'Necesita al menos dos viejos en la partida. Y el culpable debe ser uno de ellos. Sin dos viejos en juego, la carta es mentira.'"
+    },
+    {
+      "id": 56,
+      "pista": "'Mesa grande.' Dalton mira alrededor. 'Necesita cinco o más sospechosos en la partida. Y el culpable debe ser de mediana edad. Si la mesa es pequeña, la carta cae sola.'"
+    },
+    {
+      "id": 57,
+      "pista": "'Un defensor miente.' Dalton golpea la mesa. 'Basta uno. Si hay al menos una carta de defensa en la mesa que sea falsa, esta carta es verdad. Si no hay defensores o todos dicen verdad, miente.'"
+    },
+    {
+      "id": 58,
+      "pista": "'Todas las acusaciones son verdad.' Dalton habla despacio. 'Todas. Sin excepción. Y debe haber al menos una acusación en la mesa. Un solo acusador mentiroso lo derrumba todo.'"
+    },
+    {
+      "id": 59,
+      "pista": "'El culpable no se defiende.' Dalton observa las cartas. 'Solo mira qué carta tiene asignada el culpable. Si esa carta no es de defensa, esta es verdad. Si el culpable tiene una defensa, miente.'"
+    },
+    {
+      "id": 60,
+      "pista": "'La mitad miente.' Dalton cuenta con los dedos. 'La mitad o más de las declaraciones del resto —sin contar la propia— son falsas. No hace falta saber cuáles. Solo cuántas.'"
+    },
+    {
+      "id": 61,
+      "pista": "'Una descripción acertada.' Dalton señala el montón. 'Basta con que una sola carta descriptiva de la mesa diga verdad. Si todas las descriptivas mienten, esta también.'"
+    },
+    {
+      "id": 62,
+      "pista": "'El culpable miente.' Dalton hace una pausa larga. 'Mira la carta del culpable. Si esa carta, evaluada contra él mismo, es falsa, esta es verdad. Ojo: si quien declara esta carta es el propio culpable, la respuesta es siempre no.'"
+    },
+    {
+      "id": 63,
+      "pista": "'Contradicción viva.' Dalton entrecierra los ojos. 'Necesita que haya al menos una acusación verdadera Y al menos una defensa verdadera en la misma mesa. Dos verdades opuestas al mismo tiempo. Eso solo pasa en ciertas combinaciones.'"
+    },
+    {
+      "id": 64,
+      "pista": "'Sin dudas razonables y viejos que mienten.' Dalton habla muy despacio. 'Dos condiciones. Primera: todas las cartas de duda presentes deben ser falsas —si alguna dice verdad, esta cae. Segunda: todos los viejos de la mesa —sin el declarante— deben mentir. Si no hay viejos, la carta también miente.'"
+    },
+    {
+      "id": 65,
+      "pista": "'Defensas y descriptivas, pero no ambas verdaderas.' Dalton traza una línea. 'Necesita defensas y descriptivas en la mesa. Si los hay, la carta es verdad solo si un grupo dice verdad entero y el otro miente entero. No vale mezclar.'"
+    },
+    {
+      "id": 66,
+      "pista": "'Si el Vagabundo miente...' Dalton levanta un dedo. 'Condición doble. Primero: la carta de el Vagabundo debe ser falsa. Segundo: el culpable debe ser pobre. Si el Vagabundo dice verdad, la carta es falsa y el resto no importa.'"
+    },
+    {
+      "id": 67,
+      "pista": "'Si el Heredero no miente...' Dalton asiente. 'La carta del Heredero debe ser verdad. Si eso se cumple, el culpable no puede ser de clase media. Si el Heredero miente, la indirecta cae entera.'"
+    },
+    {
+      "id": 68,
+      "pista": "'Si el Crupier miente...' Dalton anota. 'La carta de el Crupier debe ser falsa. Si eso pasa, el culpable no es viejo. Si el Crupier dice verdad, la carta no aporta nada.'"
+    },
+    {
+      "id": 69,
+      "pista": "'Si alguien de clase media miente...' Dalton baja la voz. 'Primero: debe haber al menos un sospechoso de clase media con carta falsa. Segundo: el culpable debe ser joven. Si nadie de clase media miente, B ni se evalúa.'"
+    },
+    {
+      "id": 70,
+      "pista": "'Si el culpable no tiene carta de duda...' Dalton toca la carta despacio. 'Primero: la carta del culpable no puede ser de categoría duda. Segundo: todos los acusadores de la mesa deben mentir. Si falla cualquiera de las dos, la carta entera es falsa.'"
+    },
+    {
+      "id": 71,
+      "pista": "'Si la mayoría miente...' Dalton mira al resto. 'Primero: más de la mitad de los otros sospechosos —sin contar al declarante— deben tener cartas falsas. Segundo: el culpable debe ser viejo. Sin mayoría de mentiras, B no cuenta.'"
+    },
+    {
+      "id": 72,
+      "pista": "'Si nadie acusa al culpable...' Dalton cruza los brazos. 'Primero: ninguna carta de acusación de la mesa debe apuntar al culpable real. Segundo: todos los pobres presentes —sin el declarante— deben decir verdad. Ambas condiciones juntas.'"
+    },
+    {
+      "id": 73,
+      "pista": "'Omertá...ten mucho cuidado con esta carta.' Dalton hace una larga pausa. 'Es verdad si logró silenciar al menos una carta de la mesa. Si nadie la desafiaba, la amenaza fue vacía y es mentira. Protege a quien la declara, no al culpable. Actúa sobre todas las cartas, no solo sobre las acusaciones.'"
+    }
+  ]
+}
