@@ -926,7 +926,7 @@ TEXTOS_CARTAS = {
     72: "Si nadie acusa directamente al culpable, es porque este los está presionando. Pero los pobres no tienen nada que perder y dirán la verdad.",
     # OMERTA
     73: "Solo tengo una palabra para usted, detective: Omertá. Quien me acuse, directa o indirectamente, será silenciado.",
-    74: "Arthur Dalton ingresa de súbito a la sala disparando mortalmente al sospechoso: Eso es por mi Esposa! Quien defienda a esta rata correrá su misma suerte."
+    74: "Arthur Dalton ingresa de súbito a la sala y dispara mortalmente al sospechoso '¡Eso es por mi esposa! Quien defienda a esta rata correrá su misma suerte, será silenciada.'"
 }
 
 
