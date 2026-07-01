@@ -320,15 +320,18 @@ def _hay_contradiccion_acusacion_defensa(c, s, sus, asig):
     return acus_true and def_true
 
 def _sin_duda_y_viejos_mienten(c, s, sus, asig):
-    """Verdad cuando todas las cartas de duda presentes (no silenciadas) mienten
-    Y todos los viejos presentes (excl. declarante) mienten.
-    Si no hay viejos presentes (excl. declarante), la condicion es vacua: se retorna
-    False para que la carta no sea trivialmente verdadera."""
-    # Condicion A: todas las cartas de duda (no silenciadas) mienten
-    # (si no hay ninguna carta de duda, esta condicion es vacuamente verdadera -> se permite)
-    if not all(not evaluar_carta_simple(cid, c, sid, sus)
-               for sid, cid in asig.items()
-               if sid not in _SILENCIADAS_EVAL and CATEGORIAS_CARTAS.get(cid) == "duda"):
+    """Verdad cuando hay al menos una carta de duda presente (no silenciada) en la
+    mesa, todas ellas mienten, Y todos los viejos presentes (excl. declarante)
+    mienten. Si no hay dudas presentes, o no hay viejos presentes (excl.
+    declarante), la condicion es vacua: se retorna False para que la carta no
+    sea trivialmente verdadera."""
+    # Condicion A: debe haber al menos 1 carta de duda (no silenciada) presente,
+    # y todas ellas deben mentir.
+    dudas = [sid for sid, cid in asig.items()
+             if sid not in _SILENCIADAS_EVAL and CATEGORIAS_CARTAS.get(cid) == "duda"]
+    if not dudas:
+        return False  # sin dudas presentes la afirmacion es vacia -> falso (no informativa)
+    if not all(not evaluar_carta_simple(asig[sid], c, sid, sus) for sid in dudas):
         return False
     # Condicion 2: todos los viejos (excl. declarante y silenciadas) mienten
     viejos = [sid for sid in asig if sid != s and sid not in _SILENCIADAS_EVAL and sus[sid]["edad"] == "viejo"]
@@ -432,7 +435,7 @@ def _antecedente_A_indirecta_omerta(cid_otra, c, sus, asignacion):
         if cid_otra == 69:
             return _hay_media_mintiendo(c, None, sus, asignacion)
         if cid_otra == 71:
-            return _mayoria_miente_simple(c, None, sus, asignacion)
+            return _mitad_o_mas_miente_simple(c, None, sus, asignacion)
         return False
     finally:
         ASIGNACION_EVAL.clear()
@@ -655,14 +658,14 @@ def _todos_acusadores_mienten(c, s, sus, asig):
         return False
     return all(not evaluar_carta_simple(asig[sid], c, sid, sus) for sid in acusadores)
 
-def _mayoria_miente_simple(c, s, sus, asig):
-    """¿Más de la mitad de los DEMÁS sospechosos (sin contar al propio declarante
+def _mitad_o_mas_miente_simple(c, s, sus, asig):
+    """¿Al menos la mitad de los DEMÁS sospechosos (sin contar al propio declarante
     ni las silenciadas) miente? (versión simple, sin recursión en meta)."""
     otros = [(sid, cid) for sid, cid in asig.items() if sid != s and sid not in _SILENCIADAS_EVAL]
     if not otros:
         return False
     mentiras = sum(1 for sid, cid in otros if not evaluar_carta_simple(cid, c, sid, sus))
-    return mentiras > len(otros) / 2
+    return mentiras >= len(otros) / 2
 
 CARTAS_INDIRECTAS = {
     # Reglas de validez para cartas indirectas (A → B):
@@ -751,12 +754,12 @@ CARTAS_INDIRECTAS = {
         _culpable_no_duda(c, s, sus, asig)
         and _todos_acusadores_mienten(c, s, sus, asig)
     ),
-    # 71: "Si la mayoría de los demás sospechosos miente, el culpable tiene años encima"
-    # A = mayoria_miente_simple (excl. declarante)   B = sus[c]["edad"]=="viejo"
-    # Verdad jugable: A AND B  → hay mayoría de mentiras entre los demás Y el culpable es viejo
-    # A falsa (no hay mayoría de mentiras entre los demás) → carta falsa (False), B indeterminada
+    # 71: "Si al menos la mitad de los demás sospechosos miente, el culpable tiene años encima"
+    # A = mitad_o_mas_miente_simple (excl. declarante)   B = sus[c]["edad"]=="viejo"
+    # Verdad jugable: A AND B  → al menos la mitad de los demás miente Y el culpable es viejo
+    # A falsa (menos de la mitad de los demás miente) → carta falsa (False), B indeterminada
     71: _meta(lambda c, s, sus, asig:
-        _mayoria_miente_simple(c, s, sus, asig)
+        _mitad_o_mas_miente_simple(c, s, sus, asig)
         and sus[c]["edad"] == "viejo"
     ),
     # 72: "Si nadie acusa directamente al culpable, es porque este los está presionando. Pero los pobres no tienen nada que perder y dirán la verdad."
@@ -813,8 +816,8 @@ def _antecedente_indirecta(carta_id: int, culpable_id: int, declarante_id: int,
         return _hay_media_mintiendo(c, s, sus, asig)
     if carta_id == 70:   # A = el culpable no tiene carta de duda
         return _culpable_no_duda(c, s, sus, asig)
-    if carta_id == 71:   # A = mayoría de los demás miente (excl. declarante)
-        return _mayoria_miente_simple(c, s, sus, asig)
+    if carta_id == 71:   # A = al menos la mitad de los demás miente (excl. declarante)
+        return _mitad_o_mas_miente_simple(c, s, sus, asig)
     if carta_id == 72:   # A = nadie acusa directamente al culpable
         return not any(
             CATEGORIAS_CARTAS.get(cid) == "acusación" and evaluar_carta_simple(cid, c, sid, sus)
@@ -922,7 +925,7 @@ TEXTOS_CARTAS = {
     68: "Si el Crupier miente, quien lo hizo no era viejo. Son los únicos a los que él nunca defendería.",
     69: "Cuando alguien de la clase media miente, suele ser por sentimentalismo. Ese viejo impulso de proteger a los más jóvenes.",
     70: "Si el culpable no duda esta noche, entonces quien acusa miente. La certeza es un lujo que solo se permite quien no teme ser descubierto.",
-    71: "Si la mayoria de los demás sospechosos miente, el culpable tiene años encima. La vejez enseña a esconderse.",
+    71: "Si al menos la mitad de los demás sospechosos miente, el culpable tiene años encima. La vejez enseña a esconderse.",
     72: "Si nadie acusa directamente al culpable, es porque este los está presionando. Pero los pobres no tienen nada que perder y dirán la verdad.",
     # OMERTA
     73: "Solo tengo una palabra para usted, detective: Omertá. Quien me acuse, directa o indirectamente, será silenciado.",

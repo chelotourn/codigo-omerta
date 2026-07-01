@@ -156,9 +156,9 @@ def _armar_asignacion_cartas(sosp_ids: list, SOSPECHOSOS: dict, ids_cartas: list
                 any(CATEGORIAS_CARTAS.get(c) == "acusación" for c in ids_cartas if c not in cartas_usadas and c != cid) and
                 any(CATEGORIAS_CARTAS.get(c) == "defensa"   for c in ids_cartas if c not in cartas_usadas and c != cid)
             ))
-            # #64: requiere >=1 viejo presente (excl. declarante) y ninguna duda disponible en el resto
+            # #64: requiere >=1 viejo presente (excl. declarante) y >=1 duda disponible en el resto
             and not (cid == 64 and sum(1 for x in sosp_ids if x != sid and SOSPECHOSOS[x]["edad"] == "viejo") < 1)
-            and not (cid == 64 and any(CATEGORIAS_CARTAS.get(asignacion.get(x)) == "duda" for x in asignacion))
+            and not (cid == 64 and not any(CATEGORIAS_CARTAS.get(c) == "duda" for c in ids_cartas if c not in cartas_usadas and c != cid))
             # #65: necesita >=1 defensa Y >=1 descriptiva disponibles
             and not (cid == 65 and not (
                 any(CATEGORIAS_CARTAS.get(c) == "defensa"     for c in ids_cartas if c not in cartas_usadas and c != cid) and
@@ -238,7 +238,7 @@ def _armar_asignacion_cartas(sosp_ids: list, SOSPECHOSOS: dict, ids_cartas: list
             # para que su antecedente A pueda activarse; sin clase media la carta siempre es False
             and not (cid == 69 and not any(SOSPECHOSOS[x]["clase"] == "media" for x in sosp_ids if x != sid))
             # #72 ya no referencia a ningún sospechoso nominado → sin restricción de tercera persona
-            # #60 y #71 son mutuamente excluyentes: ambas usan la lógica de "mayoría miente"
+            # #60 y #71 son mutuamente excluyentes: ambas usan la lógica de "mitad o más miente"
             # y combinarlas en la misma ficha resulta redundante/confuso. Si una ya fue
             # asignada a otro sospechoso de esta ficha, la otra queda vetada.
             and not (cid == 60 and 71 in asignacion.values())
