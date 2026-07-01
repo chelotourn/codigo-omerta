@@ -347,9 +347,11 @@ function htmlCartaSosp(sid, e, f) {
 
 // ── RESALTAR PALABRA "OMERTÁ" ────────────────────────────────────────────────
 function resaltarOmerta(texto) {
-  if (!texto) return texto;
-  // Coincide con Omertá / Omerta / OMERTÁ / omertá, etc. (con o sin tilde, cualquier capitalización)
-  return texto.replace(/omert[áa]/gi, (match) => `<span style="color:#9b2020; font-weight:600;">${match}</span>`);
+if (!texto) return texto;
+
+  return texto
+    .replace(/omert[áa]/gi, (match) => `<span style="color:#9b2020; font-weight:600;">${match}</span>`)
+    .replace(/¡Eso es por mi esposa!/gi, (match) => `<span style="color:#9b2020; font-weight:600;">${match}</span>`);
 }
 
 // ── HTML DECLARACIÓN ─────────────────────────────────────────────────────────
