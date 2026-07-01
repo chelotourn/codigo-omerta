@@ -10,7 +10,7 @@ Este módulo en Python es el motor lógico y generador por fuerza bruta de acert
 *   **Clasificación por Dificultad Exigente**:
     *   `urbano`: De 3 a 5 sospechosos. Excluye por completo cartas de lógica meta o condicionales indirectas.
     *   `metropoli`: De 4 a 6 sospechosos. Permite un máximo de 1 carta compleja (meta/indirecta).
-    *   `omerta`: De 5 a 8 sospechosos. Exige de forma obligatoria la presencia de al menos 1 carta meta y 1 indirecta.
+    *   `omerta`: De 6 a 8 sospechosos. Exige de forma obligatoria la presencia de al menos 1 carta meta y 1 indirecta.
 *   **Garantía de Calidad Deductiva (Anti-Solapamiento)**: Descarta fichas que contengan redundancias lógicas latentes, asegurando que no existan dos cartas en la misma partida con el mismo vector de verdad exacto para todos los candidatos.
 *   **Optimización de Rendimiento Extremo**: Inyección estática de entornos (`ASIGNACION_EVAL`), control estricto de recursión infinita mediante sets de visitados en cartas autorreferenciales y cálculo optimizado de vectores de verdad en caché para evitar la explosión combinatoria.
 
