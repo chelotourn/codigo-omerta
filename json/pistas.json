@@ -293,9 +293,13 @@
       "id": 72,
       "pista": "'Si nadie acusa al culpable...' Dalton cruza los brazos. 'Primero: ninguna carta de acusación de la mesa debe apuntar al culpable real. Segundo: todos los pobres presentes —sin el declarante— deben decir verdad. Ambas condiciones juntas.'"
     },
-    {
+	{
       "id": 73,
-      "pista": "'Omertá...ten mucho cuidado con esta carta.' Dalton hace una larga pausa. 'Es verdad si logró silenciar al menos una carta de la mesa. Si nadie la desafiaba, la amenaza fue vacía y es mentira. Protege a quien la declara, no al culpable. Actúa sobre todas las cartas, no solo sobre las acusaciones.'"
+      "pista": "'Dalton guarda silencio antes de hablar de esta. 'Omertá el silencio de la mafia. No protege al culpable: protege a quien la DECLARA. Cualquier otra carta de la mesa que señale, directa o indirectamente, a quien tiene Omertá en la mano queda silenciada —no cuenta ni como verdad ni como mentira, desaparece del cómputo final.' Frunce el ceño. 'Eso incluye acusaciones directas con su nombre, perfiles que coincidan con su clase y edad, grupales que lo nombren, y ciertas indirectas muy específicas, pero solo si su condición previa se cumple primero.' Termina, casi en un susurro: 'Y la propia Omertá solo es verdad si de verdad logró callar a alguien. Si nadie la desafiaba, si nadie iba a delatarla de todas formas, entonces la amenaza fue puro aire, y la carta es mentira. El silencio, para que cuente, tiene que haber costado algo.'"
+    },
+    {
+      "id": 74,
+      "pista": "El arma en las manos de Dalton brilla bajo la fría luz de la sala de interrogatorios. 'Te doy las gracias, detective. Sin ti nunca hubiese podido descubrir al asesino de mi esposa.' El curtido exdetective echa una mirada de desprecio al resto de los sospechosos. 'He cobrado mi venganza, pero desconozco si actuó solo. Cualquier defensa directa, las dudas o las indirectas que hayan intentado encubrir a quien recibió esta carta serán silenciada por mi arma —no contaran ni como verdad ni como mentira.' Dalton escupe al suelo con rabia 'La propia Omertá solo es verdad si de verdad logró callar a alguien. Si no es así, me entregaré ahora mismo.'"
     }
   ]
 }
