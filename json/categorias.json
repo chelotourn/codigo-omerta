@@ -54,7 +54,7 @@
       "explicacion": "Dalton baja la voz como si esto fuera lo más peligroso del mazo. 'Las indirectas son condicionales. Si A, entonces B. Y aquí es donde la gente se equivoca más: NO basta con que B sea verdad. Tienes que evaluar la PREMISA, la parte del \"si\".' Levanta un dedo. 'Si la premisa es falsa, la carta entera es falsa, automáticamente, y la segunda parte ni se mira. Si la premisa es verdadera, entonces sí, ahí recién importa si la consecuencia se cumple o no.' Hace una pausa larga. 'Algunas premisas dependen de un sospechoso concreto, otras premisas dependen de mayorías, de si alguien de cierta clase miente, de si el propio culpable tiene o no una carta determinada.' Concluye, serio: 'Una indirecta bien leída te dice más que una simple directa. Una buena estrategia es intentar resolver A y B al mismo tiempo, prueba que una es falsa y probarás que todo es mentira. Pero cuidado porque si pruebas que B es mentira no podrás usarlo como una pista fiable a menos que pruebes que A es verdadera.'"
     },
     {
-      "id": "omertá",
+      "id": "omerta",
       "rango": "73-74",
       "titulo": "Omertá",
       "explicacion": "Omertá, las cartas del silencio, son las más temidas y las más raras, solo aparecen en casos finales, silencia a sospechosos en función de cómo interactúan con quien la porta. Son verdad o mentira en función de que silencien a alguien, los testimonios silenciados no son ni verdad ni mentira y no son pruebas sólidas, un buen detective sabe que a la hora de calcular las mentiras debe restar las verdades al total de sospechosos, pero si la Omertá silencia a alguien implica que ese alguien ya no cuenta en el total, sin embargo la evidencia no miente, la cantidad de verdades seguirá siendo fiable.'"
