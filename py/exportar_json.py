@@ -62,7 +62,6 @@ def ficha_a_dict(f: Ficha) -> dict:
         "es_conclusion"   : f.es_conclusion,
         "n_sospechosos"   : f.n_sospechosos,
         "sospechosos_ids" : f.sospechosos,
-        "modo"            : f.modo,
         "cantidad"        : f.cantidad,
         "dificultad"      : f.dificultad,
         "culpable_id"     : f.culpable,

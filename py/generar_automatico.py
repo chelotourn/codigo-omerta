@@ -20,7 +20,6 @@ CARPETA_JSON = os.path.join(os.path.dirname(__file__), "..", "json")
 os.makedirs(CARPETA_JSON, exist_ok=True)
 
 # Parámetros fijos
-modo = "verdades"
 distrito_modo = 0  # Cíclico
 
 print(f"\n{'='*50}")
@@ -46,7 +45,6 @@ for dif in ("urbano", "metropoli", "omerta"):
     
     resultado_caso = generar_caso(
         n_fichas=n_fichas_dif,
-        modo=modo,
         cantidad_fija=None,
         dificultad=dif,
         n_sosp_fijo=0,

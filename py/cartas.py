@@ -33,7 +33,7 @@ def evaluar_carta_simple(carta_id, culpable_id, declarante_id, sus):
     especial Omertá (73): usa CARTAS (evaluación completa) pero registra la
     carta en _VISITADOS_EVAL antes de entrar, y si ya está registrada
     (ciclo), devuelve True para cortar la recursión sin crashear."""
-    if carta_id in range(21, 31) or carta_id in range(57, 73) or carta_id == ID_CARTA_OMERTA:
+    if carta_id in range(21, 31) or carta_id in range(57, 73) or carta_id in (ID_CARTA_OMERTA, ID_CARTA_OMERTA_DEFENSA):
         # Evaluación completa con protección anti-recursión
         key = (carta_id, culpable_id, declarante_id)
         if key in _VISITADOS_EVAL:
@@ -363,6 +363,7 @@ CARTAS_META = {
 # La propia carta Omertá es verdad si y solo si logró silenciar al menos
 # una carta; si nadie la desafiaba, es mentira (la amenaza fue vacía).
 ID_CARTA_OMERTA = 73
+ID_CARTA_OMERTA_DEFENSA = 74
 
 # Categorías cuya verdad/mentira depende DIRECTAMENTE del atributo (clase o
 # edad) del culpable evaluado. Acusación, descriptiva y grupal entran
@@ -492,31 +493,41 @@ def _omerta_carta_apunta_a(cid_otra, sid_otra, c, sus, asig, declarante_omerta):
 
 
 def calcular_cartas_silenciadas(asignacion: dict, candidato: int, sus: dict) -> set:
-    """Devuelve el set de sospechoso_ids cuya carta queda silenciada por
-    Omertá. Vacío si no hay carta Omertá en la mesa. No depende de que
-    `candidato` sea el declarante de Omertá — Omertá protege a su propio
-    declarante sea quien sea el culpable evaluado; `candidato` solo se usa
-    para la premisa A de 66/69/71.
+    """Devuelve el set de sospechoso_ids cuya carta queda silenciada por la
+    carta Omertá de la mesa, sea 73 (acusaciones) o 74 (defensas) — las dos
+    son mutuamente excluyentes y nunca aparecen juntas en la misma ficha, así
+    que a lo sumo hay un declarante de Omertá por ficha. Vacío si no hay
+    ninguna carta Omertá. No depende de que `candidato` sea el declarante de
+    Omertá — Omertá protege a su propio declarante sea quien sea el culpable
+    evaluado; `candidato` solo se usa para la premisa A de las indirectas
+    condicionadas.
 
     Punto de entrada robusto: sincroniza ASIGNACION_EVAL con `asignacion`
     antes de evaluar nada (puede llamarse desde fuera de cualquier
     evaluación en curso). `asignacion` puede ser el MISMO objeto que
-    ASIGNACION_EVAL (si se llega aquí desde _omerta_es_verdad) — por eso se
-    congela `asignacion_a_usar = dict(asignacion)` ANTES de tocar el global."""
+    ASIGNACION_EVAL (si se llega aquí desde _omerta_variante_es_verdad) —
+    por eso se congela `asignacion_a_usar = dict(asignacion)` ANTES de
+    tocar el global."""
     asignacion_a_usar = dict(asignacion)
     asignacion_previa = dict(ASIGNACION_EVAL)
     ASIGNACION_EVAL.clear()
     ASIGNACION_EVAL.update(asignacion_a_usar)
     try:
-        declarante_omerta = next((sid for sid, cid in asignacion_a_usar.items() if cid == ID_CARTA_OMERTA), None)
+        declarante_omerta = next(
+            (sid for sid, cid in asignacion_a_usar.items()
+             if cid in (ID_CARTA_OMERTA, ID_CARTA_OMERTA_DEFENSA)),
+            None,
+        )
         if declarante_omerta is None:
             return set()
+        cid_omerta = asignacion_a_usar[declarante_omerta]
+        apunta_fn = _omerta_carta_apunta_a if cid_omerta == ID_CARTA_OMERTA else _omerta_defensa_carta_apunta_a
         items_fijos = list(asignacion_a_usar.items())
         silenciadas = set()
         for sid_otra, cid_otra in items_fijos:
             if sid_otra == declarante_omerta:
                 continue
-            if _omerta_carta_apunta_a(cid_otra, sid_otra, candidato, sus, asignacion_a_usar, declarante_omerta):
+            if apunta_fn(cid_otra, sid_otra, candidato, sus, asignacion_a_usar, declarante_omerta):
                 silenciadas.add(sid_otra)
         return silenciadas
     finally:
@@ -524,16 +535,96 @@ def calcular_cartas_silenciadas(asignacion: dict, candidato: int, sus: dict) -> 
         ASIGNACION_EVAL.update(asignacion_previa)
 
 
-def _omerta_es_verdad(c, s, sus, asig):
-    """Omertá es verdad si y solo si efectivamente logró silenciar al menos
-    una carta de la mesa. Si nadie la desafiaba, es mentira."""
+def _omerta_variante_es_verdad(c, s, sus, asig):
+    """Omertá (73 o 74, la que esté presente) es verdad si y solo si
+    efectivamente logró silenciar al menos una carta de la mesa. Si nadie
+    la desafiaba, es mentira."""
     silenciadas = calcular_cartas_silenciadas(asig, c, sus)
     return len(silenciadas) > 0
 
 
 CARTAS_OMERTA = {
-    ID_CARTA_OMERTA: _meta(_omerta_es_verdad),
+    ID_CARTA_OMERTA: _meta(_omerta_variante_es_verdad),
+    ID_CARTA_OMERTA_DEFENSA: _meta(_omerta_variante_es_verdad),
 }
+
+
+# ── CARTA ESPECIAL: OMERTÁ DEFENSIVA (74) ────────────────────────────────────
+# "Quien defienda a esta rata correrá su misma suerte." Funciona exactamente
+# igual que Omertá (73) — protege a su propio declarante silenciando cartas
+# de la mesa que lo señalan — pero en vez de operar sobre acusaciones,
+# descriptivas y grupales, opera sobre DEFENSAS: cualquier carta de defensa
+# (12-20) cuyo perfil/identidad encaje con el declarante queda silenciada,
+# igual que las dudas 46/47/48/49/50 y las indirectas 67/68 (condicionadas a
+# que su premisa A se cumpla). 73 y 74 son mutuamente excluyentes: nunca
+# conviven en la misma ficha (ver caso.py, que elige una de las dos al
+# armar la ficha-conclusión y excluye la otra del pool de esa ficha).
+
+# Categorías cuya verdad/mentira depende DIRECTAMENTE del atributo (clase o
+# edad) del culpable evaluado, para efectos de esta variante: solo defensa.
+CATS_SENSIBLES_ATRIBUTO_OMERTA_DEFENSA = {"defensa"}
+# Dudas sensibles a esta variante (en vez de la 43 de la variante 73).
+CARTAS_DUDA_SENSIBLES_OMERTA_DEFENSA = {46, 47, 48, 49, 50}
+# Indirectas cuyo antecedente A se chequea para esta variante (en vez de
+# 66/69/71 de la variante 73).
+INDIRECTAS_CONDICIONADAS_A_PREMISA_OMERTA_DEFENSA = {67, 68}
+
+# Defensas que nombran explícitamente a un sospechoso por id (identidad
+# directa) — análogo al NOMBRA_ID de la variante 73, pero con cartas de
+# defensa: 12 ("el Notario no fue"), 14, 15, 16, 17, 18.
+NOMBRA_ID_DEFENSA = {
+    12: (1,), 14: (4,), 15: (6,), 16: (1, 4), 17: (2, 5), 18: (3, 6),
+}
+
+
+def _antecedente_A_indirecta_omerta_defensa(cid_otra, c, sus, asignacion):
+    """Replica el antecedente A de las indirectas 67/68 (en sus propios
+    términos), para que Omertá-defensiva (74) decida si debe considerarlas.
+    A se evalúa contra el culpable REAL de la ronda (c), igual que en la
+    variante 73."""
+    asignacion_a_inyectar = dict(asignacion)
+    asignacion_previa = dict(ASIGNACION_EVAL)
+    ASIGNACION_EVAL.clear()
+    ASIGNACION_EVAL.update(asignacion_a_inyectar)
+    try:
+        if cid_otra == 67:   # A = el Heredero dice verdad
+            if 7 not in asignacion:
+                return False
+            return _omerta_valor_carta(asignacion[7], c, 7, sus, asignacion)
+        if cid_otra == 68:   # A = el Crupier miente
+            if 8 not in asignacion:
+                return False
+            return not _omerta_valor_carta(asignacion[8], c, 8, sus, asignacion)
+        return False
+    finally:
+        ASIGNACION_EVAL.clear()
+        ASIGNACION_EVAL.update(asignacion_previa)
+
+
+def _omerta_defensa_carta_apunta_a(cid_otra, sid_otra, c, sus, asig, declarante_omerta):
+    """Análogo a _omerta_carta_apunta_a pero para Omertá-defensiva (74):
+    en vez de silenciar acusaciones/descriptivas/grupales, silencia
+    defensas (todas), las dudas 46/47/48/49/50 y las indirectas 67/68
+    (únicamente cuando se cumple su premisa A). Defensa, veracidad, meta,
+    acusación, descriptiva, grupal y omertá nunca se silencian aquí."""
+    if cid_otra in NOMBRA_ID_DEFENSA and declarante_omerta in NOMBRA_ID_DEFENSA[cid_otra]:
+        return True
+
+    cat = CATEGORIAS_CARTAS.get(cid_otra)
+
+    if cid_otra in INDIRECTAS_CONDICIONADAS_A_PREMISA_OMERTA_DEFENSA:
+        if not _antecedente_A_indirecta_omerta_defensa(cid_otra, c, sus, asig):
+            return False
+    elif cat == "duda":
+        if cid_otra not in CARTAS_DUDA_SENSIBLES_OMERTA_DEFENSA:
+            return False
+    elif cat not in CATS_SENSIBLES_ATRIBUTO_OMERTA_DEFENSA:
+        return False
+
+    if cid_otra in NOMBRA_ID_DEFENSA:
+        return False
+
+    return _omerta_valor_carta(cid_otra, declarante_omerta, sid_otra, sus, asig)
 
 # ── INDIRECTAS (65–72) — confesión condicional indirecta ─────────────────────
 # Usan evaluar_carta_simple para no recursar.
@@ -835,6 +926,7 @@ TEXTOS_CARTAS = {
     72: "Si nadie acusa directamente al culpable, es porque este los está presionando. Pero los pobres no tienen nada que perder y dirán la verdad.",
     # OMERTA
     73: "Solo tengo una palabra para usted, detective: Omertá. Quien me acuse, directa o indirectamente, será silenciado.",
+    74: "Arthur Dalton ingresa de súbito a la sala disparando mortalmente al sospechoso: Eso es por mi Esposa! Quien defienda a esta rata correrá su misma suerte."
 }
 
 
@@ -856,4 +948,5 @@ CATEGORIAS_CARTAS = {
     65: "indirecta", 66: "indirecta", 67: "indirecta", 68: "indirecta",
     69: "indirecta", 70: "indirecta", 71: "indirecta", 72: "indirecta",
     73: "omerta",
+    74: "omerta",
 }

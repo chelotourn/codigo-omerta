@@ -9,7 +9,8 @@ from typing import Optional
 import cartas
 from cartas import (
     CARTAS, CATEGORIAS_CARTAS,
-    ID_CARTA_OMERTA, calcular_cartas_silenciadas, evaluar_carta_simple,
+    ID_CARTA_OMERTA, ID_CARTA_OMERTA_DEFENSA,
+    calcular_cartas_silenciadas, evaluar_carta_simple,
 )
 from datos import TOPE_CARTAS_APAGADAS_OMERTA, MINIMO_CARTAS_VIVAS_TRAS_OMERTA
 
@@ -40,8 +41,14 @@ def _evaluar_sin_setup(carta_id: int, culpable_id: int, declarante_id: int, sus:
     fn = CARTAS[carta_id]
     return fn(culpable_id, declarante_id, sus)
 
-def tiene_solucion_unica(asignacion: dict, sus: dict, modo: str, cantidad: int) -> Optional[int]:
-    """Busca un único culpable que satisfaga el conteo de verdades/mentiras.
+def tiene_solucion_unica(asignacion: dict, sus: dict, cantidad: int, min_mentiras: int = 0) -> Optional[int]:
+    """Busca un único culpable cuyo conteo de VERDADES sea exactamente
+    `cantidad` (el único modo soportado — "mentiras" como modo de juego
+    independiente fue eliminado). Además exige que el conteo de MENTIRAS de
+    esa solución sea al menos `min_mentiras`, de forma que la ficha tenga un
+    piso mínimo tanto de señal verdadera como falsa (p. ej. urbano exige
+    al menos 1 verdad y 1 mentira, metrópoli 2 y 2, omertá 3 y 3).
+
     Optimización: inyecta ASIGNACION_EVAL una sola vez por candidato (no por carta)
     y usa _evaluar_sin_setup para evitar el overhead de clear+update en cada carta.
 
@@ -67,14 +74,10 @@ def tiene_solucion_unica(asignacion: dict, sus: dict, modo: str, cantidad: int) 
             if sosp_id not in silenciadas and _evaluar_sin_setup(carta_id, candidato, sosp_id, sus)
         )
         mentiras = n_evaluable - verdades
-        if modo == "verdades" and verdades == cantidad:
+        if verdades == cantidad and mentiras >= min_mentiras:
             soluciones.append(candidato)
             if len(soluciones) > 1:
                 return None   # ya hay más de uno: no es única, salir temprano
-        elif modo == "mentiras" and mentiras == cantidad:
-            soluciones.append(candidato)
-            if len(soluciones) > 1:
-                return None
     return soluciones[0] if len(soluciones) == 1 else None
 
 
@@ -179,13 +182,16 @@ def validar_requisitos_categoria(asignacion: dict) -> bool:
 
 def validar_tope_omerta(asignacion: dict, sus: dict) -> bool:
     """
-    Si la ficha tiene carta Omertá, calcula cuántas cartas quedarían
+    Si la ficha tiene carta Omertá (73 o 74 — son mutuamente excluyentes,
+    nunca conviven en la misma ficha), calcula cuántas cartas quedarían
     silenciadas y descarta la ficha si:
       (a) el apagón supera TOPE_CARTAS_APAGADAS_OMERTA, o
       (b) las cartas que quedan vivas son menos que MINIMO_CARTAS_VIVAS_TRAS_OMERTA.
     Si no hay carta Omertá, no filtra nada (True directo).
     """
-    declarante_omerta = next((sid for sid, cid in asignacion.items() if cid == ID_CARTA_OMERTA), None)
+    declarante_omerta = next(
+        (sid for sid, cid in asignacion.items() if cid in (ID_CARTA_OMERTA, ID_CARTA_OMERTA_DEFENSA)), None
+    )
     if declarante_omerta is None:
         return True
     silenciadas = calcular_cartas_silenciadas(asignacion, declarante_omerta, sus)
@@ -199,9 +205,10 @@ def validar_tope_omerta(asignacion: dict, sus: dict) -> bool:
 
 def validar_omerta_activable(asignacion: dict, sus: dict) -> bool:
     """
-    Garantiza que la amenaza de Omertá sea real: debe existir al menos una
-    carta en la ficha que la activaría (es decir, que apunta al declarante
-    de Omertá) para AL MENOS UN candidato posible.
+    Garantiza que la amenaza de Omertá (73 o 74, la que esté presente) sea
+    real: debe existir al menos una carta en la ficha que la activaría (es
+    decir, que apunta al declarante de Omertá) para AL MENOS UN candidato
+    posible.
 
     El chequeo evalúa calcular_cartas_silenciadas para cada sospechoso como
     candidato culpable; si en alguno el set de silenciadas no está vacío,
@@ -213,7 +220,7 @@ def validar_omerta_activable(asignacion: dict, sus: dict) -> bool:
     Si no hay carta Omertá en la ficha, devuelve True directamente.
     """
     declarante_omerta = next(
-        (sid for sid, cid in asignacion.items() if cid == ID_CARTA_OMERTA), None
+        (sid for sid, cid in asignacion.items() if cid in (ID_CARTA_OMERTA, ID_CARTA_OMERTA_DEFENSA)), None
     )
     if declarante_omerta is None:
         return True  # sin Omertá en la ficha, la regla no aplica

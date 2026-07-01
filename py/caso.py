@@ -12,7 +12,7 @@ from typing import Optional
 import datos
 from datos import DISTRITOS, SOSPECHOSOS_1, sospechosos_del_distrito
 from cartas import (
-    CARTAS, ID_CARTA_OMERTA, CARTAS_TRIVIALES,
+    CARTAS, ID_CARTA_OMERTA, ID_CARTA_OMERTA_DEFENSA, CARTAS_TRIVIALES,
     validar_indirectas_en_ficha,
 )
 from validaciones import (
@@ -44,7 +44,7 @@ from generacion import Ficha, generar_fichas, _armar_asignacion_cartas
 
 ID_DISTRITO_SINTESIS = 3
 
-RANGO_SOSPECHOSOS_POR_DIFICULTAD = {"urbano": (3, 5), "metropoli": (4, 6), "omerta": (5, 8)}
+RANGO_SOSPECHOSOS_POR_DIFICULTAD = {"urbano": (3, 5), "metropoli": (4, 6), "omerta": (6, 8)}
 TOPE_REPETICION_ATRIBUTO = 4   # Regla 2: ningún valor de clase/edad puede aparecer más de 4 veces
 
 
@@ -112,7 +112,7 @@ def _paso_c_validar_caso(distrito_3: dict, dificultad: str) -> bool:
     return True
 
 
-def generar_caso(n_fichas: int, modo: str, cantidad_fija: Optional[int],
+def generar_caso(n_fichas: int, cantidad_fija: Optional[int],
                   dificultad: str, n_sosp_fijo: int = 0,
                   max_intentos_ficha: int = 200_000,
                   max_reintentos_caso: int = 500, seed: Optional[int] = None) -> dict:
@@ -150,7 +150,6 @@ def generar_caso(n_fichas: int, modo: str, cantidad_fija: Optional[int],
             random.seed(seed)
         fichas = generar_fichas(
             n_fichas=n_fichas,
-            modo=modo,
             cantidad_fija=cantidad_fija,
             max_intentos=max_intentos_ficha,
             seed=None,
@@ -176,7 +175,6 @@ def generar_caso(n_fichas: int, modo: str, cantidad_fija: Optional[int],
 
         fichas = generar_fichas(
             n_fichas=n_fichas,
-            modo=modo,
             cantidad_fija=cantidad_fija,
             max_intentos=max_intentos_ficha,
             seed=None,              # no resemillar: ya seedeamos una vez arriba
@@ -216,7 +214,6 @@ def generar_caso(n_fichas: int, modo: str, cantidad_fija: Optional[int],
         ficha_conclusion = _generar_ficha_conclusion(
             distrito_3=distrito_3,
             distrito_origen_por_sospechoso=distrito_origen_por_sospechoso,
-            modo=modo,
             cantidad_fija=cantidad_fija,
             dificultad=dificultad,
             max_intentos=max_intentos_ficha,
@@ -244,7 +241,7 @@ def generar_caso(n_fichas: int, modo: str, cantidad_fija: Optional[int],
 
 
 def _generar_ficha_conclusion(distrito_3: dict, distrito_origen_por_sospechoso: dict,
-                               modo: str, cantidad_fija: Optional[int], dificultad: str,
+                               cantidad_fija: Optional[int], dificultad: str,
                                max_intentos: int = 200_000) -> Optional[Ficha]:
     """
     Paso D del documento de diseño: reparte cartas sobre el Distrito 3 ya
@@ -255,27 +252,39 @@ def _generar_ficha_conclusion(distrito_3: dict, distrito_origen_por_sospechoso: 
     ficha normal — la diferencia es que sosp_ids es FIJO (los nombres únicos
     sobrevivientes del Paso B) en vez de muestreado al azar.
 
-    La carta Omertá (73) es exclusiva de esta ficha (la conclusión del
-    Caso) y solo en dificultad metrópoli y omertá — en urbano queda vetada,
-    igual que en cualquier ficha normal. Cuando se permite, su presencia
-    está GARANTIZADA: se reintenta hasta que el reparto la incluya, no se
-    inserta a mano sobre una asignación ya armada.
+    La carta Omertá es exclusiva de esta ficha (la conclusión del Caso) y
+    solo en dificultad metrópoli y omertá — en urbano queda vetada, igual
+    que en cualquier ficha normal. Existen dos variantes mutuamente
+    excluyentes, 73 (silencia acusaciones) y 74 (silencia defensas): nunca
+    conviven en la misma ficha. Cuando la dificultad lo permite, se elige
+    una de las dos al azar para esta ficha-conclusión y la otra queda
+    excluida del reparto; la presencia de la elegida está GARANTIZADA: se
+    reintenta hasta que el reparto la incluya, no se inserta a mano sobre
+    una asignación ya armada.
     """
     sosp_ids = sorted(distrito_3.keys())
     n_sosp = len(sosp_ids)
-    ids_cartas = list(CARTAS.keys())
-    min_verdades = {"urbano": 1, "metropoli": 2, "omerta": 3}[dificultad]
+    min_requerido = {"urbano": 1, "metropoli": 2, "omerta": 3}[dificultad]
     permitir_omerta = dificultad in ("metropoli", "omerta")
 
     # Sin límite de diversidad entre cartas para la ficha-conclusión: es una
     # sola ficha, no una corrida — fichas_por_carta queda en cero siempre,
     # así que el filtro de diversidad de _armar_asignacion_cartas no bloquea nada.
-    fichas_por_carta_vacio = {cid: 0 for cid in ids_cartas}
+    ids_cartas_base = list(CARTAS.keys())
+    fichas_por_carta_vacio = {cid: 0 for cid in ids_cartas_base}
     limite_repeticion_carta = n_sosp  # cualquier valor >= 1 alcanza: nunca se llega a tocarlo
 
     intentos = 0
     while intentos < max_intentos:
         intentos += 1
+
+        # 73 y 74 son mutuamente excluyentes: se elige una al azar para este
+        # intento y se excluye la otra del pool, así nunca pueden terminar
+        # ambas en la misma ficha.
+        omerta_elegida = random.choice([ID_CARTA_OMERTA, ID_CARTA_OMERTA_DEFENSA]) if permitir_omerta else None
+        omerta_excluida = (ID_CARTA_OMERTA_DEFENSA if omerta_elegida == ID_CARTA_OMERTA else ID_CARTA_OMERTA) \
+            if omerta_elegida is not None else None
+        ids_cartas = [cid for cid in ids_cartas_base if cid != omerta_excluida]
 
         resultado = _armar_asignacion_cartas(
             sosp_ids=sosp_ids,
@@ -289,21 +298,23 @@ def _generar_ficha_conclusion(distrito_3: dict, distrito_origen_por_sospechoso: 
             continue
         asignacion, sus = resultado
 
-        # Garantizar Omertá en metrópoli/omertá: si el reparto al azar no la
-        # incluyó esta vez, descartar y reintentar — nunca insertarla a mano
-        # sobre una asignación ya armada (rompería la validez del resto).
-        if permitir_omerta and ID_CARTA_OMERTA not in asignacion.values():
+        # Garantizar la Omertá elegida en metrópoli/omertá: si el reparto al
+        # azar no la incluyó esta vez, descartar y reintentar — nunca
+        # insertarla a mano sobre una asignación ya armada (rompería la
+        # validez del resto).
+        if permitir_omerta and omerta_elegida not in asignacion.values():
             continue
 
-        cantidad = cantidad_fija if cantidad_fija is not None else random.randint(min_verdades, n_sosp - 1)
-        if cantidad >= n_sosp or cantidad < min_verdades:
+        # Piso simétrico por dificultad para AMBOS lados (verdades y mentiras).
+        cantidad = cantidad_fija if cantidad_fija is not None else random.randint(min_requerido, n_sosp - min_requerido)
+        if cantidad < min_requerido or (n_sosp - cantidad) < min_requerido:
             continue
 
-        mentiras_en_partida = n_sosp - cantidad if modo == "verdades" else cantidad
+        mentiras_en_partida = n_sosp - cantidad
         if 62 in asignacion.values() and mentiras_en_partida < 2:
             continue
 
-        culpable_tentativo = tiene_solucion_unica(asignacion, sus, modo, cantidad)
+        culpable_tentativo = tiene_solucion_unica(asignacion, sus, cantidad, min_mentiras=min_requerido)
         if culpable_tentativo is None:
             continue
 
@@ -340,7 +351,6 @@ def _generar_ficha_conclusion(distrito_3: dict, distrito_origen_por_sospechoso: 
             sospechosos=sosp_ids,
             asignacion=asignacion,
             culpable=culpable,
-            modo=modo,
             cantidad=cantidad,
             dificultad=dificultad,
             distrito=ID_DISTRITO_SINTESIS,
@@ -405,14 +415,17 @@ def generar_distrito_3_aleatorio(dificultad: str, max_intentos: int = 10_000) ->
 
 
 def _generar_ficha_conclusion_prueba(distrito_3: dict, distrito_origen_por_sospechoso: dict,
-                                      modo: str, cantidad_fija: Optional[int],
+                                      cantidad_fija: Optional[int],
                                       dificultad: str, max_intentos: int = 200_000,
                                       distrito_id: int = ID_DISTRITO_SINTESIS) -> Optional[Ficha]:
     """
     Variante de _generar_ficha_conclusion que:
-      1) FUERZA que la carta Omertá (73) esté presente en la asignación
+      1) FUERZA que una carta Omertá esté presente en la asignación
          (reintenta hasta lograrlo, igual que con cualquier otra condición
-         de descarte del motor — no se "inserta" la carta a mano).
+         de descarte del motor — no se "inserta" la carta a mano). Existen
+         dos variantes mutuamente excluyentes, 73 (acusaciones) y 74
+         (defensas): se elige una al azar para esta ficha y se excluye la
+         otra del pool, nunca conviven.
       2) Aplica validar_tope_omerta para descartar asignaciones donde el
          apagón resultante sea demasiado grande o deje muy poca señal.
 
@@ -432,15 +445,21 @@ def _generar_ficha_conclusion_prueba(distrito_3: dict, distrito_origen_por_sospe
     """
     sosp_ids = sorted(distrito_3.keys())
     n_sosp = len(sosp_ids)
-    ids_cartas = list(CARTAS.keys())
-    min_verdades = {"urbano": 1, "metropoli": 2, "omerta": 3}[dificultad]
+    ids_cartas_base = list(CARTAS.keys())
+    min_requerido = {"urbano": 1, "metropoli": 2, "omerta": 3}[dificultad]
 
-    fichas_por_carta_vacio = {cid: 0 for cid in ids_cartas}
+    fichas_por_carta_vacio = {cid: 0 for cid in ids_cartas_base}
     limite_repeticion_carta = n_sosp
 
     intentos = 0
     while intentos < max_intentos:
         intentos += 1
+
+        # 73 y 74 son mutuamente excluyentes: se elige una al azar para este
+        # intento y se excluye la otra del pool.
+        omerta_elegida = random.choice([ID_CARTA_OMERTA, ID_CARTA_OMERTA_DEFENSA])
+        omerta_excluida = ID_CARTA_OMERTA_DEFENSA if omerta_elegida == ID_CARTA_OMERTA else ID_CARTA_OMERTA
+        ids_cartas = [cid for cid in ids_cartas_base if cid != omerta_excluida]
 
         resultado = _armar_asignacion_cartas(
             sosp_ids=sosp_ids,
@@ -454,22 +473,24 @@ def _generar_ficha_conclusion_prueba(distrito_3: dict, distrito_origen_por_sospe
             continue
         asignacion, sus = resultado
 
-        # Forzar presencia de Omertá: si esta asignación no la incluyó
-        # (el reparto es al azar dentro del pool permitido), se descarta y
-        # se reintenta — no se inserta la carta a mano en una asignación ya
-        # armada, para no romper la validez del resto del reparto.
-        if ID_CARTA_OMERTA not in asignacion.values():
+        # Forzar presencia de la Omertá elegida: si esta asignación no la
+        # incluyó (el reparto es al azar dentro del pool permitido), se
+        # descarta y se reintenta — no se inserta la carta a mano en una
+        # asignación ya armada, para no romper la validez del resto del
+        # reparto.
+        if omerta_elegida not in asignacion.values():
             continue
 
-        cantidad = cantidad_fija if cantidad_fija is not None else random.randint(min_verdades, n_sosp - 1)
-        if cantidad >= n_sosp or cantidad < min_verdades:
+        # Piso simétrico por dificultad para AMBOS lados (verdades y mentiras).
+        cantidad = cantidad_fija if cantidad_fija is not None else random.randint(min_requerido, n_sosp - min_requerido)
+        if cantidad < min_requerido or (n_sosp - cantidad) < min_requerido:
             continue
 
-        mentiras_en_partida = n_sosp - cantidad if modo == "verdades" else cantidad
+        mentiras_en_partida = n_sosp - cantidad
         if 62 in asignacion.values() and mentiras_en_partida < 2:
             continue
 
-        culpable_tentativo = tiene_solucion_unica(asignacion, sus, modo, cantidad)
+        culpable_tentativo = tiene_solucion_unica(asignacion, sus, cantidad, min_mentiras=min_requerido)
         if culpable_tentativo is None:
             continue
 
@@ -507,7 +528,6 @@ def _generar_ficha_conclusion_prueba(distrito_3: dict, distrito_origen_por_sospe
             sospechosos=sosp_ids,
             asignacion=asignacion,
             culpable=culpable,
-            modo=modo,
             cantidad=cantidad,
             dificultad=dificultad,
             distrito=distrito_id,

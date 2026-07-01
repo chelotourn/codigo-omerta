@@ -17,7 +17,7 @@ from datos import (
 )
 from cartas import (
     CARTAS, CATEGORIAS_CARTAS, TEXTOS_CARTAS, CARTAS_TRIVIALES,
-    ID_CARTA_OMERTA,
+    ID_CARTA_OMERTA, ID_CARTA_OMERTA_DEFENSA,
 )
 from validaciones import (
     tiene_solucion_unica, evaluar_carta, validar_dificultad,
@@ -38,8 +38,7 @@ class Ficha:
     sospechosos: list
     asignacion: dict        # {sospechoso_id: carta_id}
     culpable: int
-    modo: str               # "mentiras" | "verdades"
-    cantidad: int
+    cantidad: int            # cantidad de declaraciones VERDADERAS exigida (único modo soportado)
     dificultad: str = "urbano"   # "urbano" | "metropoli" | "omerta"
     distrito: int = 1            # 1 = Distrito Industrial | 2 = Distrito Comercial | 3 = Codigo Omertá (ficha-conclusión)
     distrito_origen: Optional[dict] = None  # solo en ficha-conclusión: {sospechoso_id: 1 o 2} — de qué distrito
@@ -95,7 +94,8 @@ def _armar_asignacion_cartas(sosp_ids: list, SOSPECHOSOS: dict, ids_cartas: list
     solo distrito) como para la ficha-conclusión de un Caso (sosp_ids fijos,
     viniendo de un pool ya resuelto — el "Distrito 3" dinámico).
 
-    permitir_omerta: la carta 73 (Omertá) solo se reparte si este flag es
+    permitir_omerta: las cartas especiales 73 (Omertá) y 74 (Omertá
+    defensiva) solo se reparten si este flag es
     True. Por diseño, Omertá es exclusiva de la ficha-conclusión del Caso
     en dificultad metrópoli y omertá — en fichas normales y en urbano
     queda vetada.
@@ -114,6 +114,8 @@ def _armar_asignacion_cartas(sosp_ids: list, SOSPECHOSOS: dict, ids_cartas: list
             and fichas_por_carta[cid] < limite_repeticion_carta
             # Carta especial Omertá: solo disponible si se permite explícitamente
             and not (cid == ID_CARTA_OMERTA and not permitir_omerta)
+            # Carta especial Omertá-defensiva (74): misma restricción que 73
+            and not (cid == ID_CARTA_OMERTA_DEFENSA and not permitir_omerta)
             # Restricciones de presencia: el sospechoso nombrado debe estar en la partida
             and not (cid == 1  and 3 not in sosp_ids)
             and not (cid == 2  and 1 not in sosp_ids)
@@ -250,7 +252,7 @@ def _armar_asignacion_cartas(sosp_ids: list, SOSPECHOSOS: dict, ids_cartas: list
     return asignacion, sus
 
 
-def generar_fichas(n_fichas: int, modo: str, cantidad_fija: Optional[int],
+def generar_fichas(n_fichas: int, cantidad_fija: Optional[int],
                    max_intentos: int = 200_000, seed: Optional[int] = None,
                    n_sosp_fijo: int = 0, dificultad: str = "urbano",
                    distrito_modo: int = 0) -> list:
@@ -286,7 +288,7 @@ def generar_fichas(n_fichas: int, modo: str, cantidad_fija: Optional[int],
         1: "fijo — Distrito Industrial",
         2: "fijo — Distrito Comercial",
     }[distrito_modo]
-    print(f"\n  Buscando {n_fichas} fichas — modo {modo.upper()} — dificultad {dificultad.upper()} ...")
+    print(f"\n  Buscando {n_fichas} fichas — dificultad {dificultad.upper()} ...")
     print(f"  Distrito: {nombre_modo_distrito}.")
     print(f"  Límite de diversidad: cada carta en máx. {limite_repeticion_carta} ficha(s) de esta corrida ({int(PORC_MAX_REPETICION_CARTA*100)}%).")
     print("  " + "─" * 46)
@@ -304,7 +306,7 @@ def generar_fichas(n_fichas: int, modo: str, cantidad_fija: Optional[int],
             distrito_actual = distrito_modo
         SOSPECHOSOS = sospechosos_del_distrito(distrito_actual)
 
-        rango_sosp = {"urbano": (3, 5), "metropoli": (4, 6), "omerta": (5, 8)}[dificultad]
+        rango_sosp = {"urbano": (3, 5), "metropoli": (4, 6), "omerta": (6, 8)}[dificultad]
         n_sosp    = n_sosp_fijo if n_sosp_fijo >= rango_sosp[0] else random.randint(*rango_sosp)
         sosp_ids  = sorted(random.sample(ids_todos, n_sosp))
 
@@ -319,18 +321,21 @@ def generar_fichas(n_fichas: int, modo: str, cantidad_fija: Optional[int],
             continue
         asignacion, sus = resultado
 
-        # cantidad fija o aleatoria (mínimo según dificultad: urbano=1, metropoli=2, omerta=3)
-        min_verdades = {"urbano": 1, "metropoli": 2, "omerta": 3}[dificultad]
-        cantidad = cantidad_fija if cantidad_fija is not None else random.randint(min_verdades, n_sosp - 1)
-        if cantidad >= n_sosp or cantidad < min_verdades:
+        # cantidad fija o aleatoria. Piso simétrico por dificultad para AMBOS
+        # lados de la ficha (urbano: min 1 verdad y 1 mentira; metrópoli: min
+        # 2 y 2; omertá: min 3 y 3) — "cantidad" es siempre la cantidad de
+        # declaraciones VERDADERAS exigida (único modo soportado).
+        min_requerido = {"urbano": 1, "metropoli": 2, "omerta": 3}[dificultad]
+        cantidad = cantidad_fija if cantidad_fija is not None else random.randint(min_requerido, n_sosp - min_requerido)
+        if cantidad < min_requerido or (n_sosp - cantidad) < min_requerido:
             continue
 
         # Carta 42 es narrativa (siempre miente): solo válida con >=2 mentiras en la partida
-        mentiras_en_partida = n_sosp - cantidad if modo == "verdades" else cantidad
+        mentiras_en_partida = n_sosp - cantidad
         if 42 in asignacion.values() and mentiras_en_partida < 2:
             continue
 
-        culpable_tentativo = tiene_solucion_unica(asignacion, sus, modo, cantidad)
+        culpable_tentativo = tiene_solucion_unica(asignacion, sus, cantidad, min_mentiras=min_requerido)
         if culpable_tentativo is None:
             continue
 
@@ -364,7 +369,7 @@ def generar_fichas(n_fichas: int, modo: str, cantidad_fija: Optional[int],
         if not validar_indirectas_en_ficha(asignacion, culpable, sus):
             continue
 
-        clave = (tuple(sosp_ids), tuple(sorted(asignacion.items())), culpable, modo, cantidad)
+        clave = (tuple(sosp_ids), tuple(sorted(asignacion.items())), culpable, cantidad)
         if clave in fichas_vistas:
             continue
         fichas_vistas.add(clave)
@@ -386,7 +391,6 @@ def generar_fichas(n_fichas: int, modo: str, cantidad_fija: Optional[int],
             sospechosos=sosp_ids,
             asignacion=asignacion,
             culpable=culpable,
-            modo=modo,
             cantidad=cantidad,
             dificultad=dificultad,
             distrito=distrito_actual,

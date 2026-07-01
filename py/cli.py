@@ -44,9 +44,6 @@ def main():
     print("║   GENERADOR DE FICHAS — CÓDIGO OMERTÁ        ║")
     print("╚══════════════════════════════════════════════╝")
 
-    # El modo siempre es verdades
-    modo = "verdades"
-
     # ── Nivel de dificultad ──
     print("\n  ¿Nivel de DIFICULTAD?")
     print("  [1] Urbano    (sin cartas meta ni indirectas)")
@@ -95,7 +92,6 @@ def main():
                 ficha = _generar_ficha_conclusion_prueba(
                     distrito_3=distrito_3,
                     distrito_origen_por_sospechoso=distrito_origen_por_sospechoso,
-                    modo=modo,
                     cantidad_fija=None,
                     dificultad=dificultad_prueba,
                     max_intentos=20_000,
@@ -197,7 +193,6 @@ def main():
             if distrito_modo == 0:
                 resultado_caso = generar_caso(
                     n_fichas=n_fichas_dif,
-                    modo=modo,
                     cantidad_fija=None,
                     dificultad=dif,
                     n_sosp_fijo=0,
@@ -227,7 +222,6 @@ def main():
             else:
                 fichas = generar_fichas(
                     n_fichas=n_fichas_dif,
-                    modo=modo,
                     cantidad_fija=None,
                     seed=None,
                     n_sosp_fijo=0,
@@ -251,7 +245,7 @@ def main():
     print(f"  → Dificultad: {dificultad.upper()}.")
 
     # ── Cantidad de sospechosos ──
-    rango_sosp_por_dif = {"urbano": (3, 5), "metropoli": (4, 6), "omerta": (5, 8)}
+    rango_sosp_por_dif = {"urbano": (3, 5), "metropoli": (4, 6), "omerta": (6, 8)}
     sosp_min, sosp_max = rango_sosp_por_dif[dificultad]
     n_sosp_fijo = pedir_entero(
         f"\n  ¿Cuántos SOSPECHOSOS por ficha?\n"
@@ -283,7 +277,7 @@ def main():
         cantidad_fija = None
         print("  -> Cantidad de verdades aleatoria por ficha.")
     else:
-        max_verdades = n_sosp_fijo - 1
+        max_verdades = n_sosp_fijo - min_verdades_dif  # deja lugar al mínimo de mentiras también
         cantidad_fija = pedir_entero(
             f"\n  ¿Cuántas VERDADES por ficha?\n"
             f"  [0] = aleatorio,  o ingresá [{min_verdades_dif}-{max_verdades}]: ",
@@ -327,7 +321,6 @@ def main():
     # que arma su propio Distrito 3 sintético y no pasa por aquí).
     fichas = generar_fichas(
         n_fichas=n_fichas,
-        modo=modo,
         cantidad_fija=cantidad_fija,
         seed=seed,
         n_sosp_fijo=n_sosp_fijo,

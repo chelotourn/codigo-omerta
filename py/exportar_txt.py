@@ -69,7 +69,7 @@ def wrap(texto: str, max_len: int = W - 8) -> list:
 def ficha_a_txt(f: Ficha) -> str:
     pool = sospechosos_del_distrito(f.distrito)
     sus = {i: pool[i] for i in f.sospechosos}
-    etiqueta_modo = f"{f.cantidad} {f.modo} en la partida"
+    etiqueta_modo = f"{f.cantidad} verdades en la partida"
     bloques = []
 
     bloques.append(tope_sup())
