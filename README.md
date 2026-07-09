@@ -46,7 +46,7 @@ El motor procesa de forma síncrona reglas semánticas complejas distribuidas en
 6.  **Grupal (51–56):** Relacionan coartadas y nexos entre múltiples sospechosos a la vez.
 7.  **Meta (57–64):** Analizan y condicionan su veracidad al comportamiento del resto de testimonios de la ficha ("*La mayoría de las declaraciones escuchadas son mentiras*").
 8.  **Indirectas (65–72):** Estructuras lógicas condicionales puras ($A \rightarrow B$). Si el antecedente no se cumple o referencia a un sospechoso ausente, la ficha se invalida o procesa el estado como información deductiva según las reglas de juego noir.
-9.  **Omertá (73):** Carta especial y exclusiva del nivel final, altera las mecánicas de evaluación. Protege a su propio declarante silenciando cualquier testimonio de la mesa que lo acuse o perfile directamente, abstrayendo dichas cartas del cómputo total de verdades y mentiras de la ronda. 
+9.  **Omertá (73-74):** Cartas especiales y exclusivas del nivel final, alteran las mecánicas de evaluación. Actúan su propio declarante silenciando cualquier testimonio de la mesa que lo acuse o defienda directa o indirectamente, abstrayendo dichas cartas del cómputo total de verdades y mentiras de la ronda.
 
 ---
 
