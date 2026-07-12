@@ -495,7 +495,8 @@ def _omerta_carta_apunta_a(cid_otra, sid_otra, c, sus, asig, declarante_omerta):
     return _omerta_valor_carta(cid_otra, declarante_omerta, sid_otra, sus, asig)
 
 
-def calcular_cartas_silenciadas(asignacion: dict, candidato: int, sus: dict) -> set:
+def calcular_cartas_silenciadas(asignacion: dict, candidato: int, sus: dict,
+                                 incluir_declarante: bool = False) -> set:
     """Devuelve el set de sospechoso_ids cuya carta queda silenciada por la
     carta Omertá de la mesa, sea 73 (acusaciones) o 74 (defensas) — las dos
     son mutuamente excluyentes y nunca aparecen juntas en la misma ficha, así
@@ -504,6 +505,16 @@ def calcular_cartas_silenciadas(asignacion: dict, candidato: int, sus: dict) -> 
     Omertá — Omertá protege a su propio declarante sea quien sea el culpable
     evaluado; `candidato` solo se usa para la premisa A de las indirectas
     condicionadas.
+
+    incluir_declarante: si es True, el propio declarante de Omertá se agrega
+    también al set devuelto. Omertá SIEMPRE cuenta como silenciada de cara al
+    conteo de verdades/mentiras y a la UI (nunca revela si "funcionó" o no),
+    pero esto es puramente de exhibición/conteo: no cambia en absoluto qué
+    otras cartas quedan apagadas, ya que el declarante nunca formaba parte de
+    ese cálculo (el loop de abajo ya lo excluye de entrada). Por eso los
+    llamados que necesitan el efecto real de Omertá — validar_tope_omerta y
+    validar_omerta_activable, que miden si la amenaza apagó a otros —
+    siguen usando el default (False) para no alterar esa mecánica.
 
     Punto de entrada robusto: sincroniza ASIGNACION_EVAL con `asignacion`
     antes de evaluar nada (puede llamarse desde fuera de cualquier
@@ -532,6 +543,8 @@ def calcular_cartas_silenciadas(asignacion: dict, candidato: int, sus: dict) -> 
                 continue
             if apunta_fn(cid_otra, sid_otra, candidato, sus, asignacion_a_usar, declarante_omerta):
                 silenciadas.add(sid_otra)
+        if incluir_declarante:
+            silenciadas.add(declarante_omerta)
         return silenciadas
     finally:
         ASIGNACION_EVAL.clear()
@@ -853,7 +866,7 @@ TEXTOS_CARTAS = {
     4:  "La Vidente sabía lo que iba a pasar. Pero no creo en sus visiones, creo que lo planificó.",
     5:  "La Aprendiz aprendió demasiado rápido. Y alguien pagó el precio.",
     6:  "El Coronel fue. Lo delataron sus hábitos, no sus palabras.",
-    7:  "Solo el El Vagabundo o el Crupier estaban en la escena del crimen. Uno de ellos lo hizo.",
+    7:  "Solo el Vagabundo o el Crupier estaban en la escena del crimen. Uno de ellos lo hizo.",
     8:  "El Carnicero o el Heredero. Cualquiera de los dos pudo hacerlo. Me extraña que no lo haya notado usted mismo.",
     9:  "Fue la Aprendiz o la Vidente. El instinto lo dice. Las pruebas, también.",
     10: "El asesino ya tenía la edad de quien no teme nada y el dinero de quien nunca tuvo que temerlo.",
@@ -928,8 +941,8 @@ TEXTOS_CARTAS = {
     71: "Si al menos la mitad de los demás sospechosos miente, el culpable tiene años encima. La vejez enseña a esconderse.",
     72: "Si nadie acusa directamente al culpable, es porque este los está presionando. Pero los pobres no tienen nada que perder y dirán la verdad.",
     # OMERTA
-    73: "Solo tengo una palabra para usted, detective: Omertá. Quien me acuse, directa o indirectamente, será silenciado.",
-    74: "Arthur Dalton ingresa de súbito a la sala y dispara mortalmente al sospechoso: ¡Eso es por mi esposa! Quien defienda a esta rata correrá su misma suerte, será silenciado."
+    73: "Solo tengo una palabra para usted, detective: Omertá. Guardaté silencio y quien me acuse, directa o indirectamente, será silenciado.",
+    74: "Arthur Dalton ingresa de súbito a la sala y dispara mortalmente al sospechoso: ¡Eso es por mi esposa! y quien le defienda, directa o indirectamente, también será silenciado.",
 }
 
 

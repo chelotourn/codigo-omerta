@@ -94,7 +94,7 @@ def ficha_a_txt(f: Ficha) -> str:
     bloques.append(linea("DECLARACIONES  (V = verdad  M = mentira)"))
     bloques.append(separador())
 
-    silenciadas = calcular_cartas_silenciadas(f.asignacion, f.culpable, sus)
+    silenciadas = calcular_cartas_silenciadas(f.asignacion, f.culpable, sus, incluir_declarante=True)
 
     for sid in f.sospechosos:
         carta_id = f.asignacion[sid]
@@ -178,7 +178,7 @@ def resumen_soluciones(fichas: list) -> str:
         pool = sospechosos_del_distrito(f.distrito)
         sus = {i: pool[i] for i in f.sospechosos}
         culp_nombre = pool[f.culpable]["nombre"]
-        silenciadas = calcular_cartas_silenciadas(f.asignacion, f.culpable, sus)
+        silenciadas = calcular_cartas_silenciadas(f.asignacion, f.culpable, sus, incluir_declarante=True)
         estados = []
         for sid in f.sospechosos:
             if sid in silenciadas:

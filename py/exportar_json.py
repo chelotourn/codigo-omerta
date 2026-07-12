@@ -29,7 +29,7 @@ def ficha_a_dict(f: Ficha) -> dict:
     cartas.ASIGNACION_EVAL.update(f.asignacion)
     cartas._VISITADOS_EVAL.clear()
     cartas._MAYORIA_CACHE.clear()
-    silenciadas = calcular_cartas_silenciadas(f.asignacion, f.culpable, sus)
+    silenciadas = calcular_cartas_silenciadas(f.asignacion, f.culpable, sus, incluir_declarante=True)
     cartas._SILENCIADAS_EVAL.clear()
     cartas._SILENCIADAS_EVAL.update(silenciadas)
     declaraciones = []

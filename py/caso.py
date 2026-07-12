@@ -270,7 +270,10 @@ def _generar_ficha_conclusion(distrito_3: dict, distrito_origen_por_sospechoso: 
     # Sin límite de diversidad entre cartas para la ficha-conclusión: es una
     # sola ficha, no una corrida — fichas_por_carta queda en cero siempre,
     # así que el filtro de diversidad de _armar_asignacion_cartas no bloquea nada.
-    ids_cartas_base = list(CARTAS.keys())
+    # CARTAS_TRIVIALES quedan vetadas por completo (ni una): en la ficha-conclusión
+    # no debe haber "aperturas" gratis — pistas independientes del culpable —
+    # igual que ya no las da la propia carta Omertá.
+    ids_cartas_base = [cid for cid in CARTAS.keys() if cid not in CARTAS_TRIVIALES]
     fichas_por_carta_vacio = {cid: 0 for cid in ids_cartas_base}
     limite_repeticion_carta = n_sosp  # cualquier valor >= 1 alcanza: nunca se llega a tocarlo
 
@@ -305,8 +308,11 @@ def _generar_ficha_conclusion(distrito_3: dict, distrito_origen_por_sospechoso: 
         if permitir_omerta and omerta_elegida not in asignacion.values():
             continue
 
-        # Piso simétrico por dificultad para AMBOS lados (verdades y mentiras).
-        cantidad = cantidad_fija if cantidad_fija is not None else random.randint(min_requerido, n_sosp - min_requerido)
+        # Cantidad de verdades del caso final: floor((n_sosp - 1) / 2),
+        # salvo que se fuerce explícitamente con cantidad_fija. Ya no es
+        # aleatoria: queda fija en función de s = n_sosp (cantidad de
+        # sospechosos del caso).
+        cantidad = cantidad_fija if cantidad_fija is not None else (n_sosp - 1) // 2
         if cantidad < min_requerido or (n_sosp - cantidad) < min_requerido:
             continue
 
@@ -316,10 +322,6 @@ def _generar_ficha_conclusion(distrito_3: dict, distrito_origen_por_sospechoso: 
 
         culpable_tentativo = tiene_solucion_unica(asignacion, sus, cantidad, min_mentiras=min_requerido)
         if culpable_tentativo is None:
-            continue
-
-        n_vacias = sum(1 for cid in asignacion.values() if cid in CARTAS_TRIVIALES)
-        if n_vacias > 1:
             continue
 
         if not validar_dificultad(asignacion, dificultad):
@@ -445,7 +447,8 @@ def _generar_ficha_conclusion_prueba(distrito_3: dict, distrito_origen_por_sospe
     """
     sosp_ids = sorted(distrito_3.keys())
     n_sosp = len(sosp_ids)
-    ids_cartas_base = list(CARTAS.keys())
+    # CARTAS_TRIVIALES quedan vetadas por completo (ni una) en la ficha-conclusión.
+    ids_cartas_base = [cid for cid in CARTAS.keys() if cid not in CARTAS_TRIVIALES]
     min_requerido = {"urbano": 1, "metropoli": 2, "omerta": 3}[dificultad]
 
     fichas_por_carta_vacio = {cid: 0 for cid in ids_cartas_base}
@@ -481,8 +484,10 @@ def _generar_ficha_conclusion_prueba(distrito_3: dict, distrito_origen_por_sospe
         if omerta_elegida not in asignacion.values():
             continue
 
-        # Piso simétrico por dificultad para AMBOS lados (verdades y mentiras).
-        cantidad = cantidad_fija if cantidad_fija is not None else random.randint(min_requerido, n_sosp - min_requerido)
+        # Cantidad de verdades del caso final: floor((n_sosp - 1) / 2),
+        # salvo que se fuerce explícitamente con cantidad_fija (misma regla
+        # que en _generar_ficha_conclusion).
+        cantidad = cantidad_fija if cantidad_fija is not None else (n_sosp - 1) // 2
         if cantidad < min_requerido or (n_sosp - cantidad) < min_requerido:
             continue
 
@@ -492,10 +497,6 @@ def _generar_ficha_conclusion_prueba(distrito_3: dict, distrito_origen_por_sospe
 
         culpable_tentativo = tiene_solucion_unica(asignacion, sus, cantidad, min_mentiras=min_requerido)
         if culpable_tentativo is None:
-            continue
-
-        n_vacias = sum(1 for cid in asignacion.values() if cid in CARTAS_TRIVIALES)
-        if n_vacias > 1:
             continue
 
         if not validar_dificultad(asignacion, dificultad):
