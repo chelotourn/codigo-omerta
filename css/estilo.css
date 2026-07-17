@@ -341,7 +341,7 @@
 
   /* avatar */
   .avatar-wrap {
-    width:100%; aspect-ratio:585/743; background:var(--sepia); overflow:hidden;
+    width:100%; aspect-ratio:700/925; background:var(--sepia); overflow:hidden;
     display:flex; align-items:center; justify-content:center; position:relative;
   }
   .avatar-wrap img {
