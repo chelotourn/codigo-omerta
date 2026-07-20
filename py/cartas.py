@@ -888,7 +888,7 @@ TEXTOS_CARTAS = {
     24: "Los pobres no mienten pues hoy han comido bien. Yo les creo.",
     25: "La experiencia no se oculta: al menos uno de mediana edad miente esta noche, aunque no sepamos cuál.",
     26: "Las descripciones que he escuchado esconden algo y quienes han dudado al hablar lo confirman. Aquí alguien está mintiendo.",
-    27: "Los de clase media no mienten. Son de fiar.",
+    27: "Aquí los de clase media no mienten. Son de fiar.",
     28: "Los jóvenes de hoy no tienen respeto por la verdad. Al menos uno de ellos miente.",
     29: "Entre tanta gente pobre seguro hay algun mentiroso. Así es esta gente.",
     30: "Curiosamente, quienes dicen la verdad esta noche podrían perfectamente comprarla.",
@@ -942,7 +942,7 @@ TEXTOS_CARTAS = {
     72: "Si nadie acusa directamente al culpable, es porque este los está presionando. Pero los pobres no tienen nada que perder y dirán la verdad.",
     # OMERTA
     73: "Solo tengo una palabra para usted, detective: Omertá. Guardaté silencio y quien me acuse, directa o indirectamente, será silenciado.",
-    74: "Arthur Dalton ingresa de súbito a la sala y dispara mortalmente al sospechoso: ¡Eso es por mi esposa! y quien le defienda, directa o indirectamente, también será silenciado.",
+    74: "Dalton irrumpe en la sala y dispara mortalmente al sospechoso: ¡Eso es por mi esposa! y quien le defienda, directa o indirectamente, también será silenciado.",
 }
 
 

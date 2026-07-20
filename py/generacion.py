@@ -181,12 +181,24 @@ def _armar_asignacion_cartas(sosp_ids: list, SOSPECHOSOS: dict, ids_cartas: list
             and not (cid == 56 and not any(SOSPECHOSOS[x]["edad"] == "mediana" for x in sosp_ids))            
             # Carta 43: "era pobre..." — necesita al menos 1 pobre presente en la partida
             and not (cid == 43 and not any(SOSPECHOSOS[x]["clase"] == "pobre" for x in sosp_ids))
+            # Carta 20: "quien lo hizo no era de mediana edad" — necesita al menos 1 de
+            # mediana edad presente en la partida (si no hay ninguno, la afirmación no tiene sentido)
+            and not (cid == 20 and not any(SOSPECHOSOS[x]["edad"] == "mediana" for x in sosp_ids))
             # Cartas descriptivas: el atributo que afirman debe estar representado en la ficha
             and not (cid == 31 and not any(SOSPECHOSOS[x]["clase"] == "rico"    for x in sosp_ids))
             and not (cid == 32 and not any(SOSPECHOSOS[x]["clase"] == "media"   for x in sosp_ids))
             and not (cid == 33 and not any(SOSPECHOSOS[x]["clase"] == "pobre"   for x in sosp_ids))
             and not (cid == 34 and not any(SOSPECHOSOS[x]["edad"]  == "joven"   for x in sosp_ids))
-            and not (cid == 35 and not any(SOSPECHOSOS[x]["edad"]  == "mediana" for x in sosp_ids))
+            # Carta 35: "tenía mi misma edad, mediana" — necesita margen para que declarante
+            # y culpable puedan ser ambos mediana. Se cumple si: hay >=2 de mediana edad
+            # en la partida, O el declarante no es de mediana edad y hay >=1 mediana edad más.
+            and not (cid == 35 and not (
+                sum(1 for x in sosp_ids if SOSPECHOSOS[x]["edad"] == "mediana") >= 2
+                or (
+                    SOSPECHOSOS[sid]["edad"] != "mediana"
+                    and sum(1 for x in sosp_ids if SOSPECHOSOS[x]["edad"] == "mediana") >= 1
+                )
+            ))
             and not (cid == 36 and not any(SOSPECHOSOS[x]["edad"]  == "viejo"   for x in sosp_ids))
             and not (cid == 39 and not any(SOSPECHOSOS[x]["clase"] == "media" and SOSPECHOSOS[x]["edad"] == "joven" for x in sosp_ids))
             and not (cid == 40 and not any(SOSPECHOSOS[x]["clase"] == "rico" and SOSPECHOSOS[x]["edad"] == "mediana" for x in sosp_ids))
