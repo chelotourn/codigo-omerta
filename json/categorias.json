@@ -21,7 +21,7 @@
       "id": "veracidad",
       "rango": "21-30",
       "titulo": "Veracidad",
-      "explicacion": "Dalton se inclina hacia adelante, como si esto le costara más explicarlo. 'Estas son las cartas que no hablan del culpable directamente. Hablan de los OTROS. Dicen cosas como: todos los viejos mienten, o los pobres no mienten, o al menos uno de los jóvenes está mintiendo, el declarante siempre queda fuera de los grupos. ' Suspira. 'Para saber si una veracidad es verdad, tienes que evaluar primero si las cartas de ese grupo —viejos, ricos, pobres, lo que sea— son verdad o mentira dado un culpable hipotético. Si te mareas, no eres el primero.' La clave está en comprobar la cantidad de mentiras y verdades, estas cartas potencias el impacto de las demas sobre el contador, si una hipótesis se sale de las cantidades, debe ser falsa.'"
+      "explicacion": "Dalton se inclina hacia adelante, como si esto le costara más explicarlo. 'Estas son las cartas que no hablan del culpable directamente. Hablan de TODOS menos el declarante que siempre queda fuera. Dicen cosas como: todos los viejos mienten, o los pobres no mienten, o al menos uno de los jóvenes está mintiendo, el declarante siempre queda fuera de los grupos. ' Suspira. 'Para saber si una veracidad es verdad, tienes que evaluar primero si las cartas de ese grupo —viejos, ricos, pobres, lo que sea— son verdad o mentira dado un culpable hipotético. Si te mareas, no eres el primero.' La clave está en comprobar la cantidad de mentiras y verdades, estas cartas potencias el impacto de las demas sobre el contador, si una hipótesis se sale de las cantidades, debe ser falsa.'"
     },
     {
       "id": "descriptiva",
@@ -57,7 +57,7 @@
       "id": "omerta",
       "rango": "73-74",
       "titulo": "Omertá",
-      "explicacion": "Omertá, las cartas del silencio, son las más temidas y las más raras, solo aparecen en casos finales, silencia a sospechosos en función de cómo interactúan con quien la porta. Son verdad o mentira en función de que silencien a alguien, los testimonios silenciados no son ni verdad ni mentira y no son pruebas sólidas, un buen detective sabe que a la hora de calcular las mentiras debe restar las verdades al total de sospechosos, pero si la Omertá silencia a alguien implica que ese alguien ya no cuenta en el total, sin embargo la evidencia no miente, la cantidad de verdades seguirá siendo fiable.'"
+      "explicacion": "Omertá, las cartas del silencio, son las más temidas y las más raras, solo aparecen en casos finales, silencia a sospechosos en función de cómo interactúan con quien la porta. Son verdad o mentira en función de que silencien a alguien, los testimonios silenciados no son ni verdad ni mentira y no son pruebas sólidas, un buen detective sabe que a la hora de calcular las mentiras debe restar las verdades al total de sospechosos, pero si la Omertá silencia a alguien implica que ese alguien ya no cuenta en el total, sin embargo la evidencia no miente, la cantidad de verdades seguirá siendo fiable, solo que no podrás asumir las mentiras hasta que compruebe todas afectadas. Eso incluye acusaciones directas con su nombre, perfiles que coincidan con su clase y edad, grupales que lo nombren, y ciertas indirectas muy específicas, estas últimas solo son silenciables si A se cumple.'"
     }
   ]
 }

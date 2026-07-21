@@ -83,7 +83,7 @@
     },
     {
       "id": 20,
-      "pista": "'No era de mediana edad.' Dalton arquea una ceja. 'La carta es verdad si el culpable es joven o viejo. Miente si tiene esa edad intermedia que tan bien sabe esconderse.'"
+      "pista": "'No era de mediana edad.' Dalton arquea una ceja. 'La carta miente si tiene esa edad intermedia. Dice la verdad si el culpable es joven o viejo'"
     },
     {
       "id": 21,
@@ -219,7 +219,7 @@
     },
     {
       "id": 54,
-      "pista": "'Los ricos se cubren.' Dalton baja la voz. 'Doble condición: el culpable debe ser rico, Y al menos un rico de la sala debe estar mintiendo. Si el culpable no es rico o todos los ricos dicen verdad, la carta cae.'"
+      "pista": "'Los ricos se cubren.' Dalton baja la voz. 'Doble condición: el culpable debe ser rico, Y al menos un rico de la sala debe estar mintiendo. Si el culpable no es rico o todos los ricos dicen verdad, la carta cae. Pero cuidado el declarante no se incluye en el grupo.'"
     },
     {
       "id": 55,
@@ -279,7 +279,7 @@
     },
     {
       "id": 69,
-      "pista": "'Si alguien de clase media miente...' Dalton baja la voz. 'Primero: debe haber al menos un sospechoso de clase media con carta falsa. Segundo: el culpable debe ser joven. Si nadie de clase media miente, B ni se evalúa.'"
+      "pista": "'Si alguien de clase media miente...' Dalton baja la voz. 'Primero: debe haber al menos un sospechoso de clase media con carta falsa. Segundo: el culpable debe ser joven. Si nadie de clase media miente, B ni se evalúa. Pero cuidado, A no tiene en cuenta al declarante'"
     },
     {
       "id": 70,
@@ -287,7 +287,7 @@
     },
     {
       "id": 71,
-      "pista": "'Si al menos la mitad...' Dalton mira al resto. 'Primero: del total de sospechosos la mitad o más miente —sin contar al declarante— es decir deben tener cartas falsas. Segundo: el culpable debe ser viejo. Sin lo primero, lo segundo no cuenta.'"
+      "pista": "'Si almenos la mitad miente...' Dalton mira al resto. 'Primero: almenos la mitad de los otros sospechosos —sin contar al declarante— deben tener cartas falsas. Segundo: el culpable debe ser viejo. Sin lo Primero lo Segundo no cuenta. Si lo Primero se cumple y aun así es Mentira tiene que ser porque el culpable no es viejo'"
     },
     {
       "id": 72,
@@ -295,11 +295,11 @@
     },
 	{
       "id": 73,
-      "pista": "'Dalton guarda silencio antes de hablar de esta. 'Omertá el silencio de la mafia. No protege al culpable: protege a quien la DECLARA. Cualquier otra carta de la mesa que señale, directa o indirectamente, a quien tiene Omertá en la mano queda silenciada —no cuenta ni como verdad ni como mentira, desaparece del cómputo final.' Frunce el ceño. 'Eso incluye acusaciones directas con su nombre, perfiles que coincidan con su clase y edad, grupales que lo nombren, y ciertas indirectas muy específicas, pero solo si su condición previa se cumple primero.' Termina, casi en un susurro: 'Y la propia Omertá solo es verdad si de verdad logró callar a alguien. Si nadie la desafiaba, si nadie iba a delatarla de todas formas, entonces la amenaza fue puro aire, y la carta es mentira. El silencio, para que cuente, tiene que haber costado algo.'"
+      "pista": "'Dalton guarda silencio antes de hablar de esta. 'Omertá el silencio de la mafia. No protege al culpable: protege a quien la DECLARA. Cualquier otra carta de la mesa que señale directa o indirectamente a quien tiene Omertá en la mano quedara silenciada —no cuenta ni como verdad ni como mentira, desaparece del cómputo final.' Frunce el ceño. 'Pero solo si su condición previa se cumple primero.' Termina, casi en un susurro: 'Y la propia Omertá está siempre en silencio, pase lo que pase.'"
     },
     {
       "id": 74,
-      "pista": "El arma en las manos de Dalton brilla bajo la fría luz de la sala de interrogatorios. 'Te doy las gracias, detective. Sin ti nunca hubiese podido descubrir al asesino de mi esposa.' El curtido exdetective echa una mirada de desprecio al resto de los sospechosos. 'He cobrado mi venganza, pero desconozco si actuó solo. Cualquier defensa directa, las dudas o las indirectas que hayan intentado encubrir a quien recibió esta carta serán silenciada por mi arma —no contaran ni como verdad ni como mentira.' Dalton escupe al suelo con rabia 'La propia Omertá solo es verdad si de verdad logró callar a alguien. Si no es así, me entregaré ahora mismo.'"
+      "pista": "El arma en las manos de Dalton brilla bajo la fría luz de la sala de interrogatorios. 'Te doy las gracias, detective. Sin ti nunca hubiese podido descubrir al asesino de mi esposa y de mi hijo.' El curtido exdetective echa una mirada de desprecio al resto de los sospechosos. 'He cobrado mi venganza, pero desconozco si actuó solo. Cualquier defensa directas o indirectas que hayan intentado encubrir a quien recibió esta carta serán silenciada por mi arma —no contaran ni como verdad ni como mentira.' Dalton escupe al suelo con rabia 'En cuanto a este pobre diablo, yo no dirá más. Ésta carta lo ha silenciado.'"
     }
   ]
 }
