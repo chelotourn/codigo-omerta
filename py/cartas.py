@@ -204,7 +204,7 @@ _CB[54] = _meta(lambda c, s, sus, asig:
 _CB[55] = lambda c, s, sus: sum(1 for sid in sus if sus[sid]["edad"] == "viejo") >= 2 and sus[c]["edad"] == "viejo"
 _CB[56] = lambda c, s, sus: len(sus) >= 5 and sus[c]["edad"] == "mediana"
 
-# ── META (57–64) — razona sobre las OTRAS declaraciones ──────────────────────
+# ── META (57–63) — razona sobre las OTRAS declaraciones ──────────────────────
 # Estas cartas son verdad o mentira según si su afirmación SOBRE LAS DEMÁS cartas
 # es correcta dado el culpable c.
 
@@ -341,7 +341,7 @@ def _sin_duda_y_viejos_mienten(c, s, sus, asig):
 
 
 
-# Registro de las 8 cartas meta
+# Registro de las 7 cartas meta
 CARTAS_META = {
     57: _meta(lambda c, s, sus, asig: _hay_defensor_mintiendo(c, s, sus, asig)),
     58: _meta(lambda c, s, sus, asig: _todos_acusadores_verdad(c, s, sus, asig)),
@@ -642,7 +642,7 @@ def _omerta_defensa_carta_apunta_a(cid_otra, sid_otra, c, sus, asig, declarante_
 
     return _omerta_valor_carta(cid_otra, declarante_omerta, sid_otra, sus, asig)
 
-# ── INDIRECTAS (65–72) — confesión condicional indirecta ─────────────────────
+# ── INDIRECTAS (64–72) — confesión condicional indirecta ─────────────────────
 # Usan evaluar_carta_simple para no recursar.
 # Las cartas que referencian al Crupier (8), Vagabundo (9) o Heredero (7)
 # solo se pueden asignar si ese sospechoso está presente en la partida.
@@ -695,6 +695,10 @@ CARTAS_INDIRECTAS = {
     #   False → NOT A              (A falsa → carta falsa; B no se evalúa)
     #   None  → sospechoso ausente (ficha inválida, descartada por el generador)
 
+    # 64: A = hay >=1 duda presente Y >=1 viejo presente (excl. declarante) — ver
+    # _antecedente_indirecta (carta_id==64), que ahora centraliza esta protección
+    # igual que el resto de las indirectas (antes dependía únicamente de dos
+    # mecanismos externos: el pool de reparto y REQUISITOS_CATEGORIA_CARTA).
     64: _meta(lambda c, s, sus, asig: _sin_duda_y_viejos_mienten(c, s, sus, asig)),
     # 65: "Escucho a quienes se defienden y quienes describen al culpable, pero si unos dicen la verdad, todos los otros mienten por miedo o por vergüenza"
     # A = hay al menos una carta de defensa Y al menos una carta descriptiva en la ficha
@@ -811,6 +815,11 @@ def _antecedente_indirecta(carta_id: int, culpable_id: int, declarante_id: int,
     c, s = culpable_id, declarante_id
 
     # Antecedentes por carta:
+    if carta_id == 64:   # A = hay >=1 carta de duda presente Y >=1 viejo presente (excl. declarante)
+        dudas  = [cid for cid in asig.values() if CATEGORIAS_CARTAS.get(cid) == "duda"]
+        viejos = [sid2 for sid2 in asig if sid2 != s and sus[sid2]["edad"] == "viejo"]
+        if not dudas or not viejos: return None
+        return True  # A no depende del culpable, solo de la presencia de ambos grupos
     if carta_id == 65:   # A = hay al menos una carta de defensa Y al menos una descriptiva en la ficha
         defensas     = [cid for cid in asig.values() if CATEGORIAS_CARTAS.get(cid) == "defensa"]
         descriptivas = [cid for cid in asig.values() if CATEGORIAS_CARTAS.get(cid) == "descriptiva"]
@@ -930,8 +939,8 @@ TEXTOS_CARTAS = {
     61: "Al menos una descripción dicha en esta sala suena convincente. Aférrese a esa y le llevará al culpable.",
     62: "Quien recurre a la mentira en esta sala delata su propia culpa; la inocencia es, por naturaleza, honesta.",
     63: "Alguien acusa y alguien defiende, y ambos dicen la verdad. Eso es una contradicción. O es una trampa.",
-    64: "No he escuchado una sola duda razonable en esta sala, es como si los más reflexivos callaran, señal de que todos ellos mienten.",
     # INDIRECTAS
+    64: "No he escuchado una sola duda razonable en esta sala, es como si los más reflexivos callaran, señal de que todos ellos mienten.",
     65: "Escucho a quienes defienden y quienes describen al culpable, pero si los unos dicen la verdad, los otros mienten.",
     66: "Si el Vagabundo miente, entonces el asesino vino de abajo. La pobreza no es excusa, pero sí es pista.",
     67: "Si el Heredero no miente, podemos descartar a los de clase media. Está claro  que obraron de buena fe.",

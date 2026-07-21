@@ -7,6 +7,7 @@ de cartas normal.
 """
 
 import random
+import time
 from typing import Optional
 
 import datos
@@ -169,9 +170,17 @@ def generar_caso(n_fichas: int, cantidad_fija: Optional[int],
     if seed is not None:
         random.seed(seed)
 
+    sep = "─" * 46
+    print(f"\n  {sep}")
+    print(f"  CASO — {n_fichas} fichas + cierre — dificultad {dificultad.upper()}")
+    print(f"  {sep}")
+
+    t_inicio_caso = time.time()
     intentos_caso = 0
     while intentos_caso < max_reintentos_caso:
         intentos_caso += 1
+        print(f"\n  ▶ Intento de Caso {intentos_caso}/{max_reintentos_caso} "
+              f"(transcurrido: {time.time() - t_inicio_caso:.0f}s)")
 
         fichas = generar_fichas(
             n_fichas=n_fichas,
@@ -183,6 +192,8 @@ def generar_caso(n_fichas: int, cantidad_fija: Optional[int],
             distrito_modo=0,        # alternado: el Paso B necesita ambos distritos representados
         )
         if not fichas or len(fichas) < n_fichas:
+            print(f"  ✗ Caso {intentos_caso}: no se completaron las {n_fichas} fichas "
+                  f"({len(fichas)}/{n_fichas}). Reintentando Caso completo...")
             continue   # no se pudieron generar las N fichas; reintentar Caso completo
 
         # ── Paso A: recolección de culpables, en orden de id de ficha ──
@@ -194,11 +205,19 @@ def generar_caso(n_fichas: int, cantidad_fija: Optional[int],
         # ── Paso B: agrupación + resolución de distrito ──
         distrito_3, hubo_empate = _paso_b_agrupar_y_resolver_distrito(culpables_por_ficha)
         if hubo_empate:
+            print(f"  ✗ Paso B: empate irresoluble entre distritos para algún culpable. "
+                  f"Reintentando Caso completo...")
             continue   # conflicto irresoluble: descartar Caso completo, reintentar
 
         # ── Paso C: validaciones de descarte ──
         if not _paso_c_validar_caso(distrito_3, dificultad):
+            print(f"  ✗ Paso C: Distrito 3 con {len(distrito_3)} sospechosos únicos no cumple "
+                  f"Regla 1 (rango por dificultad) / Regla 2 (tope de atributo). "
+                  f"Reintentando Caso completo...")
             continue   # Regla 1 o Regla 2 incumplida: descartar Caso completo, reintentar
+
+        print(f"  ✓ Paso B/C ok: Distrito 3 con {len(distrito_3)} sospechosos únicos. "
+              f"Armando ficha-conclusión (Paso D)...")
 
         # ── Registrar el Distrito 3 dinámicamente (como un distrito más) ──
         distrito_origen_por_sospechoso = {
@@ -219,7 +238,13 @@ def generar_caso(n_fichas: int, cantidad_fija: Optional[int],
             max_intentos=max_intentos_ficha,
         )
         if ficha_conclusion is None:
+            print(f"  ✗ Paso D: no se encontró un reparto de cartas con solución única "
+                  f"para el Distrito 3 en {max_intentos_ficha} intentos. Reintentando Caso completo...")
             continue   # no se pudo repartir cartas válidas para el Distrito 3: reintentar Caso completo
+
+        print(f"  ✓ Paso D ok: ficha-conclusión armada.")
+        print(f"\n  Caso cerrado en el intento {intentos_caso}/{max_reintentos_caso} "
+              f"(tiempo total: {time.time() - t_inicio_caso:.1f}s).")
 
         return {
             "fichas": fichas,
@@ -230,6 +255,8 @@ def generar_caso(n_fichas: int, cantidad_fija: Optional[int],
         }
 
     # Se agotaron los reintentos sin lograr cerrar un Caso
+    print(f"\n  ✗ Se agotaron los {max_reintentos_caso} reintentos de Caso sin cerrar "
+          f"(tiempo total: {time.time() - t_inicio_caso:.1f}s).")
     return {
         "fichas": [],
         "ficha_conclusion": None,
@@ -278,8 +305,20 @@ def _generar_ficha_conclusion(distrito_3: dict, distrito_origen_por_sospechoso: 
     limite_repeticion_carta = n_sosp  # cualquier valor >= 1 alcanza: nunca se llega a tocarlo
 
     intentos = 0
+    t_inicio = time.time()
+    ultimo_reporte = t_inicio
     while intentos < max_intentos:
         intentos += 1
+
+        # Reporte de progreso cada ~2s (no cada intento: sería demasiado ruido).
+        # Este bucle puede correr hasta max_intentos veces sin encontrar una
+        # asignación válida para el Distrito 3 — sin este print quedaría
+        # completamente en silencio y parecería trabado.
+        ahora = time.time()
+        if ahora - ultimo_reporte >= 2.0:
+            print(f"    … Paso D: {intentos}/{max_intentos} intentos probados "
+                  f"({ahora - t_inicio:.0f}s transcurridos)")
+            ultimo_reporte = ahora
 
         # 73 y 74 son mutuamente excluyentes: se elige una al azar para este
         # intento y se excluye la otra del pool, así nunca pueden terminar
@@ -455,8 +494,18 @@ def _generar_ficha_conclusion_prueba(distrito_3: dict, distrito_origen_por_sospe
     limite_repeticion_carta = n_sosp
 
     intentos = 0
+    t_inicio = time.time()
+    ultimo_reporte = t_inicio
     while intentos < max_intentos:
         intentos += 1
+
+        # Reporte de progreso cada ~2s, mismo criterio que en
+        # _generar_ficha_conclusion: este bucle puede tardar sin avisar nada.
+        ahora = time.time()
+        if ahora - ultimo_reporte >= 2.0:
+            print(f"      … {intentos}/{max_intentos} intentos probados "
+                  f"({ahora - t_inicio:.0f}s transcurridos)")
+            ultimo_reporte = ahora
 
         # 73 y 74 son mutuamente excluyentes: se elige una al azar para este
         # intento y se excluye la otra del pool.
