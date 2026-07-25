@@ -128,6 +128,14 @@
         <h3>Actividad por día (últimos 30 días)</h3>
         <canvas id="chart-timeline"></canvas>
       </div>
+      <div class="grafico-card">
+        <h3>Visitantes por tipo de dispositivo</h3>
+        <canvas id="chart-dispositivo"></canvas>
+      </div>
+      <div class="grafico-card">
+        <h3>Visitantes por navegador</h3>
+        <canvas id="chart-navegador"></canvas>
+      </div>
     </div>
   </div>
 </div>
@@ -198,6 +206,8 @@ async function cargarDatos() {
     pintarFiltrosCaso();
     pintarGraficoCasos();
     pintarGraficoTimeline();
+    pintarGraficoDispositivo();
+    pintarGraficoNavegador();
   } catch (err) {
     console.error('Error al pintar gráficos:', err);
   }
@@ -213,6 +223,7 @@ function pintarKPIs() {
     { num: clicks.length, lbl: 'Partidas iniciadas' },
     { num: acusaciones.length, lbl: 'Acusaciones formales' },
     { num: pct + '%', lbl: 'Acierto global' },
+    { num: new Set(TODOS_LOS_EVENTOS.map(e => huellaDe(e))).size, lbl: 'Visitantes únicos' },
   ];
   document.getElementById('kpis').innerHTML = kpis
     .map(k => `<div class="kpi"><div class="num">${k.num}</div><div class="lbl">${k.lbl}</div></div>`)
@@ -331,6 +342,74 @@ function opcionesBase(leyenda) {
       y: { ticks: { color: COLOR_TEXTO }, grid: { color: 'rgba(184,147,58,.08)' }, beginAtZero: true },
     },
   };
+}
+
+// ---------- Parsing simple de user-agent (sin librerías externas) ----------
+function detectarDispositivo(ua) {
+  if (!ua) return 'Desconocido';
+  if (/tablet|ipad/i.test(ua)) return 'Tablet';
+  if (/mobile|android|iphone/i.test(ua)) return 'Móvil';
+  return 'Escritorio';
+}
+
+function detectarNavegador(ua) {
+  if (!ua) return 'Desconocido';
+  if (/samsungbrowser/i.test(ua)) return 'Samsung Internet';
+  if (/edg\//i.test(ua)) return 'Edge';
+  if (/opr\/|opera/i.test(ua)) return 'Opera';
+  if (/firefox/i.test(ua)) return 'Firefox';
+  if (/crios/i.test(ua)) return 'Chrome (iOS)';
+  if (/chrome/i.test(ua)) return 'Chrome';
+  if (/fxios/i.test(ua)) return 'Firefox (iOS)';
+  if (/safari/i.test(ua)) return 'Safari';
+  return 'Otro';
+}
+
+// Agrupa visitantes asumiendo que quienes comparten el mismo user-agent,
+// resolución de pantalla e idioma son la misma persona/dispositivo.
+// (Alternativa a visitante_id, que depende de localStorage y se pierde
+// en modo incógnito o si el visitante borra los datos del navegador.)
+function huellaDe(evento) {
+  return [evento.user_agent || '?', evento.pantalla || '?', evento.idioma || '?'].join('||');
+}
+
+function visitantesUnicosPor(fn) {
+  const vistos = new Map(); // huella -> categoria
+  TODOS_LOS_EVENTOS.forEach(e => {
+    const huella = huellaDe(e);
+    if (!vistos.has(huella)) {
+      vistos.set(huella, fn(e.user_agent));
+    }
+  });
+  const conteo = {};
+  vistos.forEach(cat => { conteo[cat] = (conteo[cat] || 0) + 1; });
+  return conteo;
+}
+
+function pintarGraficoDispositivo() {
+  const conteo = visitantesUnicosPor(detectarDispositivo);
+  const claves = Object.keys(conteo);
+  new Chart(document.getElementById('chart-dispositivo'), {
+    type: 'doughnut',
+    data: {
+      labels: claves,
+      datasets: [{ data: claves.map(k => conteo[k]), backgroundColor: [COLOR_ORO, COLOR_VERDE, COLOR_ROJO, '#6b6b6b'] }],
+    },
+    options: { plugins: { legend: { display: true, labels: { color: COLOR_TEXTO } } } },
+  });
+}
+
+function pintarGraficoNavegador() {
+  const conteo = visitantesUnicosPor(detectarNavegador);
+  const claves = Object.keys(conteo);
+  new Chart(document.getElementById('chart-navegador'), {
+    type: 'doughnut',
+    data: {
+      labels: claves,
+      datasets: [{ data: claves.map(k => conteo[k]), backgroundColor: [COLOR_ORO, COLOR_VERDE, COLOR_ROJO, '#6b6b6b', '#3a5a7a', '#8a5a9a'] }],
+    },
+    options: { plugins: { legend: { display: true, labels: { color: COLOR_TEXTO } } } },
+  });
 }
 
 comprobarSesion();
