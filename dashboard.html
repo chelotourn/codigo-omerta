@@ -6,7 +6,7 @@
 <title>Código Omertá — Panel de datos</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Special+Elite&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
   :root{
     --negro:#0a0806; --carbon:#111009; --tinta:#1a1610; --sepia:#2a2218;
@@ -80,6 +80,7 @@
 
   #estado-carga{text-align:center; padding:3rem; color:var(--texto-suave); font-family:'Special Elite',monospace;}
 
+  .grafico-card canvas{max-height:260px;}
   @media (max-width:700px){ .graficos{grid-template-columns:1fr;} }
 </style>
 </head>
@@ -191,11 +192,15 @@ async function cargarDatos() {
   document.getElementById('contenido-panel').style.display = 'block';
 
   pintarKPIs();
-  pintarGraficoDificultad();
-  pintarGraficoAciertoDificultad();
-  pintarFiltrosCaso();
-  pintarGraficoCasos();
-  pintarGraficoTimeline();
+  try {
+    pintarGraficoDificultad();
+    pintarGraficoAciertoDificultad();
+    pintarFiltrosCaso();
+    pintarGraficoCasos();
+    pintarGraficoTimeline();
+  } catch (err) {
+    console.error('Error al pintar gráficos:', err);
+  }
 }
 
 function pintarKPIs() {
