@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Código Omertá — Panel de datos</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Special+Elite&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --negro:#0a0806; --carbon:#111009; --tinta:#1a1610; --sepia:#2a2218;
+    --oro-viejo:#b8933a; --oro-suave:#7C6327; --crema:#e8dcc4; --crema-suave:#f0e8d4;
+    --rojo-sangre:#7a1a1a; --rojo-vivo:#9b2020; --verde-claro:#4a8a4a;
+    --texto-principal:#d4c9a8; --texto-suave:#8a7d65;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background-color:var(--negro); color:var(--texto-principal);
+    font-family:'Crimson Text',Georgia,serif; min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%, rgba(184,147,58,.04) 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 100%, rgba(122,26,26,.06) 0%, transparent 60%);
+  }
+  h1{
+    font-family:'Playfair Display',serif; font-weight:900; letter-spacing:.08em;
+    text-transform:uppercase; text-align:center; padding:2rem 1rem 1rem;
+    color:var(--crema-suave); font-size:clamp(1.6rem,4vw,2.6rem);
+    border-bottom:1px solid rgba(184,147,58,.2);
+  }
+  h1 span{color:var(--oro-viejo);}
+
+  /* ---- Login ---- */
+  #pantalla-login{
+    max-width:360px; margin:4rem auto; padding:2rem;
+    border:1px solid rgba(184,147,58,.3); background:rgba(255,255,255,.02);
+  }
+  #pantalla-login label{display:block; font-size:.85rem; color:var(--texto-suave); margin:.8rem 0 .3rem; letter-spacing:.05em;}
+  #pantalla-login input{
+    width:100%; padding:.6rem .7rem; background:var(--tinta); border:1px solid rgba(184,147,58,.25);
+    color:var(--crema); font-family:'Crimson Text',serif; font-size:1rem;
+  }
+  #pantalla-login button, .btn-salir{
+    margin-top:1.3rem; width:100%; padding:.7rem; background:var(--oro-viejo); color:var(--negro);
+    border:none; font-family:'Special Elite',monospace; letter-spacing:.1em; text-transform:uppercase;
+    font-size:.85rem; cursor:pointer;
+  }
+  #pantalla-login button:hover, .btn-salir:hover{background:var(--crema-suave);}
+  #login-error{color:var(--rojo-vivo); font-size:.85rem; margin-top:.8rem; text-align:center;}
+
+  /* ---- Dashboard ---- */
+  #panel{display:none; max-width:1100px; margin:0 auto; padding:1.5rem;}
+  .barra-superior{display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;}
+  .btn-salir{width:auto; padding:.5rem 1rem; font-size:.75rem;}
+
+  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin-bottom:2rem;}
+  .kpi{
+    border:1px solid rgba(184,147,58,.25); background:rgba(255,255,255,.02);
+    padding:1.2rem; text-align:center;
+  }
+  .kpi .num{font-family:'Playfair Display',serif; font-size:2.2rem; font-weight:900; color:var(--oro-viejo);}
+  .kpi .lbl{font-family:'Special Elite',monospace; font-size:.7rem; letter-spacing:.1em; color:var(--texto-suave); text-transform:uppercase; margin-top:.3rem;}
+
+  .graficos{display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;}
+  .grafico-card{
+    border:1px solid rgba(184,147,58,.2); background:rgba(255,255,255,.02); padding:1rem;
+    grid-column: span 1;
+  }
+  .grafico-card.full{grid-column:1/-1;}
+  .grafico-card h3{
+    font-family:'Special Elite',monospace; font-size:.8rem; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--texto-suave); margin-bottom:.8rem;
+  }
+  .filtros{display:flex; gap:.5rem; margin-bottom:1.2rem; flex-wrap:wrap;}
+  .filtros button{
+    padding:.4rem .9rem; background:transparent; border:1px solid rgba(184,147,58,.3);
+    color:var(--texto-principal); font-family:'Special Elite',monospace; font-size:.7rem;
+    letter-spacing:.05em; text-transform:uppercase; cursor:pointer;
+  }
+  .filtros button.activo{background:var(--oro-viejo); color:var(--negro); border-color:var(--oro-viejo);}
+
+  #estado-carga{text-align:center; padding:3rem; color:var(--texto-suave); font-family:'Special Elite',monospace;}
+
+  @media (max-width:700px){ .graficos{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<h1>Código <span>Omertá</span> — Panel de datos</h1>
+
+<!-- LOGIN -->
+<div id="pantalla-login">
+  <label for="login-email">Email</label>
+  <input type="email" id="login-email" autocomplete="username">
+  <label for="login-pass">Contraseña</label>
+  <input type="password" id="login-pass" autocomplete="current-password">
+  <button onclick="iniciarSesion()">Entrar</button>
+  <div id="login-error"></div>
+</div>
+
+<!-- PANEL -->
+<div id="panel">
+  <div class="barra-superior">
+    <div id="usuario-actual" style="font-family:'Special Elite',monospace; font-size:.8rem; color:var(--texto-suave);"></div>
+    <button class="btn-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
+
+  <div id="estado-carga">Reuniendo evidencia…</div>
+
+  <div id="contenido-panel" style="display:none;">
+    <div class="kpis" id="kpis"></div>
+
+    <div class="graficos">
+      <div class="grafico-card">
+        <h3>Partidas iniciadas por dificultad</h3>
+        <canvas id="chart-dificultad"></canvas>
+      </div>
+      <div class="grafico-card">
+        <h3>% de acierto por dificultad</h3>
+        <canvas id="chart-acierto-dificultad"></canvas>
+      </div>
+      <div class="grafico-card full">
+        <div class="filtros" id="filtros-caso"></div>
+        <h3>Acierto / error por caso</h3>
+        <canvas id="chart-casos"></canvas>
+      </div>
+      <div class="grafico-card full">
+        <h3>Actividad por día (últimos 30 días)</h3>
+        <canvas id="chart-timeline"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 1. Completá con los mismos datos que pusiste en js/analytics.js
+// ============================================================
+const SUPABASE_URL = 'https://bpempqucqtitqzaihtoc.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwZW1wcXVjcXRpdHF6YWlodG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MzA1MDMsImV4cCI6MjEwMDUwNjUwM30.jBqIkYfGOaYtI2gjQKbUbGhfzhjawPgfq4EpVo_K_Go';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const ETIQUETAS_DIF = { urbano:'Urbano', metropoli:'Metrópoli', omerta:'Omertá', final:'Romper Omertá' };
+const COLOR_ORO = '#b8933a', COLOR_ROJO = '#9b2020', COLOR_VERDE = '#4a8a4a', COLOR_TEXTO = '#d4c9a8';
+
+let filtroDifActual = 'urbano';
+let TODOS_LOS_EVENTOS = [];
+
+// ---------- SESIÓN ----------
+async function comprobarSesion() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) mostrarPanel(session);
+}
+
+async function iniciarSesion() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const errBox = document.getElementById('login-error');
+  errBox.textContent = '';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) { errBox.textContent = 'Credenciales incorrectas.'; return; }
+  mostrarPanel(data.session);
+}
+
+async function cerrarSesion() {
+  await sb.auth.signOut();
+  location.reload();
+}
+
+function mostrarPanel(session) {
+  document.getElementById('pantalla-login').style.display = 'none';
+  document.getElementById('panel').style.display = 'block';
+  document.getElementById('usuario-actual').textContent = `Conectado como ${session.user.email}`;
+  cargarDatos();
+}
+
+// ---------- DATOS ----------
+async function cargarDatos() {
+  const { data, error } = await sb
+    .from('eventos_omerta')
+    .select('*')
+    .order('creado_en', { ascending: true });
+
+  const cargaEl = document.getElementById('estado-carga');
+  if (error) {
+    cargaEl.textContent = 'No se pudieron cargar los datos: ' + error.message;
+    return;
+  }
+  TODOS_LOS_EVENTOS = data || [];
+  cargaEl.style.display = 'none';
+  document.getElementById('contenido-panel').style.display = 'block';
+
+  pintarKPIs();
+  pintarGraficoDificultad();
+  pintarGraficoAciertoDificultad();
+  pintarFiltrosCaso();
+  pintarGraficoCasos();
+  pintarGraficoTimeline();
+}
+
+function pintarKPIs() {
+  const clicks = TODOS_LOS_EVENTOS.filter(e => e.tipo === 'dificultad_click');
+  const acusaciones = TODOS_LOS_EVENTOS.filter(e => e.tipo === 'acusacion');
+  const aciertos = acusaciones.filter(e => e.acierto === true);
+  const pct = acusaciones.length ? Math.round((aciertos.length / acusaciones.length) * 100) : 0;
+
+  const kpis = [
+    { num: clicks.length, lbl: 'Partidas iniciadas' },
+    { num: acusaciones.length, lbl: 'Acusaciones formales' },
+    { num: pct + '%', lbl: 'Acierto global' },
+  ];
+  document.getElementById('kpis').innerHTML = kpis
+    .map(k => `<div class="kpi"><div class="num">${k.num}</div><div class="lbl">${k.lbl}</div></div>`)
+    .join('');
+}
+
+function pintarGraficoDificultad() {
+  const clicks = TODOS_LOS_EVENTOS.filter(e => e.tipo === 'dificultad_click');
+  const conteo = {};
+  clicks.forEach(e => { conteo[e.dificultad] = (conteo[e.dificultad] || 0) + 1; });
+  const claves = Object.keys(conteo);
+
+  new Chart(document.getElementById('chart-dificultad'), {
+    type: 'bar',
+    data: {
+      labels: claves.map(k => ETIQUETAS_DIF[k] || k),
+      datasets: [{ data: claves.map(k => conteo[k]), backgroundColor: COLOR_ORO }],
+    },
+    options: opcionesBase(false),
+  });
+}
+
+function pintarGraficoAciertoDificultad() {
+  const acusaciones = TODOS_LOS_EVENTOS.filter(e => e.tipo === 'acusacion' && e.dificultad);
+  const dif = {};
+  acusaciones.forEach(e => {
+    dif[e.dificultad] = dif[e.dificultad] || { total: 0, aciertos: 0 };
+    dif[e.dificultad].total++;
+    if (e.acierto) dif[e.dificultad].aciertos++;
+  });
+  const claves = Object.keys(dif);
+
+  new Chart(document.getElementById('chart-acierto-dificultad'), {
+    type: 'bar',
+    data: {
+      labels: claves.map(k => ETIQUETAS_DIF[k] || k),
+      datasets: [{
+        data: claves.map(k => Math.round((dif[k].aciertos / dif[k].total) * 100)),
+        backgroundColor: COLOR_VERDE,
+      }],
+    },
+    options: { ...opcionesBase(false), scales: { y: { ...opcionesBase(false).scales.y, max: 100 } } },
+  });
+}
+
+function pintarFiltrosCaso() {
+  const disponibles = [...new Set(
+    TODOS_LOS_EVENTOS.filter(e => e.tipo === 'acusacion' && e.dificultad).map(e => e.dificultad)
+  )];
+  if (!disponibles.includes(filtroDifActual)) filtroDifActual = disponibles[0] || 'urbano';
+
+  document.getElementById('filtros-caso').innerHTML = disponibles.map(d =>
+    `<button class="${d === filtroDifActual ? 'activo' : ''}" onclick="cambiarFiltroCaso('${d}')">${ETIQUETAS_DIF[d] || d}</button>`
+  ).join('');
+}
+
+function cambiarFiltroCaso(dif) {
+  filtroDifActual = dif;
+  pintarFiltrosCaso();
+  pintarGraficoCasos();
+}
+
+let chartCasos = null;
+function pintarGraficoCasos() {
+  const acusaciones = TODOS_LOS_EVENTOS.filter(e => e.tipo === 'acusacion' && e.dificultad === filtroDifActual);
+  const porCaso = {};
+  acusaciones.forEach(e => {
+    porCaso[e.caso] = porCaso[e.caso] || { aciertos: 0, errores: 0 };
+    e.acierto ? porCaso[e.caso].aciertos++ : porCaso[e.caso].errores++;
+  });
+  const casos = Object.keys(porCaso).sort((a, b) => a - b);
+
+  if (chartCasos) chartCasos.destroy();
+  chartCasos = new Chart(document.getElementById('chart-casos'), {
+    type: 'bar',
+    data: {
+      labels: casos.map(c => 'Caso ' + String(c).padStart(2, '0')),
+      datasets: [
+        { label: 'Aciertos', data: casos.map(c => porCaso[c].aciertos), backgroundColor: COLOR_VERDE },
+        { label: 'Errores', data: casos.map(c => porCaso[c].errores), backgroundColor: COLOR_ROJO },
+      ],
+    },
+    options: { ...opcionesBase(true), scales: { x: { ...opcionesBase(true).scales.x, stacked: true }, y: { ...opcionesBase(true).scales.y, stacked: true } } },
+  });
+}
+
+function pintarGraficoTimeline() {
+  const hoy = new Date();
+  const dias = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(hoy); d.setDate(d.getDate() - i);
+    dias.push(d.toISOString().slice(0, 10));
+  }
+  const conteo = Object.fromEntries(dias.map(d => [d, 0]));
+  TODOS_LOS_EVENTOS.forEach(e => {
+    const dia = (e.creado_en || '').slice(0, 10);
+    if (dia in conteo) conteo[dia]++;
+  });
+
+  new Chart(document.getElementById('chart-timeline'), {
+    type: 'line',
+    data: {
+      labels: dias.map(d => d.slice(5)),
+      datasets: [{ data: dias.map(d => conteo[d]), borderColor: COLOR_ORO, backgroundColor: 'rgba(184,147,58,.15)', fill: true, tension: .25 }],
+    },
+    options: opcionesBase(false),
+  });
+}
+
+function opcionesBase(leyenda) {
+  return {
+    responsive: true,
+    plugins: { legend: { display: leyenda, labels: { color: COLOR_TEXTO } } },
+    scales: {
+      x: { ticks: { color: COLOR_TEXTO }, grid: { color: 'rgba(184,147,58,.08)' } },
+      y: { ticks: { color: COLOR_TEXTO }, grid: { color: 'rgba(184,147,58,.08)' }, beginAtZero: true },
+    },
+  };
+}
+
+comprobarSesion();
+</script>
+</body>
+</html>
