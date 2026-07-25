@@ -81,6 +81,19 @@
   #estado-carga{text-align:center; padding:3rem; color:var(--texto-suave); font-family:'Special Elite',monospace;}
 
   .grafico-card canvas{max-height:260px;}
+
+  #tabla-jugadores th, #tabla-jugadores td{
+    padding:.55rem .7rem; text-align:left; border-bottom:1px solid rgba(184,147,58,.15);
+    white-space:nowrap;
+  }
+  #tabla-jugadores th{
+    font-family:'Special Elite',monospace; font-size:.68rem; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--texto-suave);
+  }
+  #tabla-jugadores tr:hover td{background:rgba(184,147,58,.04);}
+  .ratio-alto{color:var(--verde-claro);}
+  .ratio-bajo{color:var(--rojo-vivo);}
+
   @media (max-width:700px){ .graficos{grid-template-columns:1fr;} }
 </style>
 </head>
@@ -135,6 +148,12 @@
       <div class="grafico-card">
         <h3>Visitantes por navegador</h3>
         <canvas id="chart-navegador"></canvas>
+      </div>
+      <div class="grafico-card full">
+        <h3>Resumen por jugador</h3>
+        <div style="overflow-x:auto;">
+          <table id="tabla-jugadores" style="width:100%; border-collapse:collapse; font-size:.85rem;"></table>
+        </div>
       </div>
     </div>
   </div>
@@ -208,6 +227,7 @@ async function cargarDatos() {
     pintarGraficoTimeline();
     pintarGraficoDispositivo();
     pintarGraficoNavegador();
+    pintarTablaJugadores();
   } catch (err) {
     console.error('Error al pintar gráficos:', err);
   }
@@ -410,6 +430,59 @@ function pintarGraficoNavegador() {
     },
     options: { plugins: { legend: { display: true, labels: { color: COLOR_TEXTO } } } },
   });
+}
+
+function pintarTablaJugadores() {
+  const porHuella = new Map();
+
+  TODOS_LOS_EVENTOS.forEach(e => {
+    const huella = huellaDe(e);
+    if (!porHuella.has(huella)) {
+      porHuella.set(huella, {
+        dispositivo: detectarDispositivo(e.user_agent),
+        navegador: detectarNavegador(e.user_agent),
+        interacciones: 0,
+        acusaciones: 0,
+        aciertos: 0,
+        ultima: e.creado_en,
+      });
+    }
+    const j = porHuella.get(huella);
+    j.interacciones++;
+    if (e.tipo === 'acusacion') {
+      j.acusaciones++;
+      if (e.acierto) j.aciertos++;
+    }
+    if (e.creado_en > j.ultima) j.ultima = e.creado_en;
+  });
+
+  // Ordenar por cantidad de interacciones, de mayor a menor
+  const filas = [...porHuella.values()].sort((a, b) => b.interacciones - a.interacciones);
+
+  const encabezado = `
+    <tr>
+      <th>Jugador</th>
+      <th>Interacciones</th>
+      <th>Acusaciones</th>
+      <th>% Acierto</th>
+      <th>Última actividad</th>
+    </tr>`;
+
+  const cuerpo = filas.map((j, i) => {
+    const ratio = j.acusaciones ? Math.round((j.aciertos / j.acusaciones) * 100) : null;
+    const claseRatio = ratio === null ? '' : ratio >= 50 ? 'ratio-alto' : 'ratio-bajo';
+    const fecha = j.ultima ? new Date(j.ultima).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+    return `
+      <tr>
+        <td>Jugador #${i + 1} — ${j.dispositivo} / ${j.navegador}</td>
+        <td>${j.interacciones}</td>
+        <td>${j.acusaciones}</td>
+        <td class="${claseRatio}">${ratio === null ? '—' : ratio + '%'}</td>
+        <td>${fecha}</td>
+      </tr>`;
+  }).join('');
+
+  document.getElementById('tabla-jugadores').innerHTML = encabezado + cuerpo;
 }
 
 comprobarSesion();
