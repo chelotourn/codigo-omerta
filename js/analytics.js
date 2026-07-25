@@ -10,6 +10,8 @@ const SUPABASE_URL = 'https://bpempqucqtitqzaihtoc.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwZW1wcXVjcXRpdHF6YWlodG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MzA1MDMsImV4cCI6MjEwMDUwNjUwM30.jBqIkYfGOaYtI2gjQKbUbGhfzhjawPgfq4EpVo_K_Go';
 
 const VISITANTE_STORAGE_KEY = 'codigo_omerta_visitante_id';
+const GEO_STORAGE_KEY = 'codigo_omerta_geo_cache';
+const GEO_CACHE_HORAS = 24; // no volvemos a consultar el país si ya lo sabemos de hace menos de esto
 
 /**
  * Devuelve un ID random para este navegador. Se genera una sola vez
@@ -31,14 +33,41 @@ function obtenerVisitanteId() {
 }
 
 /**
+ * Resuelve el país del visitante a partir de su IP, usando un servicio
+ * externo gratuito (ipwho.is). Guardamos solo el país/código, no la IP,
+ * y cacheamos el resultado 24hs para no golpear el servicio en cada clic.
+ */
+async function obtenerGeo() {
+  try {
+    const cache = JSON.parse(localStorage.getItem(GEO_STORAGE_KEY) || 'null');
+    if (cache && (Date.now() - cache.ts) < GEO_CACHE_HORAS * 3600 * 1000) {
+      return cache.geo;
+    }
+  } catch (err) { /* sin cache válido, seguimos */ }
+
+  try {
+    const r = await fetch('https://ipwho.is/');
+    const datos = await r.json();
+    const geo = (datos && datos.success !== false)
+      ? { pais: datos.country || null, pais_codigo: datos.country_code || null }
+      : { pais: null, pais_codigo: null };
+    try { localStorage.setItem(GEO_STORAGE_KEY, JSON.stringify({ ts: Date.now(), geo })); } catch (err) {}
+    return geo;
+  } catch (err) {
+    return { pais: null, pais_codigo: null }; // si falla, el evento se manda igual sin país
+  }
+}
+
+/**
  * Envía un evento a la tabla eventos_omerta.
  * No bloquea ni interrumpe el juego si falla (fire-and-forget).
- * Agrega automáticamente datos del navegador/dispositivo a cada evento.
+ * Agrega automáticamente datos del navegador/dispositivo/país a cada evento.
  * @param {'dificultad_click'|'acusacion'} tipo
  * @param {{dificultad?: string, caso?: number, acierto?: boolean}} datos
  */
-function trackEvento(tipo, datos = {}) {
+async function trackEvento(tipo, datos = {}) {
   try {
+    const geo = await obtenerGeo();
     const cuerpo = {
       tipo,
       ...datos,
@@ -46,6 +75,8 @@ function trackEvento(tipo, datos = {}) {
       user_agent: navigator.userAgent || null,
       idioma: navigator.language || null,
       pantalla: `${screen.width}x${screen.height}`,
+      pais: geo.pais,
+      pais_codigo: geo.pais_codigo,
     };
 
     fetch(`${SUPABASE_URL}/rest/v1/eventos_omerta`, {
