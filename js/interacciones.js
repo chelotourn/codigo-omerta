@@ -144,6 +144,15 @@ function acusar(idx) {
     umami.track('Tarea Completada');
   }
 
+  // Tracking propio: registrar cada acusación formal (acierte o no)
+  if (typeof trackEvento === 'function') {
+    trackEvento('acusacion', {
+      dificultad: f.dificultad || null,
+      caso: f.ficha_id,
+      acierto: e.correcto,
+    });
+  }
+
   mostrarFicha(idx);
   renderNav();
 

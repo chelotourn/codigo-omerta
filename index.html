@@ -36,10 +36,10 @@
     </div>
 
     <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem;width:100%;margin-top:.3rem;">
-      <button class="btn-demo" onclick="cargarJSON('json/fichas_urbano.json')">— Dificultad Urbano —</button>
-      <button class="btn-demo" onclick="cargarJSON('json/fichas_metro.json')">— Dificultad Metropoli —</button>
-      <button class="btn-demo" onclick="cargarJSON('json/fichas_omerta.json')">— Dificultad Omertá —</button>
-      <button class="btn-demo" onclick="cargarJSON('json/casos_finales.json')">— Romper Omertá —</button>
+      <button class="btn-demo" onclick="trackEvento('dificultad_click',{dificultad:'urbano'});cargarJSON('json/fichas_urbano.json')">— Dificultad Urbano —</button>
+      <button class="btn-demo" onclick="trackEvento('dificultad_click',{dificultad:'metropoli'});cargarJSON('json/fichas_metro.json')">— Dificultad Metropoli —</button>
+      <button class="btn-demo" onclick="trackEvento('dificultad_click',{dificultad:'omerta'});cargarJSON('json/fichas_omerta.json')">— Dificultad Omertá —</button>
+      <button class="btn-demo" onclick="trackEvento('dificultad_click',{dificultad:'final'});cargarJSON('json/casos_finales.json')">— Romper Omertá —</button>
     </div>
   </div>
 </div>
@@ -71,7 +71,7 @@
     </div>
     <div class="regla">
       <div class="regla-num">5</div>
-      <div class="regla-txt">Cuando este seguro, seleccione un sospechoso y Acuselo Formalmente</em>.</div>
+      <div class="regla-txt">Cuando esté seguro, seleccione un sospechoso y Acuselo Formalmente</em>.</div>
     </div>
     <div class="regla">
       <div class="regla-num">6</div>
@@ -95,6 +95,7 @@
 
 <audio id="noir-audio" preload="auto" loop></audio>
 
+<script src="js/analytics.js"></script>
 <script src="js/nucleo.js"></script>
 <script src="js/historial.js"></script>
 <script src="js/juego.js"></script>
