@@ -432,6 +432,12 @@ function pintarGraficoNavegador() {
   });
 }
 
+// Convierte un código de país (ej: 'AR') en el emoji de bandera correspondiente
+function banderaEmoji(codigo) {
+  if (!codigo || codigo.length !== 2) return '🏳️';
+  return codigo.toUpperCase().replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt(0)));
+}
+
 function pintarTablaJugadores() {
   const porHuella = new Map();
 
@@ -441,6 +447,8 @@ function pintarTablaJugadores() {
       porHuella.set(huella, {
         dispositivo: detectarDispositivo(e.user_agent),
         navegador: detectarNavegador(e.user_agent),
+        pais: e.pais || null,
+        pais_codigo: e.pais_codigo || null,
         interacciones: 0,
         acusaciones: 0,
         aciertos: 0,
@@ -449,6 +457,7 @@ function pintarTablaJugadores() {
     }
     const j = porHuella.get(huella);
     j.interacciones++;
+    if (!j.pais && e.pais) { j.pais = e.pais; j.pais_codigo = e.pais_codigo; }
     if (e.tipo === 'acusacion') {
       j.acusaciones++;
       if (e.acierto) j.aciertos++;
@@ -462,6 +471,7 @@ function pintarTablaJugadores() {
   const encabezado = `
     <tr>
       <th>Jugador</th>
+      <th>País</th>
       <th>Interacciones</th>
       <th>Acusaciones</th>
       <th>% Acierto</th>
@@ -475,6 +485,7 @@ function pintarTablaJugadores() {
     return `
       <tr>
         <td>Jugador #${i + 1} — ${j.dispositivo} / ${j.navegador}</td>
+        <td>${banderaEmoji(j.pais_codigo)} ${j.pais || '—'}</td>
         <td>${j.interacciones}</td>
         <td>${j.acusaciones}</td>
         <td class="${claseRatio}">${ratio === null ? '—' : ratio + '%'}</td>
