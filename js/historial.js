@@ -26,7 +26,7 @@ function guardarResultadoHistorial(dificultad, fichaId, correcto, seleccionId, g
 
 function resetHistorial() {
   const dif = FICHAS.length ? (FICHAS[fichaActual] || FICHAS[0]).dificultad : null;
-  const label = { urbano:'Urbano', metropoli:'Metrópoli', omerta:'Omertá' }[dif] || dif || 'esta dificultad';
+  const label = { urbano:'Urbano', metropoli:'Metrópoli', omerta:'Omertá', final:'Romper Omertá' }[dif] || dif || 'esta dificultad';
   if (!confirm(`¿Reiniciar el historial de ${label}?`)) return;
   const h = cargarHistorial();
   if (dif) delete h[dif];
@@ -104,8 +104,9 @@ function renderHistorial() {
     { key: 'urbano',    label: 'Urbano' },
     { key: 'metropoli', label: 'Metrópoli' },
     { key: 'omerta',    label: 'Omertá' },
+    { key: 'final',     label: 'Romper Omertá' },
   ];
-  const conDatos = dificultades.filter(d => h[d.key] && h[d.key].length > 0);
+  const conDatos = dificultades.filter(d => h[d.key] && h[d.key].casos && h[d.key].casos.length > 0);
   if (!conDatos.length) {
     contenedor.innerHTML = '<div class="historial-vacio">Sin resoluciones registradas aún.</div>';
     return;

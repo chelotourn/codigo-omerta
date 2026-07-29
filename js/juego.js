@@ -133,7 +133,7 @@ function mostrarFicha(idx) {
   const e = estado[idx];
   renderNav();
 
-  const dif = {urbano:'Urbano', metropoli:'Metrópoli', omerta:'Omertá'}[f.dificultad] || f.dificultad;
+  const dif = {urbano:'Urbano', metropoli:'Metrópoli', omerta:'Omertá', final:'Romper Omertá'}[f.dificultad] || f.dificultad;
 
   document.getElementById('contenido-ficha').innerHTML = `
     <div class="ficha-header">
