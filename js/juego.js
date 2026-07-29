@@ -3,6 +3,14 @@ function iniciarJuego(datos) {
   FICHAS = datos.fichas || [];
   if (!FICHAS.length) { alert('Sin fichas.'); return; }
 
+  // El servidor genera casos_finales.json con dificultad:"omerta" en cada ficha,
+  // igual que el modo normal "Dificultad Omertá". Si dejamos ese valor tal cual,
+  // ambos modos comparten la misma clave en el historial (localStorage) y se
+  // pisan/borran entre sí. Normalizamos acá, en el cliente, para no depender
+  // de que el generador del servidor cambie: toda ficha final usa su propia
+  // clave 'final', sin importar qué dificultad venga en el JSON.
+  FICHAS.forEach(f => { if (esFichaFinal(f)) f.dificultad = 'final'; });
+
   const generadoActual = datos.generado || null;
   GENERADO_ACTUAL = generadoActual;
   estado = {};
