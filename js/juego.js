@@ -6,10 +6,16 @@ function iniciarJuego(datos) {
   // El servidor genera casos_finales.json con dificultad:"omerta" en cada ficha,
   // igual que el modo normal "Dificultad Omertá". Si dejamos ese valor tal cual,
   // ambos modos comparten la misma clave en el historial (localStorage) y se
-  // pisan/borran entre sí. Normalizamos acá, en el cliente, para no depender
-  // de que el generador del servidor cambie: toda ficha final usa su propia
-  // clave 'final', sin importar qué dificultad venga en el JSON.
-  FICHAS.forEach(f => { if (esFichaFinal(f)) f.dificultad = 'final'; });
+  // pisan/borran entre sí. Normalizamos acá, en el cliente, sin depender de que
+  // el generador del servidor cambie.
+  //
+  // OJO: no alcanza con mirar ficha por ficha si distrito_id===3, porque
+  // "Dificultad Omertá" también termina en una ficha con distrito_id 3 (su
+  // caso final de tanda) y esa SÍ debe seguir guardándose bajo 'omerta'.
+  // Lo que distingue a "Romper Omertá" es que TODO el lote cargado son fichas
+  // finales (no una tanda normal que termina en una).
+  const esLoteFinal = FICHAS.every(f => esFichaFinal(f));
+  if (esLoteFinal) FICHAS.forEach(f => { f.dificultad = 'final'; });
 
   const generadoActual = datos.generado || null;
   GENERADO_ACTUAL = generadoActual;
