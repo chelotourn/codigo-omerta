@@ -204,7 +204,7 @@
     min-height:60vh; gap:2rem;
   }
   .zona-carga {
-    border:1px dashed rgba(184,147,58,.3); padding:3rem 4rem; text-align:center;
+    border:1px dashed rgba(184,147,58,.3); padding:1rem 4rem; text-align:center;
     cursor:pointer; transition:all .3s; position:relative;
   }
   .zona-carga:hover { border-color:var(--oro-viejo); background:rgba(184,147,58,.03); }
