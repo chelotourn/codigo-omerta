@@ -3,102 +3,403 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>I.Q. Puzzle interactivo</title>
+<title>I.Q. Puzzle: El Rey a Caido v0.8</title>
 <style>
 :root{color-scheme:light;--bg:#eceae4;--panel:#f7f6f2;--ink:#1c1c1c;--paper:#fff;--text:#222;--muted:#666;--accent:#2a6fdb;--bad:#d93025;--ok:#1e8e3e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#16171a;--panel:#26282d;--text:#e8e8e8;--muted:#9a9a9a;--accent:#6ea2f5}}
 :root[data-theme="dark"]{color-scheme:dark;--bg:#16171a;--panel:#26282d;--text:#e8e8e8;--muted:#9a9a9a;--accent:#6ea2f5}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;align-items:center;padding:16px 10px 28px}
 h1{font-size:1.3rem;margin:4px 0 2px}
-p.sub{margin:0 0 12px;color:var(--muted);font-size:.9rem;text-align:center;max-width:520px}
-.hint{font-style:italic;color:var(--accent);margin-top:-6px}
-#board{position:relative;width:min(100%,640px);aspect-ratio:8/7;background:var(--panel);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.18);overflow:hidden}
-.tile{position:absolute;width:12.5%;height:14.2857%;padding:.5%;transition:left .13s,top .13s;cursor:pointer}
-.tile>div{position:relative;width:100%;height:100%;background:var(--paper);border-radius:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
-.tile svg{width:100%;height:100%;display:block}
-.tile.bad>div{box-shadow:inset 0 0 0 3px var(--bad)}
-#hole{position:absolute;left:87.5%;top:85.7143%;width:12.5%;height:14.2857%;display:flex;align-items:center;justify-content:center;pointer-events:none}
-#hole i{width:46%;aspect-ratio:1;border-radius:50%;border:2px dashed var(--muted);opacity:.6}
-.bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:center;margin:12px 0}
-button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--muted);background:var(--panel);color:var(--text);cursor:pointer}
+.sub{margin:0 0 12px;color:var(--muted);font-size:.9rem;text-align:center;max-width:520px}
+.hint{font-style:italic;color:var(--accent)}
+#tip:empty{display:none}
+#tip{max-width:600px;text-wrap:balance;line-height:1.45}
+.dg{display:inline-grid;grid-template-columns:repeat(3,1.7em);gap:3px;margin:6px 0;font-style:normal}
+.dg i{font-style:normal;aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:4px;background:var(--paper);color:var(--ink);font-weight:700;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+.dg i.n{box-shadow:inset 0 0 0 2px var(--accent)}
+.dg i.o{background:transparent;box-shadow:none;border:2px dashed var(--muted)}
+.dg i svg{width:78%;height:78%}
+.sq{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 8px;margin:6px 0}
+.sq b{font-style:normal;font-weight:400}
+.sq .dg{margin:0}
+.wrap{width:min(100%,640px);display:flex;flex-direction:column;align-items:center}
+.card{width:100%;background:var(--panel);border-radius:12px;padding:12px 14px;margin:0 0 10px;box-shadow:0 1px 6px rgba(0,0,0,.12)}
+.card h2{margin:0;font-size:1.05rem;display:flex;gap:10px;align-items:center}
+.card h2 b{font-size:1.7rem;font-weight:400;width:1.6rem;text-align:center}
+.card p{margin:2px 0 8px;font-size:.85rem;color:var(--muted)}
+.lv{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
+.lv button{padding:8px 10px;font-size:.9rem;line-height:1.25;text-align:center}
+button,select{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--muted);background:var(--panel);color:var(--text);cursor:pointer}
 button.main{background:var(--accent);border-color:var(--accent);color:#fff}
-button:disabled{opacity:.5;cursor:default}
+button.done{border-color:var(--ok)}
+button:disabled{opacity:.45;cursor:default}
+#gt{margin:0;font-size:1.1rem;text-align:center}
+#board{position:relative;width:100%;max-width:560px;background:var(--panel);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.18);overflow:hidden}
+.tile{position:absolute;padding:.6%;transition:left .13s,top .13s;cursor:pointer}
+.tile>div{width:100%;height:100%;background:var(--paper);border-radius:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.tile svg{width:100%;height:100%;display:block}
+.tile.bad1>div{box-shadow:inset 0 0 0 3px #e6b800}
+.tile.bad2>div{box-shadow:inset 0 0 0 4px #ef7d00}
+.tile.bad3>div{box-shadow:inset 0 0 0 5px var(--bad)}
+.tile.sm{padding:.25%}
+.tile.sm>div{border-radius:4px}
+.tile.sm.bad1>div{box-shadow:inset 0 0 0 2px #e6b800}
+.tile.sm.bad2>div{box-shadow:inset 0 0 0 3px #ef7d00}
+.tile.sm.bad3>div{box-shadow:inset 0 0 0 4px var(--bad)}
+.tile>div.t7{background:#d6e6ff}.tile>div.t8{background:#d9f2d6}.tile>div.t9{background:#e8dcff}.tile>div.t10{background:#fff0c2}
+#egg{position:absolute;inset:0;pointer-events:none}
+#egg .et{position:absolute;bottom:16px;background:var(--paper);border-radius:4px;padding:2px;cursor:pointer;pointer-events:auto;transition:transform .9s cubic-bezier(.2,.7,.2,1),opacity .7s}
+#egg .et svg{width:100%;height:100%;display:block}
+#egg .jt{position:absolute;color:#fff;font-weight:700;white-space:nowrap;pointer-events:none;animation:jaup 1.5s ease-out forwards}
+@keyframes jaup{0%{opacity:0;transform:translate(-50%,8px)}12%{opacity:1}100%{opacity:0;transform:translate(-50%,-90px)}}
+#eexit{position:absolute;left:0;right:0;top:calc(50% + 4.6rem);text-align:center;color:#fff;opacity:0;font-size:.95rem;letter-spacing:.08em;cursor:pointer;padding:12px;transition:opacity 1.2s;pointer-events:none}
+#eexit.on{opacity:.6;pointer-events:auto}
+#red{position:absolute;inset:0;background:#7a0000;opacity:0;pointer-events:none;transition:opacity 2.4s}
+#red.on{opacity:1}
+.tile.good>div{box-shadow:inset 0 0 0 3px var(--ok)}
+#hole{position:absolute;display:flex;align-items:center;justify-content:center;pointer-events:none}
+#hole i{width:40%;aspect-ratio:1;border-radius:50%;border:2px dashed var(--muted);opacity:.6}
+.bar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:center;margin:12px 0}
 label{font-size:.9rem;display:flex;gap:6px;align-items:center}
 #status{min-height:1.5em;font-weight:600;text-align:center}
 #status.ok{color:var(--ok)}
+#refbox{max-width:560px;display:flex;flex-direction:column;align-items:center}
+#ref{display:grid;gap:3px}
+.rc{aspect-ratio:1;background:var(--paper);border-radius:3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+.rc svg{width:100%;height:100%;display:block}
+.tile.gone svg{opacity:0;transition:opacity .6s}
+#fall{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;background:#000;color:#fff;font-family:Georgia,serif;font-size:clamp(1.6rem,6vw,2.6rem);letter-spacing:.04em;opacity:0;pointer-events:none;transition:opacity 1.2s;z-index:50}
+#fall.on{opacity:1;pointer-events:auto}
+#fall{overflow:hidden;flex-direction:column;transition:opacity 1.2s,background 1.6s}
+#fall.black{background:#000}
+#fall.slow{transition:opacity 1.8s,background 1.6s}
+#ask{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:40;padding:20px}
+#ask .box{background:var(--panel);color:var(--text);border-radius:12px;padding:16px 18px;max-width:340px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+#ask p{margin:0 0 14px;line-height:1.4}
+#fc{transition:opacity 1.2s}
+#fall.black #fc{opacity:0}
+#fallt{line-height:1.3}
+#fin{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-left:.5em;font-size:clamp(2rem,9vw,3.6rem);letter-spacing:.5em;opacity:0;transition:opacity 1.4s;pointer-events:none}
+#fall.black #fin{opacity:1;transition-delay:.9s}
+.srow{display:flex;justify-content:center;gap:.15em;font-size:clamp(1.6rem,7vw,2.6rem);line-height:1.15;margin-top:14px}
+.srow span{display:inline-block;opacity:0}
+.pc.l{transform:translateX(-110vw)}
+.pc.r{transform:translateX(110vw)}
+.pc.in{opacity:1;transform:none;transition:transform 1.8s cubic-bezier(.2,.7,.2,1),opacity .8s}
+.pw{transform:scale(.3)}
+.pw.in{opacity:1;transform:none;transition:transform .35s,opacity .35s}
+#fall.chap{transition:opacity 1.8s,background 1.6s}
+#fall.chap.on{transition:opacity 2.8s,background 1.6s}
+#fall.chap #fallt{font-size:clamp(1.15rem,4.4vw,1.8rem);max-width:30em;line-height:1.5}
+#fall.chap::after{content:"Toca para continuar";position:absolute;bottom:7%;left:0;right:0;font-size:.85rem;letter-spacing:.08em;opacity:0;animation:fh 1.2s 3.5s forwards}
+@keyframes fh{to{opacity:.55}}
+#fall.hang #fc{opacity:0}
+#fall.hang #fin{inset:auto;left:0;right:0;top:46%;height:auto}
+#fall.hang #eexit{top:auto;bottom:4%}
+#fall.endf #fin{opacity:1;transition-delay:.4s}
+#fall.redbg{background:#4d0000}
+#hang{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+#hang .hr{position:absolute;left:0;right:0;margin-top:0}
+#hang .plat{position:absolute;height:4px;background:#fff;border-radius:2px;transform:scaleX(0);transform-origin:left center;transition:transform 1.4s ease-out}
+#hang .plat.in{transform:none}
+#hang .beam{position:absolute;height:2px;background:#fff;border-radius:1px;transform:scaleX(0);transform-origin:center;transition:transform 1.2s ease-out}
+#hang .beam.in{transform:none}
+#hang .plat.gone{opacity:0;transform:translateY(12px);transition:opacity .15s,transform .15s}
+#hang .hg{position:absolute;top:0;height:0;transform-origin:50% 0}
+#hang .rope{position:absolute;left:50%;top:0;width:2px;margin-left:-1px;height:0;background:#fff;transition:height 1.3s ease-out}
+#hang .hc{position:absolute;left:0;background:var(--paper);border-radius:4px;padding:3px;transition:top .18s ease-in}
+#hang .hc svg{width:100%;height:100%;display:block}
+#hang .hg.sw{animation:swing var(--d) ease-in-out var(--w) infinite alternate}
+@keyframes swing{from{transform:rotate(calc(var(--a) * -1))}to{transform:rotate(var(--a))}}
 </style>
 </head>
 <body>
-<h1>I.Q. Puzzle</h1>
-<p class="sub">Toca una ficha para deslizar toda la fila o columna hacia el hueco.<br>Objetivo: Dejar cada forma una sola vez por fila, columna y diagonal.</p>
-<p class="sub hint">Ni la recta de la torre, ni la diagonal del alfil:<br>la armonía de este puzle galopa por otro carril.</p>
-<div id="board"><div id="hole"><i></i></div></div>
-<div class="bar">
-  <button class="main" id="shuf">Desordenar</button>
-  <button id="solve">Ver ejemplo</button>
+<h1 id="ttl">El Rey ha caído</h1>
+<p class="sub" id="top">Las noticias de la captura del rey llegan al reino, que se prepara para la guerra.<br>Un viaje de cinco pruebas hasta la batalla final.</p>
+<div id="map" class="wrap"></div>
+<!-- TEMP-DEV: borrar este bloque, sus 3 líneas de JS (devi/devo/devu), el "devAll" en unlocked y los 2 "dev" en load/showMap -->
+<div id="dev" class="bar" style="margin:18px 0 0;opacity:.8"><button id="devi" style="border-style:dashed">▶ Ver intro</button><button id="devo" hidden style="border-style:dashed">▶ Ver final</button><button id="devc" hidden style="border-style:dashed">▶ Ver Ocaso</button><button id="devu" hidden style="border-style:dashed">🔓 Desbloquear todo</button></div>
+<div id="game" class="wrap" hidden>
+  <h2 id="gt"></h2>
+  <p class="sub" id="gd" style="margin:4px 0 8px"></p>
+  <div id="refbox" class="card" hidden><div class="sub" id="reft" style="margin:0 0 6px"></div><div id="ref"></div></div>
+  <p class="sub hint" id="tip"></p>
+  <div id="board"><div id="hole"><i></i></div></div>
+  <div class="bar">
+    <button class="main" id="shuf">Reorganizar tropas</button>
+    <button id="un">Retirada</button>
+    <button id="ex">Ver ejemplo</button>
+    <button id="mp">Mapa</button>
+    
+    <label><select id="conf"><option value="t">Vigilar todo</option><option value="c">Vigilar caminos</option><option value="d">Vigilar diagonales</option></select></label>
+  </div>
+  <div id="status"></div>
+  <div class="sub" id="moves"></div>
+  <p class="sub" id="chap" hidden style="font-style:italic;color:var(--text);margin:8px 0 12px"></p>
+  <button class="main" id="nx" hidden>Siguiente desafío ▸</button>
   
-  <label><input type="checkbox" id="conf" checked> Mostrar conflictos</label>
 </div>
-<div id="status"></div>
-<div class="sub" id="moves">Movimientos: 0</div>
+<div id="fall"><div id="fc"><div id="fallc" style="font-size:3.2rem;margin-bottom:8px">&#9818;&#xFE0E;</div><div id="fallt">El Rey ha caído</div><div id="scene"><div id="krow" class="srow"></div><div id="prow" class="srow"></div><div id="wrow" class="srow"></div><div id="w2row" class="srow"></div></div></div><div id="hang"></div><div id="fin">FIN</div><div id="egg"></div><div id="eexit">Pulsa para salir</div><div id="red"></div></div>
+<div id="ask" hidden><div class="box"><p id="askt"></p><div class="bar" style="margin:0"><button id="askn">Cancelar</button><button class="main" id="asky">Continuar</button></div></div></div>
 <script>
-const R=7,C=8,INK="var(--ink)",PAPER="var(--paper)";
+const $=i=>document.getElementById(i),INK="var(--ink)",PA="var(--paper)";
 const sh=[
 `<path d="M36 12h28v24h24v28H64v24H36V64H12V36h24z" fill="${INK}"/>`,
 `<rect x="12" y="12" width="76" height="76" fill="${INK}"/>`,
 `<polygon points="50,14 88,84 12,84" fill="none" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>`,
 `<polygon points="14,12 14,88 88,88" fill="${INK}"/>`,
-`<rect x="10" y="10" width="80" height="80" fill="${INK}"/><circle cx="50" cy="50" r="32" fill="${PAPER}"/>`,
+`<rect x="10" y="10" width="80" height="80" fill="${INK}"/><circle cx="50" cy="50" r="32" fill="${PA}"/>`,
 `<polygon points="10,16 90,16 50,86" fill="${INK}"/>`,
-`<rect x="10" y="10" width="80" height="80" fill="${INK}"/><polygon points="50,18 82,50 50,82 18,50" fill="${PAPER}"/>`];
-const board=document.getElementById("board"),st=document.getElementById("status"),mv=document.getElementById("moves");
-const shape=[],els=[];let g=[],moves=0,busy=false,playing=false;
+`<rect x="10" y="10" width="80" height="80" fill="${INK}"/><polygon points="50,18 82,50 50,82 18,50" fill="${PA}"/>`,
+`<circle cx="50" cy="26" r="13" fill="${INK}"/><path d="M40 42h20l10 32H30z" fill="${INK}"/><rect x="22" y="74" width="56" height="13" rx="3" fill="${INK}"/>`,
+`<path d="M22 12h13v11h8V12h14v11h8V12h13v32H22z" fill="${INK}"/><path d="M32 44h36l5 30H27z" fill="${INK}"/><rect x="20" y="74" width="60" height="13" rx="3" fill="${INK}"/>`,
+`<circle cx="50" cy="11" r="6" fill="${INK}"/><ellipse cx="50" cy="38" rx="16" ry="24" fill="${INK}"/><path d="M44 26l14 14" stroke="${PA}" stroke-width="4"/><path d="M38 58h24l9 16H29z" fill="${INK}"/><rect x="22" y="74" width="56" height="13" rx="3" fill="${INK}"/>`,
+`<path d="M24 87V77c0-18 12-24 18-36L30 42 18 50l-4-8 22-26 8 4 6-10 6 14c14 6 22 22 20 44v17z" fill="${INK}"/><circle cx="50" cy="32" r="3" fill="${PA}"/>`];
+const sym=s=>typeof s==="number"?sh[s]:`<text x="50" y="72" text-anchor="middle" font-size="64" font-weight="700" fill="${INK}">${s}</text>`;
+const svg=s=>`<svg viewBox="0 0 100 100">${sym(s)}</svg>`;
+const rg=(n,f)=>Array.from({length:n},(_,k)=>f(k));
+const P=(n,f)=>rg(n,r=>rg(n,c=>f(r,c)));
+const AB={A:3,B:0,C:5};
+const dg=rows=>`<span class="dg" style="grid-template-columns:repeat(${rows[0].length},1.5em)">`+rows.map(w=>(Array.isArray(w)?w:[...w]).map(ch=>ch=='x'?'<i></i>':ch=='o'?'<i class="o"></i>':AB[ch]!==undefined?'<i>'+svg(AB[ch])+'</i>':'<i class="n">'+ch+'</i>').join('')).join('')+'</span>';
+const seq=a=>'<span class="sq">'+a.map(r=>dg(r)).join('<b>→</b>')+'</span>';
 const ROW1=[0,5,6,2,4,1,3];
-for(let i=0;i<49;i++){shape[i]=ROW1[(3*Math.floor(i/7)+i%7)%7];
- const d=document.createElement("div");d.className="tile";
- d.innerHTML=`<div><svg viewBox="0 0 100 100">${sh[shape[i]]}</svg></div>`;
- d.onclick=()=>{if(!busy){const p=find(i);if(slide(p[0],p[1])){moves++;playing=true;refresh()}}};
- board.appendChild(d);els[i]=d}
-const ok=(r,c)=>r>=0&&r<R&&c>=0&&c<C&&(c<7||r==6);
-function solved(){g=[];for(let r=0;r<R;r++){g.push([]);for(let c=0;c<C;c++)g[r].push(c<7?r*7+c:null)}}
-function find(id){for(let r=0;r<R;r++)for(let c=0;c<C;c++)if(g[r][c]===id)return[r,c]}
-function hole(){for(let r=0;r<R;r++)for(let c=0;c<C;c++)if(ok(r,c)&&g[r][c]===null)return[r,c]}
-function slide(r,c){const[hr,hc]=hole();if(r!=hr&&c!=hc||(r==hr&&c==hc))return false;
- if(r==hr){const s=Math.sign(hc-c);for(let k=hc;k!=c;k-=s)g[r][k]=g[r][k-s];}
- else{const s=Math.sign(hr-r);for(let k=hr;k!=r;k-=s)g[k][c]=g[k-s][c];}
+const RN=P(5,(r,c)=>[4,2,5,0,6][(c+2*r)%5]);
+const cyc=F=>P(4,(r,c)=>F[(r+c)%4]),TO2=cyc([6,5,2,0]),TO3=cyc([0,2,4,5]);
+const B={pa:[[5,6,5],[6,5,6],[5,6,5]],pb:[[5,6,1],[1,5,6],[6,1,5]],pc:[["1","2","3"],["4","5","6"],["7","8","9"]],
+ to:P(4,(r,c)=>ROW1[(r+c)%4]),
+ al:[[0,1,2,3],[2,3,0,1],[3,2,1,0],[1,0,3,2]].map(w=>w.map(i=>ROW1[i])),
+ re:P(5,(r,c)=>ROW1[(3*r+c)%5]),fi:P(7,(r,c)=>ROW1[(3*r+c)%7])};
+const ON=[0,5,6,2,4,1,3,7,8,9,10];B.on=P(11,(r,c)=>ON[(c+2*r)%11]);
+const ALT={to:P(4,(r,c)=>ROW1[(r+[1,2,0,3][c])%4]),al:[[3,2,0,1],[1,0,2,3],[2,3,1,0],[0,1,3,2]].map(w=>w.map(i=>ROW1[i]))};
+const PC=[["♟\uFE0E","Peón","Humildes labores en el reino: aprende a deslizar y a copiar un patrón."],
+["♜\uFE0E","Torre","La torre vigila al enemigo: cada forma una sola vez por fila y por columna."],
+["♝\uFE0E","Alfil","Los infiltrados llegan por las diagonales: ahora también cuentan."],
+["♛\uFE0E","Reina","La reina rehace su corte y envía a los caballeros en busca del rey: todas las reglas, en un tablero mayor."],
+["♞\uFE0E","Caballeros","El rey sigue cautivo y solo sus caballeros conocen el camino que lo libera."],
+["♚︎","El desafío del Rey","El rey, ahora liberado, cabalga junto a sus caballeros a la guerra final. La reina lo aguarda en la fila inicial y el resto de su ejército espera sus órdenes. La batalla final ha llegado."],
+["☠\uFE0E","El Ocaso","Los remanentes de la conspiración lanzan un último ataque desesperado en la corte del rey, infiltrados con la voluntad de quemar el reino. ¡Deténlos!"]];
+const L=[],Z=(p,t,d,o)=>L.push({p,t,d,...o});
+Z(0,"Trabajo humilde","Copia las dos primeras filas del patrón. Toca una ficha para deslizarla al hueco; la fila de abajo queda libre.",{n:3,base:B.pa,copy:1,cr:2,extra:1,shuf:14,tip:"Empieza por la fila de arriba. El hueco es tu herramienta."});
+Z(0,"Preparando la cosecha","El mismo juego con tres formas: copia las dos primeras filas.",{n:3,base:B.pb,copy:1,cr:2,extra:1,shuf:24,tip:"Si te atascas, usa Retirada."});
+Z(0,"El acantonamiento","Ordena del 1 al 9, fila a fila: primero la de arriba.",{n:3,base:B.pc,copy:1,extra:1,shuf:36,tip:"<b>Clave para el resto del juego</b><br>Para colocar el 2 y el 3: pon el 2 en el lugar del 3 y el 3 en el lugar del 9, dejando el hueco entre ambos. Sube entonces el 3 y desplaza los dos «en tren» hasta su lugar.<br>"+seq([["12x","xxx","xxx"],["1x2","xxo","xx3"]])+"<br>Para colocar el 4 y el 7: forma el 74 en la fila del 4 y desplázalo hasta su lugar.<br>"+seq([["123","xx4","xxx"],["123","7o4","xxx"]])+"<br>Las últimas fichas se ordenan girando tres de ellas alrededor del hueco.<br>Esto sirve en todos los tamaños para resolver la última fila y la última columna. Si te atascas, usa Retirada."});
+[["Vigilando al enemigo","full",40],["Misión de Exploración","row",60],["Conspiración revelada","close",80]].forEach(([t,ref,s],i)=>Z(1,t,i==0?"Copia el patrón: cada forma una sola vez por fila y por columna.":"Cada forma una sola vez por fila y por columna.",{n:4,base:[B.to,TO2,TO3][i],extra:1,copy:i==0?1:0,gen:i==0?1:0,show:ref=="row"?[[2,3]]:0,ref,shuf:s,tip:ref=="close"?"Tenemos que cortar el avance enemigo por las diagonales.":ref=="row"?"Adéntrate en las tierras del reino y vigila los movimientos del enemigo, utiliza la «Vigilancia» de la torre para detectar conflictos (vertical y horizontal), amarillo para uno y naranja para ambos. Puede que descubras nuevos peligros más adelante.":""}));
+Z(2,"Cambio de táctica","Ordena del 1 al 16, fila a fila. Es el mismo método del peón, ahora en 4×4.",{n:4,base:P(4,(r,c)=>String(4*r+c+1)),copy:1,extra:1,shuf:80,tip:"Para resolver casos con más casillas, simplemente resuelve la primera fila y la primera columna, igual que en el 3×3. Una vez hecho, lo que queda es un puzle de un nivel menos: repite hasta que solo quede un 3×3.<br>"+dg([['1','2','3','4'],['5','x','x','x'],['9','x','x','x'],['13','x','x','x']])});
+[["Detectando impostores","full",40],["La reina en peligro","row",60]].forEach(([t,ref,s],i)=>Z(2,t,"Filas, columnas y las dos diagonales principales.",{n:4,base:B.al,diag:1,extra:1,alt:ref=="row"?ALT.al:0,show:ref=="row"?[[3,3],[2,1]]:0,ref,shuf:s,tip:i?"Con el rey capturado, los conspiradores vienen a por la reina: espías y asesinos. ¡Deténlos!":"Cuidado con los Impostores: si solo te faltan unas pocas fichas y no hay forma de encajarlas, cambia una forma ya colocada por otra igual que aún no hayas colocado. El puzle quedará igual, pero ahora ya deberías poder resolverlo sin problemas.<br>"+seq([["xxxx","xxBA","xxxx","xxAo"],["xxxx","xxBA","xxxo","xxxA"],["xxxx","xxxB","xxAo","xxxA"],["xxxx","xxxB","xxAA","xxxo"],["xxxx","xxBA","xxxx","xxAx"]])+"<br>Cada paso son varios movimientos, y algunos exigen mover fichas blancas aún sin colocar.<br>Los impostores aparentan ser leales pero no lo son. Cuando algo no encaja, sospecha de un doble."}));
+[["La corte real","full",80],["El Palacio de la Reina","row",120],["Los Caballeros Liberados","row",160]].forEach(([t,ref,s],i)=>Z(3,t,i==0?"Copia el patrón: filas, columnas y diagonales, ahora en 5×5.":"Filas, columnas y diagonales, ahora en 5×5.",{n:5,base:ref=="full"?RN:B.re,diag:1,extra:1,copy:i==0?1:0,gen:i==0?1:0,alt:ref=="row"?RN:0,show:i==1?[[2,1],[4,2],[2,3],[4,4]]:0,tip:i==0?"Con la conspiración desenmascarada, la reina rehace su corte.":i==1?"Desde su palacio, la reina aguarda el regreso del rey. Desesperada, envía a los caballeros del rey para que vayan en su busca; avanzan revelando el terreno.":i==2?"Ahora los Caballeros del Rey están libres: cada forma está a un salto de caballo de la anterior, dos filas más abajo y una columna a la derecha. Al salirte del tablero, sigue por el lado opuesto.<br>"+seq([['Axxxx','xxxxx','xAxxx','xxxxx','xxAxx'],['Axxxx','xxxAx','xAxxx','xxxxA','xxAxx']])+"<br>Con la primera fila puesta, el resto del tablero sale de repetir ese salto con cada forma.":"",ref,shuf:s}));
+[["Revelando el camino",120],["Marcha hacia el reino",160],["Emboscada",0]].forEach(([t,s],i)=>Z(4,t,"Sin modelo de referencia.",{n:5,base:RN,diag:1,extra:1,shuf:s,perm:1,ord:i==2?1:0,tip:i==1?"Un caballo, mi reino por un caballo":i==2?"Algo no va bien, parece una trampa, avancemos con cuidado":"El rey permanece solitario, atrapado en la casilla inferior derecha; solo sus caballeros podrían liberarlo si recorren el camino correcto.<br>"+seq([['xxxxx','xxxxx','xxxxx','xxxxx','xxxxC'],['xxxxx','xxxxx','xxxCx','xxxxx','xxxxC'],['xxCxx','xxxxx','xxxCx','xxxxx','xxxxC'],['xxCxx','Cxxxx','xxxCx','xCxxx','xxxxC']])+"<br>Cada paso sube dos filas y retrocede una columna; al salir del tablero, sigue por el lado opuesto.<br>Una vez liberado, el rey crea su propio camino: usa la voluntad del rey para crear tu primera fila inicial y el fiel consejo de la reina para revelar el resto del tablero."}));
+Z(5,"","La batalla final: cada forma debe estar una sola vez por fila, columna y en cada diagonal, en todas y cada una de ellas, no solo en las centrales… Sí, en todas. Buena suerte, general: el reino cuenta con usted.",{n:7,base:B.fi,diag:1,alld:1,extra:1,perm:1,ex:1,shuf:240,tip:"El rey, ahora liberado, cabalga junto a sus caballeros a la guerra final. La reina lo aguarda en la fila inicial y el resto de su ejército espera sus órdenes. La batalla final ha llegado."});
+
+const FINAL=L.length-1,SECRET=FINAL+1;
+Z(6,"","11 formas y 121 fichas: cada forma una sola vez por fila, columna y diagonal, incluidas las diagonales con vuelta.",{n:11,base:B.on,diag:1,alld:1,extra:1,shuf:500,tip:"<b>El Rey:</b> «¿Habéis conspirado contra mi reinado, me habéis secuestrado y encerrado, y ahora osáis atacarme en mi propia casa?»<br>«¡LEALES A LA CORONA, ATACAD! ¡DEFENDED A VUESTRO REY!»"});
+const END=["Humilde trabajo, bien hecho: los peones ya saben mover el tablero y el reino tiene quien lo defienda.",
+"La conspiración está al descubierto. La torre ha cerrado el paso por filas y columnas, pero el enemigo ya avanza por las diagonales.",
+"Los espías y asesinos han sido detenidos y las diagonales vuelven a ser nuestras. La Reina está a salvo… por ahora.",
+"La Reina ha purgado la corte y enviado a los caballeros para que cabalguen en busca del Rey. Ahora solo le queda rezar por su retorno.",
+"El Rey ha sido liberado y cabalga junto a sus caballeros a la guerra final. Su ejército espera sus órdenes."];
+let dn=[];try{dn=JSON.parse(localStorage.getItem("iqpv3"))||[]}catch(e){}
+const save=()=>{try{localStorage.setItem("iqpv3",JSON.stringify(dn))}catch(e){}};
+let eggSeen=false;try{eggSeen=!!localStorage.getItem("iqegg")}catch(e){}
+let noShuf=false,devAll=false,dbg=false,dbgTaps=0,dbgT=0;
+const unlocked=i=>devAll||i==0||!!dn[i-1];
+const lk=pi=>!unlocked(L.findIndex(l=>l.p==pi));
+const board=$("board");
+let lv,cur,n,cols,g,syms,els,hist=[],moves=0,busy=false,play=false,won=false,intro=false,wiped=new Set();
+const ok=(r,c)=>r>=0&&r<n&&c>=0&&c<cols&&(c<n||r==n-1);
+function solved(){g=[];let id=0;for(let r=0;r<n;r++){g.push([]);for(let c=0;c<cols;c++)g[r].push(c<n&&!(!lv.extra&&r==n-1&&c==n-1)?id++:null)}}
+function find(id){for(let r=0;r<n;r++)for(let c=0;c<cols;c++)if(g[r][c]===id)return[r,c]}
+function hole(){for(let r=0;r<n;r++)for(let c=0;c<cols;c++)if(ok(r,c)&&g[r][c]===null)return[r,c]}
+function slide(r,c){const[hr,hc]=hole();if((r!=hr&&c!=hc)||(r==hr&&c==hc))return false;
+ if(r==hr){const s=Math.sign(hc-c);for(let k=hc;k!=c;k-=s)g[r][k]=g[r][k-s]}
+ else{const s=Math.sign(hr-r);for(let k=hr;k!=r;k-=s)g[k][c]=g[k-s][c]}
  g[r][c]=null;return true}
-function conflicts(){const bad=new Set(),dg=true;
- const lines=[];
- for(let i=0;i<7;i++){lines.push([...Array(7)].map((_,k)=>[i,k]));lines.push([...Array(7)].map((_,k)=>[k,i]))}
- if(dg){lines.push([...Array(7)].map((_,k)=>[k,k]));lines.push([...Array(7)].map((_,k)=>[k,6-k]))}
- for(const L of lines){const m={};for(const[r,c]of L){const t=g[r][c];if(t===null)continue;(m[shape[t]]=m[shape[t]]||[]).push(t)}
-  for(const k in m)if(m[k].length>1)m[k].forEach(t=>bad.add(t))}
+function bads(mode){const bad=new Map(),Ls=[],pa=!mode||mode=="c",di=!mode||mode=="d";
+ if(pa)for(let i=0;i<n;i++){Ls.push(rg(n,k=>[i,k]));Ls.push(rg(n,k=>[k,i]))}
+ if(di&&lv.diag&&!lv.alld){Ls.push(rg(n,k=>[k,k]));Ls.push(rg(n,k=>[k,n-1-k]))}
+ if(di&&lv.alld){for(let s=0;s<n;s++){Ls.push(rg(n,k=>[k,(k+s)%n]));Ls.push(rg(n,k=>[k,((s-k)%n+n)%n]))}}
+ for(const l of Ls){const m={};for(const[r,c]of l){const t=g[r][c];if(t===null)continue;(m[syms[t]]=m[syms[t]]||[]).push(t)}
+  for(const k in m)if(m[k].length>1)m[k].forEach(t=>bad.set(t,(bad.get(t)||0)+1))}
  return bad}
-function refresh(){let bad=conflicts(),show=document.getElementById("conf").checked;
- for(let r=0;r<R;r++)for(let c=0;c<C;c++){const t=g[r][c];if(t===null||!ok(r,c))continue;
-  const e=els[t];e.style.left=c*12.5+"%";e.style.top=r*100/7+"%";
-  e.classList.toggle("bad",show&&bad.has(t)&&c<7)}
- const h=hole();const done=h[0]==6&&h[1]==7&&bad.size==0&&g.flat().filter(x=>x!==null).length==49;
- mv.textContent="Movimientos: "+moves;
- if(done&&playing){st.textContent="¡Resuelto en "+moves+" movimientos!";st.className="ok"}
- else{st.textContent=bad.size&&!busy?"Fichas en conflicto: "+bad.size:"";st.className=""}}
-function shuffle(){if(busy)return;busy=true;playing=false;solved();let n=0,pend=3;
- const swapExtra=()=>{const a=g[6][7],b=g[6][6];if(a!==null&&b!==null&&shape[a]!==shape[b]){g[6][7]=b;g[6][6]=a;return true}return false};
- document.getElementById("shuf").disabled=true;
- const iv=setInterval(()=>{const h=hole();let opts=[];
-  for(let k=0;k<C;k++)if(k!=h[1]&&ok(h[0],k)&&g[h[0]][k]!==null)opts.push([h[0],k]);
-  for(let k=0;k<R;k++)if(k!=h[0]&&ok(k,h[1])&&g[k][h[1]]!==null)opts.push([k,h[1]]);
-  const p=opts[Math.floor(Math.random()*opts.length)];slide(p[0],p[1]);
-  if(n>=15&&pend>0&&Math.random()<0.2&&swapExtra())pend--;
-  refresh();
-  if(++n>=160&&(pend<3||n>500)){clearInterval(iv);busy=false;moves=0;playing=true;document.getElementById("shuf").disabled=false;refresh()}},22)}
-document.getElementById("shuf").onclick=shuffle;
-document.getElementById("solve").onclick=()=>{if(busy)return;solved();moves=0;playing=false;refresh()};
-document.getElementById("conf").onchange=refresh;
-const sty=document.createElement("style");sty.textContent=":root{--ink:#1c1c1c}";document.head.appendChild(sty);
-solved();refresh();setTimeout(shuffle,400);
+function done(){const h=hole();
+ if(lv.copy){const R=lv.cr||n;if(!lv.cr&&(h[0]!=n-1||h[1]!=(lv.extra?n:n-1)))return false;
+  for(let r=0;r<R;r++)for(let c=0;c<n;c++){const t=g[r][c];if(t===null||syms[t]!==lv.base[r][c])return false}return true}
+ return h[0]==n-1&&h[1]==(lv.extra?n:n-1)&&bads().size==0}
+let justGen=false;
+function genPat(n,diag){const S=rg(7,i=>i).sort(()=>Math.random()-.5).slice(0,n);
+ const q=P(n,()=>-1),okp=(r,c,v)=>{for(let k=0;k<n;k++)if(q[r][k]===v||q[k][c]===v)return false;
+  if(diag){if(r==c)for(let k=0;k<n;k++)if(q[k][k]===v)return false;if(r+c==n-1)for(let k=0;k<n;k++)if(q[k][n-1-k]===v)return false}return true};
+ const fill=i=>{if(i==n*n)return true;const r=Math.floor(i/n),c=i%n,o=rg(n,k=>k).sort(()=>Math.random()-.5);
+  for(const v of o)if(okp(r,c,v)){q[r][c]=v;if(fill(i+1))return true;q[r][c]=-1}return false};
+ fill(0);return q.map(w=>w.map(v=>S[v]))}
+function genNew(){lv.base=genPat(lv.n,!!lv.diag);for(let r=0,id=0;r<lv.n;r++)for(let c=0;c<lv.n;c++,id++){syms[id]=lv.base[r][c];els[id].firstChild.innerHTML=svg(syms[id])}drawRef()}
+function mis(){let m=0;for(let r=0;r<(lv.cr||n);r++)for(let c=0;c<n;c++){const t=g[r][c];if(t===null||syms[t]!==lv.base[r][c])m++}return m}
+function refresh(){const vm=$("conf").value,bad=lv.copy?new Set():bads(vm=="t"?0:vm),show=true;
+ for(let r=0;r<n;r++)for(let c=0;c<cols;c++){const t=g[r][c];if(t===null||!ok(r,c))continue;
+  const e=els[t];e.style.left=c*100/cols+"%";e.style.top=r*100/n+"%";
+  const nb=(!busy&&!lv.copy&&show&&c<n)?(bad.get(t)||0):0;e.classList.toggle("bad1",nb==1);e.classList.toggle("bad2",nb==2);e.classList.toggle("bad3",nb>=3);
+  e.classList.toggle("good",!busy&&!!lv.copy&&c<n&&r<(lv.cr||n)&&syms[t]===lv.base[r][c])}
+ const h=hole(),hd=$("hole");hd.style.left=h[1]*100/cols+"%";hd.style.top=h[0]*100/n+"%";
+ $("moves").textContent="Órdenes dadas: "+moves;
+ if(!won&&!intro&&play&&!busy&&done()){won=true;if(!dn[cur]){dn[cur]=true;save()}
+  if(cur==FINAL)outro();else if(cur==SECRET)ocaso();else{$("nx").textContent=cur+1<L.length?"Siguiente desafío ▸":"Volver al mapa";$("nx").hidden=false}}
+ const st=$("status");st.className=won?"ok":"";
+ st.textContent=won?(cur==FINAL?"El Rey regresó en "+moves+" órdenes":"¡Misión cumplida en "+moves+" órdenes!"):(!lv.copy&&bad.size&&!busy?(lv.p>=2?"Sospechosos: ":"Fichas en conflicto: ")+bad.size:"")}
+function drawRef(){const m=lv.copy?"full":lv.ref;$("refbox").hidden=!m;if(!m)return;
+ if(m=="close"){const N=lv.n,s=lv.base[N-1][N-1],R=$("ref");$("reft").textContent="Pista: ubica las fichas en las diagonales siguiendo el patrón.";
+  R.style.gridTemplateColumns=`repeat(${N+1},1fr)`;R.style.width=Math.min(230,(N+1)*44)+"px";let h="";
+  for(let r=0;r<N;r++)for(let c=0;c<=N;c++){if(c==N&&r<N-1){h+="<div></div>";continue}
+   h+=`<div class="rc">${(c<N-1&&r<N-1&&r+c==N-2)||(r==N-1&&c==N)?svg(s):""}</div>`}
+  R.innerHTML=h;return}
+ $("reft").textContent=lv.copy?"Objetivo":m=="full"?"Ejemplo de solución":lv.show?"Pista: la primera fila y "+(lv.show.length==1?"una casilla":lv.show.length==2?"dos casillas":"cuatro casillas")+" más":"Pista: una primera fila que funciona";
+ const R=$("ref");R.style.gridTemplateColumns=`repeat(${lv.n},1fr)`;R.style.width=Math.min(190,lv.n*42)+"px";
+ R.innerHTML=(m=="row"&&lv.alt||lv.base).map((row,r)=>row.map((s,c)=>{const hl=!lv.extra&&r==lv.n-1&&c==lv.n-1;
+  return `<div class="rc">${!hl&&((m=="full"&&r<(lv.cr||99))||r==0||(m=="row"&&lv.show&&lv.show.some(q=>q[0]==r&&q[1]==c)))?svg(s):""}</div>`}).join("")).join("")}
+function ordered(){const pool={},cl=syms.length-1,cs=syms[cl];syms.forEach((s,id)=>(pool[s]=pool[s]||[]).push(id));pool[cs]=pool[cs].filter(i=>i!=cl);
+ const rows=[...new Set(lv.base[0])].filter(s=>s!==cs).concat(cs);
+ for(let r=0;r<n;r++)for(let c=0;c<n;c++)g[r][c]=(r==n-1&&c==n-1)?null:pool[rows[r]].pop();
+ g[n-1][n]=cl}
+function swapExtra(){const a=g[n-1][n],b=g[n-1][n-1];
+ if(a!==null&&b!==null&&syms[a]!==syms[b]){g[n-1][n]=b;g[n-1][n-1]=a;return true}return false}
+function shuffle(){if(busy)return;
+ if(delayShuf){const d=delayShuf;delayShuf=0;busy=true;play=false;won=false;hist=[];moves=0;$("chap").hidden=true;$("nx").hidden=true;$("status").textContent="";$("moves").textContent="";board.style.visibility="hidden";$("shuf").disabled=true;
+  setTimeout(()=>{board.style.visibility="";$("shuf").disabled=false;busy=false;shuffle()},d);return}
+ if(lv.gen){if(!justGen)genNew();justGen=false}
+ busy=true;play=false;won=false;hist=[];$("chap").hidden=true;$("nx").hidden=true;solved();if(lv.ord){ordered();busy=false;moves=0;play=true;refresh();return}
+ let k=0,pend=lv.perm?3:0,lh=null;$("shuf").disabled=true;
+ const iv=setInterval(()=>{const h=hole(),o=[];
+  for(let c=0;c<cols;c++)if(c!=h[1]&&ok(h[0],c)&&g[h[0]][c]!==null&&!(lh&&lh[0]==h[0]&&lh[1]==c))o.push([h[0],c]);
+  for(let r=0;r<n;r++)if(r!=h[0]&&ok(r,h[1])&&g[r][h[1]]!==null&&!(lh&&lh[0]==r&&lh[1]==h[1]))o.push([r,h[1]]);
+  const p=o[Math.floor(Math.random()*o.length)];lh=h;slide(p[0],p[1]);
+  if(lv.perm&&k>=15&&pend>0&&Math.random()<.2&&swapExtra())pend--;
+  refresh();k++;
+  if(k>=(intro?100:lv.shuf)&&(!lv.perm||pend<3||k>500)&&(!lv.extra||hole()[1]<n||k>800)&&((!done()&&mis()>=Math.max(3,Math.floor(n*n/3)))||k>800)){clearInterval(iv);busy=false;moves=0;play=true;$("shuf").disabled=false;refresh()}},lv.n>9?16:40)}
+function load(i,fromStart){board.style.visibility="";intro=!!fromStart;wiped=new Set();cur=i;lv=L[i];n=lv.n;cols=n+(lv.extra?1:0);
+ $("map").hidden=true;$("game").hidden=false;$("dev").hidden=true;$("ttl").hidden=i>=FINAL;$("top").hidden=true;
+ $("gt").textContent=intro?"":PC[lv.p][1]+(lv.t?" · "+lv.t:"");$("gd").textContent=intro?"":lv.d;$("tip").innerHTML=intro?"«Estamos rodeados, mi señor. ¿Cuáles son las órdenes?»":(lv.tip||"");
+ board.style.aspectRatio=cols+"/"+n;board.querySelectorAll(".tile").forEach(e=>e.remove());
+ syms=[];els=[];
+ for(let r=0;r<n;r++)for(let c=0;c<n;c++){if(!lv.extra&&r==n-1&&c==n-1)continue;
+  const id=syms.length,s=lv.base[r][c],d=document.createElement("div");syms.push(s);
+  d.className="tile"+(n>8?" sm":"");d.style.width=100/cols+"%";d.style.height=100/n+"%";d.innerHTML='<div class="'+(typeof s==="number"&&s>6?"t"+s:"")+'">'+svg(s)+"</div>";
+  d.onclick=()=>{if(busy||won)return;const p=find(id),sv=g.map(r=>r.slice());if(slide(p[0],p[1])){hist.push(sv);moves++;play=true;refresh();if(intro)introStep(id)}};
+  board.appendChild(d);els.push(d)}
+ const h=$("hole");h.style.width=100/cols+"%";h.style.height=100/n+"%";
+ $("shuf").textContent=lv.ord?"Reiniciar":"Reorganizar tropas";$("conf").parentNode.hidden=!!lv.copy;{const cf=$("conf"),dg=lv.diag||lv.alld;cf.innerHTML=(dg?'<option value="t">Vigilar todo</option>':'')+'<option value="c">Vigilar caminos</option>'+(dg?'<option value="d">Vigilar diagonales</option>':'');cf.value=dg?"t":"c"}$("ex").hidden=!lv.ex||intro;$("mp").hidden=$("shuf").hidden=intro;$("un").hidden=!!lv.ex;
+ if(lv.gen){genNew();justGen=true}drawRef();busy=false;if(noShuf){noShuf=false;solved();moves=0;play=false;won=false;refresh()}else shuffle()}
+function showMap(){$("dev").hidden=false;$("devo").hidden=$("devu").hidden=$("devc").hidden=!dbg;$("ttl").hidden=false;$("game").hidden=true;$("top").hidden=false;const m=$("map");m.hidden=false;
+ m.innerHTML=PC.map((p,pi)=>pi==6&&!eggSeen&&!devAll?"":`<div class="card"><h2><b>${p[0]}</b>${lk(pi)?"???":p[1]}</h2><p>${lk(pi)?"???":p[2]}</p><div class="lv">`+
+  L.map((l,i)=>[l,i]).filter(x=>x[0].p==pi).map(([l,i],k)=>`<button data-i="${i}" class="${dn[i]?"done":""}" ${unlocked(i)?"":"disabled"}>${pi>=5?(unlocked(i)?(pi==6?"Finalizar":"Empezar"):"???"):lk(pi)?(k+1)+". ???":(k+1)+". "+l.t}${dn[i]?" ✓":""}</button>`).join("")+`</div></div>`).join("");
+ m.querySelectorAll("button").forEach(b=>b.onclick=()=>load(+b.dataset.i))}
+let outroing=false,outroTok=0;const PAWNS=8;
+const INTRO_PAUSE=2200,INTRO_HOLD=6500;
+function introStep(id){const s=syms[id];if(busy||wiped.has(s))return;
+ wiped.add(s);syms.forEach((x,k)=>{if(x===s)els[k].classList.add("gone")});
+ if(wiped.size<new Set(syms).size)return;
+ busy=true;
+ setTimeout(()=>{$("fallc").style.display="";$("fallt").textContent="El Rey ha caído";$("fall").classList.add("slow","on")},INTRO_PAUSE);
+ setTimeout(endIntro,INTRO_PAUSE+INTRO_HOLD)}
+function endIntro(){if(!intro)return;intro=false;try{localStorage.setItem("iqintro","1")}catch(e){}
+ $("fall").classList.remove("on");busy=false;showMap()}
+let chaptering=false,chapNext=null,chapTimer=0,delayShuf=0;
+function chapter(txt,glyph,then){chaptering=true;busy=true;chapNext=then;
+ $("fallc").innerHTML=glyph;$("fallc").style.display="";$("fallt").textContent=txt;
+ $("fall").classList.add("chap","slow","on");chapTimer=setTimeout(endChap,3800+txt.length*55)}
+function endChap(){if(!chaptering)return;chaptering=false;clearTimeout(chapTimer);
+ const F=$("fall");F.classList.remove("on");busy=false;const f=chapNext;chapNext=null;delayShuf=2000;if(f)f();delayShuf=0;
+ setTimeout(()=>{if(!F.classList.contains("on")){F.classList.remove("chap","slow");$("fallc").innerHTML="&#9818;&#xFE0E;";$("fallt").textContent="El Rey ha caído"}},3200)}
+function go(fn){const t=won&&L[cur+1]&&L[cur+1].p!=lv.p?END[lv.p]:"";if(t)chapter(t,PC[lv.p][0],fn);else fn()}
+function buildScene(){const sp=(g,c)=>`<span class="${c}">${g}&#xFE0E;</span>`;
+ $("krow").innerHTML=sp("♛","pc l")+sp("♚","pc r");
+ $("prow").innerHTML=["♜","♞","♝"].map(g=>sp(g,"pc l")).join("")+["♝","♞","♜"].map(g=>sp(g,"pc r")).join("");
+ $("wrow").innerHTML=$("w2row").innerHTML=rg(PAWNS,()=>sp("♟","pw")).join("")}
+function outro(){outroing=true;busy=true;const tok=++outroTok;const ss=[...new Set(syms)],t0=900,gap=650;
+ ss.forEach((s,k)=>setTimeout(()=>syms.forEach((x,j)=>{if(x===s)els[j].classList.add("gone")}),t0+k*gap));
+ const tf=t0+ss.length*gap+900;
+ const at=(ms,f)=>setTimeout(()=>{if(outroing&&tok===outroTok)f()},tf+ms),F=$("fall");
+ const t1=3800,tB=t1+1700,tC=tB+900+1900,tD=tC+PAWNS*130+500,t3=tD+PAWNS*130+1700,t4=t3+5000;
+ at(0,()=>{$("fallc").style.display="none";$("fallt").innerHTML='<span>El Rey ha regresado</span><span style="display:block;margin-top:1.3em">La guerra ha acabado</span>';buildScene();F.classList.remove("slow");F.classList.add("on")});
+ at(t1,()=>$("krow").querySelectorAll("span").forEach(e=>e.classList.add("in")));
+ at(tB,()=>{const s=$("prow").querySelectorAll("span");[0,1,2].forEach(p=>setTimeout(()=>{s[p].classList.add("in");s[5-p].classList.add("in")},p*450))});
+ const pw=id=>()=>$(id).querySelectorAll("span").forEach((e,k)=>setTimeout(()=>e.classList.add("in"),k*130));
+ at(tC,pw("wrow"));at(tD,pw("w2row"));
+ at(t3,()=>F.classList.add("black"));
+ at(t3+2800,startEgg)}
+function endOutro(){if(!outroing)return;outroing=false;const F=$("fall");F.classList.remove("on","black");busy=false;showMap();
+ setTimeout(()=>{if(!F.classList.contains("on")){$("scene").querySelectorAll(".srow").forEach(e=>e.innerHTML="");$("fallt").textContent="El Rey ha caído";$("fallc").style.display=""}},1500)}
+const HG={on:false};
+function buildHang(){const W=innerWidth,H=innerHeight,N=7,sz=Math.round(Math.max(26,Math.min(38,W*.9/N-12))),sp=Math.max(sz+8,Math.min(54,W*.92/N)),
+ x0=(W-N*sp)/2,pl=Math.round(H*.36),by=Math.round(H*.14),yt=pl-sz-by;
+ const row=y=>`<div class="srow hr" style="top:${y}px">${rg(PAWNS,()=>'<span class="pw">♟&#xFE0E;</span>').join("")}</div>`;
+ $("hang").innerHTML=row(Math.round(H*.72))+row(Math.round(H*.82))
+  +`<div class="plat" style="left:${x0-sp*.5}px;width:${(N+1)*sp}px;top:${pl}px"></div>`
+  +`<div class="beam" style="left:${x0-sp*.5}px;width:${(N+1)*sp}px;top:${by}px"></div>`
+  +EGG_SH.map((s,k)=>`<div class="hg" style="top:${by}px;left:${x0+k*sp+(sp-sz)/2}px;width:${sz}px;transform:translateX(110vw);--d:${(2.2+Math.random()*1.4).toFixed(2)}s;--a:${(2.5+Math.random()*2).toFixed(1)}deg;--w:-${(Math.random()*3).toFixed(2)}s"><div class="rope"></div><div class="hc" style="top:${yt}px;width:${sz}px;height:${sz}px">${svg(s)}</div></div>`).join("");
+ return yt}
+function ocaso(){outroing=true;busy=true;const tok=++outroTok,F=$("fall"),B=$("hang"),en=[...new Set(syms)].filter(s=>typeof s==="number"&&s<7),t0=900,gap=650;
+ en.forEach((s,k)=>setTimeout(()=>syms.forEach((x,j)=>{if(x===s)els[j].classList.add("gone")}),t0+k*gap));
+ const tf=t0+en.length*gap+1400,at=(ms,f)=>setTimeout(()=>{if(outroing&&tok===outroTok)f()},tf+ms);let yt=0;
+ at(0,()=>{HG.on=true;$("fallc").style.display="none";$("fallt").textContent="";yt=buildHang();F.classList.add("hang","slow","on")});
+ at(2600,()=>B.querySelectorAll(".hr").forEach((rw,i)=>rw.querySelectorAll("span").forEach((e,k)=>setTimeout(()=>e.classList.add("in"),i*(PAWNS*130+300)+k*130))));
+ at(5200,()=>B.querySelector(".plat").classList.add("in"));
+ at(6900,()=>B.querySelectorAll(".hg").forEach((h,i)=>setTimeout(()=>{h.style.transition="transform 4.6s linear";h.style.transform="none"},i*700)));
+ at(16000,()=>{B.querySelector(".beam").classList.add("in");B.querySelectorAll(".rope").forEach((r,i)=>setTimeout(()=>{r.style.height=yt+"px"},1000+i*220))});
+ at(20300,()=>{B.querySelector(".plat").classList.add("gone");
+  B.querySelectorAll(".hg").forEach(h=>{const r=h.querySelector(".rope"),c=h.querySelector(".hc");r.style.transitionDuration=".18s";r.style.height=(yt+14)+"px";c.style.top=(yt+14)+"px";setTimeout(()=>h.classList.add("sw"),200)})});
+ at(23600,()=>F.classList.add("redbg","endf"));
+ at(27100,()=>$("eexit").classList.add("on"))}
+function endHang(){if(!HG.on)return;HG.on=false;outroing=false;$("eexit").classList.remove("on");$("fall").classList.remove("on");busy=false;showMap();
+ setTimeout(()=>{if(!$("fall").classList.contains("on"))resetFall()},2200)}
+const EGG_SH=[0,5,6,2,4,1,3],EGG_END=["JA JA","JA JA JA","Esta vez","no escaparás","¡LEALES A MÍ!","¡ATACAD!","¡QUEMAD EL REINO!","¡NO DEJÉIS NADA!"];
+const EG={on:false,lock:false,cur:0,cnt:0,tiles:[]};
+const eggSize=()=>Math.max(20,Math.min(28,(innerWidth-28-6*6)/7));
+function eggAdd(k){if(!EG.on)return;const sz=eggSize(),el=document.createElement("div");
+ el.className="et";el.style.width=el.style.height=sz+"px";el.style.left=(14+k*(sz+6))+"px";
+ el.innerHTML=svg(EGG_SH[k]);el.style.opacity=0;el.style.transform=k?"translateX(120vw)":"translateY(70px)";
+ el.onclick=ev=>{ev.stopPropagation();eggTap(k)};
+ $("egg").appendChild(el);EG.tiles[k]=el;el.getBoundingClientRect();el.style.opacity=1;el.style.transform="none"}
+function eggSay(k,txt){const sz=eggSize(),j=document.createElement("div");j.className="jt";j.textContent=txt;
+ j.style.fontSize=k==6?"1.5rem":"1.15rem";j.style.bottom=(16+sz+6)+"px";j.style.left="0px";$("egg").appendChild(j);
+ const w=j.offsetWidth,cx=14+k*(sz+6)+sz/2;j.style.left=Math.max(w/2+8,Math.min(innerWidth-w/2-8,cx))+"px";
+ setTimeout(()=>j.remove(),1600)}
+function eggReset(fromFirst){EG.tiles.forEach((el,k)=>{if(k>0&&el){el.style.transform="translateX(120vw)";el.style.opacity=0;setTimeout(()=>el.remove(),950)}});
+ EG.tiles.length=1;EG.cur=0;EG.cnt=0;if(fromFirst){EG.cnt=1;eggSay(0,"JA")}}
+function eggTap(k){if(!EG.on||EG.lock)return;
+ if(k!==EG.cur){eggReset(k===0);return}
+ EG.cnt++;const need=k+2;
+ if(k==6){eggSay(k,EGG_END[EG.cnt-1]);if(EG.cnt>=need)eggRed();return}
+ if(EG.cnt<need){eggSay(k,"JA");return}
+ eggSay(k,"JA JA");EG.cur=k+1;EG.cnt=0;setTimeout(()=>eggAdd(k+1),500)}
+function startEgg(){EG.on=true;EG.lock=false;EG.cur=0;EG.cnt=0;EG.tiles=[];$("egg").innerHTML="";eggAdd(0);
+ setTimeout(()=>{if(EG.on)$("eexit").classList.add("on")},1200)}
+function eggClean(){EG.on=false;EG.lock=false;$("egg").innerHTML="";$("eexit").classList.remove("on")}
+function resetFall(){const F=$("fall");F.classList.remove("black","chap","slow","hang","endf","redbg");$("hang").innerHTML="";$("red").classList.remove("on");
+ $("scene").querySelectorAll(".srow").forEach(e=>e.innerHTML="");$("fallt").textContent="El Rey ha caído";$("fallc").innerHTML="&#9818;&#xFE0E;";$("fallc").style.display=""}
+function eggRed(){EG.lock=true;$("eexit").classList.remove("on");
+ setTimeout(()=>$("red").classList.add("on"),1000);
+ setTimeout(()=>{eggClean();outroing=false;eggSeen=true;try{localStorage.setItem("iqegg","1")}catch(e){}
+  load(SECRET);$("fall").classList.remove("on");setTimeout(resetFall,1600)},3600)}
+$("eexit").onclick=e=>{e.stopPropagation();if(HG.on){endHang();return}if(!EG.on||EG.lock)return;eggClean();endOutro()};
+$("fall").onclick=()=>{if(!$("fall").classList.contains("on")||EG.on||HG.on)return;if(chaptering){endChap();return}if(intro)endIntro();else endOutro()};
+function ask(fn,msg){if(busy)return;if(moves<1||won){fn();return}
+ $("askt").textContent=msg;const A=$("ask");A.hidden=false;
+ $("asky").onclick=()=>{A.hidden=true;fn()};$("askn").onclick=()=>{A.hidden=true}}
+$("shuf").onclick=()=>ask(shuffle,"Si reorganizas las tropas, perderás el progreso de este tablero. ¿Continuar?");
+$("ex").onclick=()=>ask(()=>{if(busy)return;solved();moves=0;play=false;won=false;$("nx").hidden=true;refresh()},"Si ves el ejemplo, perderás el progreso de este tablero. ¿Continuar?");
+$("mp").onclick=()=>ask(()=>go(showMap),"Si vuelves al mapa, perderás el progreso de este tablero. ¿Continuar?");
+
+$("nx").onclick=()=>go(()=>cur+1<L.length?load(cur+1):showMap());
+$("conf").onchange=refresh;
+$("devi").onclick=()=>load(FINAL,true);
+$("devu").onclick=()=>{devAll=true;showMap()};
+board.addEventListener("click",e=>{const R=board.getBoundingClientRect(),c=Math.floor((e.clientX-R.left)/R.width*cols),r=Math.floor((e.clientY-R.top)/R.height*n),now=Date.now();
+ if(intro&&cols>n&&r==n-1&&c==n){dbgTaps=now-dbgT<1500?dbgTaps+1:1;dbgT=now;if(dbgTaps>=7){dbgTaps=0;dbg=true;if(!busy){intro=false;showMap()}}}else dbgTaps=0});
+$("devo").onclick=()=>{noShuf=true;load(FINAL);outro()};
+$("devc").onclick=()=>{noShuf=true;load(SECRET);ocaso()};
+$("un").onclick=()=>{if(busy||won||!hist.length)return;g=hist.pop();moves=Math.max(0,moves-1);refresh()};
+let first;try{first=location.hash=="#intro"||(!localStorage.getItem("iqintro")&&!dn.some(Boolean))}catch(e){first=!dn.some(Boolean)}
+first?load(FINAL,true):showMap();
 </script>
 </body>
 </html>
