@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>I.Q. Puzzle: El Rey a Caido v0.8</title>
+<title>I.Q. Puzzle: El Rey a Caido v0.81</title>
 <style>
 :root{color-scheme:light;--bg:#eceae4;--panel:#f7f6f2;--ink:#1c1c1c;--paper:#fff;--text:#222;--muted:#666;--accent:#2a6fdb;--bad:#d93025;--ok:#1e8e3e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#16171a;--panel:#26282d;--text:#e8e8e8;--muted:#9a9a9a;--accent:#6ea2f5}}
@@ -55,6 +55,8 @@ button:disabled{opacity:.45;cursor:default}
 #egg .et svg{width:100%;height:100%;display:block}
 #egg .jt{position:absolute;color:#fff;font-weight:700;white-space:nowrap;pointer-events:none;animation:jaup 1.5s ease-out forwards}
 @keyframes jaup{0%{opacity:0;transform:translate(-50%,8px)}12%{opacity:1}100%{opacity:0;transform:translate(-50%,-90px)}}
+#egg .jt.L{animation:jaupL var(--t) ease-out forwards}
+@keyframes jaupL{0%{opacity:0;transform:translate(-50%,8px)}10%{opacity:1}70%{opacity:1;transform:translate(-50%,-48px)}100%{opacity:0;transform:translate(-50%,-70px)}}
 #eexit{position:absolute;left:0;right:0;top:calc(50% + 4.6rem);text-align:center;color:#fff;opacity:0;font-size:.95rem;letter-spacing:.08em;cursor:pointer;padding:12px;transition:opacity 1.2s;pointer-events:none}
 #eexit.on{opacity:.6;pointer-events:auto}
 #red{position:absolute;inset:0;background:#7a0000;opacity:0;pointer-events:none;transition:opacity 2.4s}
@@ -359,16 +361,14 @@ function eggAdd(k){if(!EG.on)return;const sz=eggSize(),el=document.createElement
  el.innerHTML=svg(EGG_SH[k]);el.style.opacity=0;el.style.transform=k?"translateX(120vw)":"translateY(70px)";
  el.onclick=ev=>{ev.stopPropagation();eggTap(k)};
  $("egg").appendChild(el);EG.tiles[k]=el;el.getBoundingClientRect();el.style.opacity=1;el.style.transform="none"}
-function eggSay(k,txt){const sz=eggSize(),j=document.createElement("div");j.className="jt";j.textContent=txt;
+function eggSay(k,txt,ms){const sz=eggSize(),j=document.createElement("div"),long=k==6;ms=ms||(long?3400:1500);if(long)$("egg").querySelectorAll(".jt.L").forEach(o=>o.remove());j.className="jt"+(long?" L":"");j.style.setProperty("--t",ms+"ms");j.textContent=txt;
  j.style.fontSize=k==6?"1.5rem":"1.15rem";j.style.bottom=(16+sz+6)+"px";j.style.left="0px";$("egg").appendChild(j);
  const w=j.offsetWidth,cx=14+k*(sz+6)+sz/2;j.style.left=Math.max(w/2+8,Math.min(innerWidth-w/2-8,cx))+"px";
- setTimeout(()=>j.remove(),1600)}
-function eggReset(fromFirst){EG.tiles.forEach((el,k)=>{if(k>0&&el){el.style.transform="translateX(120vw)";el.style.opacity=0;setTimeout(()=>el.remove(),950)}});
- EG.tiles.length=1;EG.cur=0;EG.cnt=0;if(fromFirst){EG.cnt=1;eggSay(0,"JA")}}
+ setTimeout(()=>j.remove(),ms+100)}
 function eggTap(k){if(!EG.on||EG.lock)return;
- if(k!==EG.cur){eggReset(k===0);return}
+ if(k!==EG.cur){eggSay(k,"...");return}
  EG.cnt++;const need=k+2;
- if(k==6){eggSay(k,EGG_END[EG.cnt-1]);if(EG.cnt>=need)eggRed();return}
+ if(k==6){eggSay(k,EGG_END[EG.cnt-1],EG.cnt>=need?4800:0);if(EG.cnt>=need)eggRed();return}
  if(EG.cnt<need){eggSay(k,"JA");return}
  eggSay(k,"JA JA");EG.cur=k+1;EG.cnt=0;setTimeout(()=>eggAdd(k+1),500)}
 function startEgg(){EG.on=true;EG.lock=false;EG.cur=0;EG.cnt=0;EG.tiles=[];$("egg").innerHTML="";eggAdd(0);
@@ -377,9 +377,9 @@ function eggClean(){EG.on=false;EG.lock=false;$("egg").innerHTML="";$("eexit").c
 function resetFall(){const F=$("fall");F.classList.remove("black","chap","slow","hang","endf","redbg");$("hang").innerHTML="";$("red").classList.remove("on");
  $("scene").querySelectorAll(".srow").forEach(e=>e.innerHTML="");$("fallt").textContent="El Rey ha caído";$("fallc").innerHTML="&#9818;&#xFE0E;";$("fallc").style.display=""}
 function eggRed(){EG.lock=true;$("eexit").classList.remove("on");
- setTimeout(()=>$("red").classList.add("on"),1000);
+ setTimeout(()=>$("red").classList.add("on"),2800);
  setTimeout(()=>{eggClean();outroing=false;eggSeen=true;try{localStorage.setItem("iqegg","1")}catch(e){}
-  load(SECRET);$("fall").classList.remove("on");setTimeout(resetFall,1600)},3600)}
+  load(SECRET);$("fall").classList.remove("on");setTimeout(resetFall,1600)},6000)}
 $("eexit").onclick=e=>{e.stopPropagation();if(HG.on){endHang();return}if(!EG.on||EG.lock)return;eggClean();endOutro()};
 $("fall").onclick=()=>{if(!$("fall").classList.contains("on")||EG.on||HG.on)return;if(chaptering){endChap();return}if(intro)endIntro();else endOutro()};
 function ask(fn,msg){if(busy)return;if(moves<1||won){fn();return}
