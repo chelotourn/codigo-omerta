@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>I.Q. Puzzle: El Rey a Caido v0.82</title>
+<title>I.Q. Puzzle: El Rey a Caido v0.83</title>
 <style>
 :root{color-scheme:light;--bg:#eceae4;--panel:#f7f6f2;--ink:#1c1c1c;--paper:#fff;--text:#222;--muted:#666;--accent:#2a6fdb;--bad:#d93025;--ok:#1e8e3e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#16171a;--panel:#26282d;--text:#e8e8e8;--muted:#9a9a9a;--accent:#6ea2f5}}
@@ -22,6 +22,8 @@ h1{font-size:1.3rem;margin:4px 0 2px}
 .dg i.n{box-shadow:inset 0 0 0 2px var(--accent)}
 .dg i.o{background:transparent;box-shadow:none;border:2px dashed var(--muted)}
 .dg i.ar{color:#8c8c8c;font-weight:400;font-size:1.1em}
+.dg i.cA{background:#cfe0ff}
+.dg i.cY{background:#ffe08a}
 .dg i svg{width:78%;height:78%}
 .sq{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 8px;margin:6px 0}
 .sq b{font-style:normal;font-weight:400}
@@ -32,7 +34,7 @@ h1{font-size:1.3rem;margin:4px 0 2px}
 .card h2 b{font-size:1.7rem;font-weight:400;width:1.6rem;text-align:center}
 .card p{margin:2px 0 8px;font-size:.85rem;color:var(--muted)}
 .lv{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
-.lv button{padding:8px 10px;font-size:.9rem;line-height:1.25;text-align:center}
+.lv button{padding:8px 5px;font-size:.85rem;line-height:1.25;text-align:center}
 button,select{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--muted);background:var(--panel);color:var(--text);cursor:pointer}
 button.main{background:var(--accent);border-color:var(--accent);color:#fff}
 button.done{border-color:var(--ok)}
@@ -165,9 +167,9 @@ const sym=s=>typeof s==="number"?sh[s]:`<text x="50" y="72" text-anchor="middle"
 const svg=s=>`<svg viewBox="0 0 100 100">${sym(s)}</svg>`;
 const rg=(n,f)=>Array.from({length:n},(_,k)=>f(k));
 const P=(n,f)=>rg(n,r=>rg(n,c=>f(r,c)));
-const AB={A:3,B:0,C:5};
-const dg=rows=>`<span class="dg" style="grid-template-columns:repeat(${rows[0].length},1.5em)">`+rows.map(w=>(Array.isArray(w)?w:[...w]).map(ch=>ch=='x'?'<i></i>':ch=='o'?'<i class="o"></i>':ch=='v'?'<i class="ar">↓</i>':ch=='>'?'<i class="ar">→</i>':ch=='^'?'<i class="ar">↑</i>':ch=='<'?'<i class="ar">←</i>':AB[ch]!==undefined?'<i>'+svg(AB[ch])+'</i>':'<i class="n">'+ch+'</i>').join('')).join('')+'</span>';
-const seq=a=>'<span class="sq">'+a.map(r=>dg(r)).join('<b>→</b>')+'</span>';
+const AB={A:3,B:0,C:5,Y:3};
+const dg=(rows,col)=>`<span class="dg" style="grid-template-columns:repeat(${rows[0].length},1.5em)">`+rows.map(w=>(Array.isArray(w)?w:[...w]).map(ch=>ch=='x'?'<i></i>':ch=='o'?'<i class="o"></i>':ch=='v'?'<i class="ar">↓</i>':ch=='>'?'<i class="ar">→</i>':ch=='^'?'<i class="ar">↑</i>':ch=='<'?'<i class="ar">←</i>':AB[ch]!==undefined?'<i'+(col?' class="c'+ch+'"':'')+'>'+svg(AB[ch])+'</i>':'<i class="n">'+ch+'</i>').join('')).join('')+'</span>';
+const seq=(a,col)=>'<span class="sq">'+a.map(r=>dg(r,col)).join('<b>→</b>')+'</span>';
 const ROW1=[0,5,6,2,4,1,3];
 const RN=P(5,(r,c)=>[4,2,5,0,6][(c+2*r)%5]);
 const cyc=F=>P(4,(r,c)=>F[(r+c)%4]),TO2=cyc([6,5,2,0]),TO3=cyc([0,2,4,5]);
@@ -190,7 +192,7 @@ Z(0,"Preparando la cosecha","El mismo juego con tres formas: copia las dos prime
 Z(0,"El acantonamiento","Ordena del 1 al 9, fila a fila: primero la de arriba.",{n:3,base:B.pc,copy:1,extra:1,shuf:36,tip:"<b>Clave para el resto del juego</b><br>Para colocar el 2 y el 3: pon el 2 en el lugar del 3 y el 3 en el lugar del 9, dejando el hueco entre ambos. Sube entonces el 3 y desplaza los dos «en tren» hasta su lugar.<br>"+seq([["12x","xxx","xxx"],["1x2","xxo","xx3"]])+"<br>Para colocar el 4 y el 7: forma el 74 en la fila del 4 y desplázalo hasta su lugar.<br>"+seq([["123","xx4","xxx"],["123","7o4","xxx"]])+"<br>Las últimas fichas se ordenan girando tres de ellas alrededor del hueco.<br>Esto sirve en todos los tamaños para resolver la última fila y la última columna. Si te atascas, usa Retirada."});
 [["Vigilando al enemigo","full",40],["Misión de Exploración","row",60],["Conspiración revelada","close",80]].forEach(([t,ref,s],i)=>Z(1,t,i==0?"Copia el patrón: cada forma una sola vez por fila y por columna.":"Cada forma una sola vez por fila y por columna.",{n:4,base:[B.to,TO2,TO3][i],extra:1,copy:i==0?1:0,gen:i==0?1:0,show:ref=="row"?[[2,3]]:0,ref,shuf:s,tip:ref=="close"?"Tenemos que cortar el avance enemigo por las diagonales.":ref=="row"?"Adéntrate en las tierras del reino y vigila los movimientos del enemigo, utiliza la «Vigilancia» de la torre para detectar conflictos (vertical y horizontal), amarillo para uno y naranja para ambos. Puede que descubras nuevos peligros más adelante.":""}));
 Z(2,"Cambio de táctica","Ordena del 1 al 16, fila a fila. Es el mismo método del peón, ahora en 4×4.",{n:4,base:P(4,(r,c)=>String(4*r+c+1)),copy:1,extra:1,shuf:80,tip:"Para resolver casos con más casillas, simplemente resuelve la primera fila y la primera columna, igual que en el 3×3. Una vez hecho, lo que queda es un puzle de un nivel menos: repite hasta que solo quede un 3×3.<br>"+dg([['1','2','3','4'],['5','x','x','x'],['9','x','x','x'],['13','x','x','x']])});
-[["Detectando impostores","full",40],["La reina en peligro","row",60]].forEach(([t,ref,s],i)=>Z(2,t,"Filas, columnas y las dos diagonales principales.",{n:4,base:B.al,diag:1,extra:1,alt:ref=="row"?ALT.al:0,show:ref=="row"?[[3,3],[2,1]]:0,ref,shuf:s,tip:i?"Con el rey capturado, los conspiradores vienen a por la reina: espías y asesinos. ¡Deténlos!":"Cuidado con los Impostores: si solo te faltan unas pocas fichas y no hay forma de encajarlas, cambia una forma ya colocada por otra igual que aún no hayas colocado. El puzle quedará igual, pero ahora ya deberías poder resolverlo sin problemas.<br>"+seq([["xxxx","xxBA","xxxx","xxAo"],["xxxx","xxBA","xxxo","xxxA"],["xxxx","xxxB","xxAo","xxxA"],["xxxx","xxxB","xxAA","xxxo"],["xxxx","xxBA","xxxx","xxAx"]])+"<br>Cada paso son varios movimientos, y algunos exigen mover fichas blancas aún sin colocar.<br>Los impostores aparentan ser leales pero no lo son. Cuando algo no encaja, sospecha de un doble."}));
+[["Detectando impostores","full",40],["La reina en peligro","row",60]].forEach(([t,ref,s],i)=>Z(2,t,"Filas, columnas y las dos diagonales principales.",{n:4,base:B.al,diag:1,extra:1,alt:ref=="row"?ALT.al:0,show:ref=="row"?[[3,3],[2,1]]:0,ref,shuf:s,tip:i?"Con el rey capturado, los conspiradores vienen a por la reina: espías y asesinos. ¡Deténlos!":"Cuidado con los Impostores: si solo te faltan unas pocas fichas y no hay forma de encajarlas, cambia una forma ya colocada por otra igual que aún no hayas colocado. El puzle quedará igual, pero ahora ya deberías poder resolverlo sin problemas.<br>"+seq([["xxxx","xxBY","xxxx","xxAo"],["xxxx","xxBY","xxxo","xxxA"],["xxxx","xxxB","xxYo","xxxA"],["xxxx","xxxB","xxYA","xxxo"],["xxxx","xxBA","xxxx","xxYx"]],1)+"<br>Cada paso son varios movimientos, y algunos exigen mover fichas blancas aún sin colocar.<br>Los impostores aparentan ser leales pero no lo son. Cuando algo no encaja, sospecha de un doble."}));
 [["La corte real","full",80],["El Palacio de la Reina","row",120],["Los Caballeros Liberados","row",160]].forEach(([t,ref,s],i)=>Z(3,t,i==0?"Copia el patrón: filas, columnas y diagonales, ahora en 5×5.":"Filas, columnas y diagonales, ahora en 5×5.",{n:5,base:ref=="full"?RN:B.re,diag:1,extra:1,copy:i==0?1:0,gen:i==0?1:0,alt:ref=="row"?RN:0,show:i==1?[[2,0],[2,1],[2,2],[2,3],[2,4],[4,0],[4,1],[4,2],[4,3],[4,4]]:0,tip:i==0?"Con la conspiración desenmascarada, la reina rehace su corte.":i==1?"Desde su palacio, la reina aguarda el regreso del rey. Los sabios del reino han estudiado al enemigo y le revelan un interesante patrón.":i==2?"La reina en un intento desesperado alista a los más valientes caballeros del rey para que monten en sus corceles y acudan en su rescate: cada forma está a un salto de caballo de la anterior. Al salirte del tablero, sigue por el lado opuesto.<br>"+seq([['Axxxx','vxxxx','>Axxx','xvxxx','x>Axx'],['Axxxx','xxxAx','xAxxx','xxxxA','xxAxx']])+"<br>Con la primera fila puesta, el resto del tablero sale de repetir ese salto con cada forma.":"",ref,shuf:s}));
 [["Revelando el camino",120],["Marcha hacia el reino",160],["Emboscada",0]].forEach(([t,s],i)=>Z(4,t,"Filas, columnas y diagonales. Sin modelo de referencia.",{n:5,base:RN,diag:1,extra:1,shuf:s,perm:1,ord:i==2?1:0,tip:i==1?"Un caballo, mi reino por un caballo":i==2?"Algo no va bien, parece una trampa, avancemos con cuidado":"El rey permanece solitario, atrapado en la casilla inferior derecha; solo sus caballeros podrían liberarlo si recorren el camino correcto.<br>"+seq([['xxxxx','xxxxx','xxxxx','xxx^x','xxx<C'],['xxxxx','xxxxx','xxxCx','xxx^x','xxx<C'],['xxCxx','xx^xx','xx<Cx','xxx^x','xxx<C'],['x<Cxx','Cx^xx','^x<Cx','<Cx^x','x^x<C']])+"<br>Cada paso sube dos filas y retrocede una columna; al salir del tablero, sigue por el lado opuesto.<br>Una vez liberado, el rey crea su propio camino: usa la voluntad del rey para crear tu primera fila inicial y el fiel consejo de la reina para revelar el resto del tablero."}));
 Z(5,"","La batalla final: cada forma debe estar una sola vez por fila, columna y en cada diagonal, en todas y cada una de ellas, no solo en las centrales… Sí, en todas. Buena suerte, general: el reino cuenta con usted.",{n:7,base:B.fi,diag:1,alld:1,extra:1,perm:1,ex:1,shuf:240,tip:"El rey, ahora liberado, cabalga junto a sus caballeros a la guerra final. La reina lo aguarda en la fila inicial y el resto de su ejército espera sus órdenes. La batalla final ha llegado."});
